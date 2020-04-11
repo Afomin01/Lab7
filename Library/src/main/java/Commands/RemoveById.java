@@ -8,8 +8,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RemoveById implements ICommand {
-    public RemoveById(long id) {
+    private String user;
+
+    public RemoveById(long id, String user) {
         this.id = id;
+        this.user=user;
     }
 
     private long id;
@@ -23,9 +26,12 @@ public class RemoveById implements ICommand {
     public ServerResponse execute(Set<Route> set) {
         ServerResponse serverResponse = new ServerResponse();
         Stream<Route> stream = set.stream();
-        if(set.removeAll(stream.filter(r -> r.getId()==id).collect(Collectors.toSet()))) serverResponse.setText("Элемент с id "+id+" был успешно удален из коллекции");
-        else if(set.stream().noneMatch(r -> r.getId() == id)) serverResponse.setText("Элемента с id "+id+" в коллекции не найдено");
-        else serverResponse.setText("Коллекция не была изменена");
+
+        if(set.stream().anyMatch(r -> r.getId()==id)){
+            if(set.removeIf(r -> (r.getId()==id && r.getOwner().equals(user)))) serverResponse.setText("Элемент с id "+id+" был успешно удален из коллекции");
+            else serverResponse.setText("Элемент не был удален так как у Вас нет прав на его модификацию");
+        }else serverResponse.setText("Элемента с id "+id+" в коллекции не найдено");
+
         return serverResponse;
     }
 }

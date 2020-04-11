@@ -6,6 +6,11 @@ import Storable.Route;
 import java.util.Set;
 
 public class History implements ICommand {
+    private String user;
+
+    public History(String user) {
+        this.user = user;
+    }
 
     @Override
     public EAvailableCommands getCommandEnum() {
@@ -14,7 +19,6 @@ public class History implements ICommand {
 
     @Override
     public ServerResponse execute(Set<Route> set) {
-        ServerResponse serverResponse = new ServerResponse();
-        return serverResponse;
+        return new ServerResponse();
     }
 }

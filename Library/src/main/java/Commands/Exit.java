@@ -6,6 +6,11 @@ import Storable.Route;
 import java.util.Set;
 
 public class Exit implements ICommand {
+    private String user;
+
+    public Exit(String user) {
+        this.user = user;
+    }
 
     @Override
     public EAvailableCommands getCommandEnum() {
@@ -14,7 +19,6 @@ public class Exit implements ICommand {
 
     @Override
     public ServerResponse execute(Set<Route> set) {
-        ServerResponse serverResponse = new ServerResponse("Завершение работы. Изменения не сохранены.", true);
-        return serverResponse;
+        return new ServerResponse("Завершение работы. Изменения не сохранены.", true);
     }
 }

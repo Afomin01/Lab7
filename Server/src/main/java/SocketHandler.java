@@ -62,10 +62,10 @@ public class SocketHandler implements Runnable {
                     clientRequest = (ClientRequest) inputStream.readObject();
                     command = clientRequest.getCommand();
                     if (command.getClass() == LogIn.class) {
-                        ResultSet resultSet = Main.getStatement().executeQuery("select * from users where username=\'"+clientRequest.getLogin()+"\'");
+                        ResultSet resultSet = Main.getStatement().executeQuery("select * from users where username='"+clientRequest.getLogin()+"'");
                         if(resultSet.next()){
                             String passwordHash = resultSet.getString(2);
-                            ResultSet saltSet = Main.getStatement().executeQuery("select * from users where username=\'"+clientRequest.getLogin()+"\'");
+                            ResultSet saltSet = Main.getStatement().executeQuery("select * from users where username='"+clientRequest.getLogin()+"'");
                             saltSet.next();
                             String salt= saltSet.getString(3);
                             resp = new ServerResponse(salt);
@@ -132,7 +132,7 @@ public class SocketHandler implements Runnable {
                     command = clientRequest.getCommand();
                     if (command.getCommandEnum() == EAvailableCommands.Save) {
                         Save save = (Save) command;
-                        save.setFileName(Main.getFile());
+                        save.setFileName(Main.getFile(),login);
                         response = save.execute(set);
                         Main.log.fine("Command executed: " + command.getCommandEnum().toString()+" client "+login);
                     } else if (command.getCommandEnum() == EAvailableCommands.Execute_Script) {

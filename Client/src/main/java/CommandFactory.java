@@ -10,8 +10,10 @@ import java.io.Console;
 import java.io.IOException;
 
 public class CommandFactory {
-    public ICommand getCommand(String[] type, Console reader){
+    private String username;
+    public ICommand getCommand(String[] type, Console reader, String user){
         ICommand returning = null;
+        username=user;
         try {
             switch (type[0]) {
                 case "":
@@ -31,7 +33,7 @@ public class CommandFactory {
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Add_If_Max);
                     break;
                 case "clear":
-                    if (type.length == 1) returning = new Clear();
+                    if (type.length == 1) returning = new Clear(user);
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Clear);
                     break;
                 case "count_greater_than_distance":
@@ -45,15 +47,15 @@ public class CommandFactory {
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Count_Greater_Than_Distance);
                     break;
                 case "history":
-                    if (type.length == 1) returning = new History();
+                    if (type.length == 1) returning = new History(user);
                     else throw new WrongCommandArgumentsException(EAvailableCommands.History);
                     break;
                 case "execute_script":
-                    if (type.length == 2) returning = new ExecuteScript(type[1]);
+                    if (type.length == 2) returning = new ExecuteScript(type[1],user);
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Execute_Script);
                     break;
                 case "exit":
-                    if (type.length == 1) returning = new Exit();
+                    if (type.length == 1) returning = new Exit(user);
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Exit);
                     break;
                 case "help":
@@ -71,7 +73,7 @@ public class CommandFactory {
                 case "remove_all_by_distance":
                     if (type.length == 2) {
                         try {
-                            returning = new RemoveAllByDistance(Double.parseDouble(type[1]));
+                            returning = new RemoveAllByDistance(Double.parseDouble(type[1]),user);
                         }catch (NumberFormatException e){
                             System.out.println("Некорректный ввод числового значения. Необходим double");
                         }
@@ -81,7 +83,7 @@ public class CommandFactory {
                 case "remove_greater":
                     if (type.length == 1){
                         Route adding = elementCreator(reader);
-                        if (adding != null) returning = new RemoveGreater(adding);
+                        if (adding != null) returning = new RemoveGreater(adding,user);
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Remove_Greater);
                     break;
@@ -96,7 +98,7 @@ public class CommandFactory {
                 case "remove_by_id":
                     if (type.length == 2){
                         try {
-                            returning = new RemoveById(Long.parseLong(type[1]));
+                            returning = new RemoveById(Long.parseLong(type[1]),user);
                         }catch (NumberFormatException e){
                             System.out.println("Некорректный ввод числового значения. Необходим int");
                         }
@@ -107,7 +109,7 @@ public class CommandFactory {
                     if (type.length == 2){
                         try {
                             Route adding = elementCreator(reader);
-                            if (adding != null) returning = new UpdateId(Long.parseLong(type[1]), adding);
+                            if (adding != null) returning = new UpdateId(Long.parseLong(type[1]), adding,user);
                         }catch (NumberFormatException e){
                             System.out.println("Некорректный ввод числового значения. Необходим long");
                         }
@@ -127,7 +129,7 @@ public class CommandFactory {
 
     private Route elementCreator(Console reader){
         try {
-            Route adding = new Route();
+            Route adding = new Route(username);
             Coordinates coord = new Coordinates();
             Location Lfrom = new Location();
             Location Lto = new Location();

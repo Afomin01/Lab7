@@ -8,7 +8,7 @@ import java.util.Date;
  * класс объекта коллекции, хранящий данные о маршруте
  */
 public class Route implements Comparable<Route>, Serializable {
-    public Route(){};
+    public Route(){}
     public Route(long id, String name, Coordinates coordinates, Date creationDate, Location from, Location to, double distance, String owner) {
         this.id = id;
         this.name = name;
@@ -18,6 +18,9 @@ public class Route implements Comparable<Route>, Serializable {
         this.to = to;
         this.distance = distance;
         this.owner = owner;
+    }
+    public Route(String owner){
+        this.owner=owner;
     }
 
     /** Поле для хранения уникального идентификатора объекта. Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически */

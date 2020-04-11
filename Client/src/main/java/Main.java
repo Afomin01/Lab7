@@ -13,7 +13,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class Main {
-    //private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     private static Console reader = System.console();
     static boolean foo = false;
     static String login="", password="";
@@ -64,33 +63,38 @@ public class Main {
                     }else outputInfo(sr.getText());
                 }
                 if(temp.equals("sign_up")){
-                    toServerStream.writeObject(new ClientRequest(new SignUp(),login,""));
-                    sr = (ServerResponse) fromServerStream.readObject();
-                    if(sr.isAccess()){
-
-                        outputInfo("Ведите e-mail:");
-                        String email= String.valueOf(reader.readPassword());
-
-                        password=password+sr.getText();
-                        messageDigest.reset();
-                        messageDigest.update(password.getBytes());
-                        password = DatatypeConverter.printHexBinary(messageDigest.digest());
-                        toServerStream.writeObject(new ClientRequest(new SignUp(),login,password));
+                    outputInfo("Повторите пароль:");
+                    String temppsw= String.valueOf(reader.readPassword());
+                    if(temppsw.equals(password)) {
+                        toServerStream.writeObject(new ClientRequest(new SignUp(), login, ""));
                         sr = (ServerResponse) fromServerStream.readObject();
-                        if(sr.isAccess()){
-                            outputInfo(sr.getText());
-                            break;
-                        }
-                        else outputInfo(sr.getText());
-                    }else outputInfo(sr.getText());
+                        if (sr.isAccess()) {
 
+                            outputInfo("Ведите e-mail:");
+                            String email = String.valueOf(reader.readLine());
+
+                            password = password + sr.getText();
+                            messageDigest.reset();
+                            messageDigest.update(password.getBytes());
+                            password = DatatypeConverter.printHexBinary(messageDigest.digest());
+                            toServerStream.writeObject(new ClientRequest(new SignUp(), login, password));
+                            sr = (ServerResponse) fromServerStream.readObject();
+                            if (sr.isAccess()) {
+                                outputInfo(sr.getText());
+                                break;
+                            } else outputInfo(sr.getText());
+                        } else outputInfo(sr.getText());
+                    }else{
+                        outputInfo("Пароли не совпадают.");
+                    }
                 }
             }
+
             while (true) {
                 try {
                     currentCommand = reader.readLine();
                     if (currentCommand == null) throw new EOFCommandGetException();
-                    ICommand command = commandFactory.getCommand(currentCommand.trim().split(" "), reader);
+                    ICommand command = commandFactory.getCommand(currentCommand.trim().split(" "), reader, login);
                     if (command != null) {
                         toServerStream.writeObject(new ClientRequest(command,login,password));
                         ServerResponse response = (ServerResponse) fromServerStream.readObject();
@@ -113,7 +117,6 @@ public class Main {
                             toServerStream = new ObjectOutputStream(chan.getOutputStream());
                             toServerStream.flush();
 
-                            //reader = new BufferedReader(new InputStreamReader(System.in));
                             reader = System.console();
                             sr = (ServerResponse) fromServerStream.readObject();
                             outputInfo(sr.getText());

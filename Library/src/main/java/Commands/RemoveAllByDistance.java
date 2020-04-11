@@ -8,10 +8,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RemoveAllByDistance implements ICommand {
-
     private double distance;
-    public RemoveAllByDistance(double distance) {
+    private String user;
+
+    public RemoveAllByDistance(double distance, String user) {
         this.distance = distance;
+        this.user=user;
     }
 
     @Override
@@ -23,8 +25,7 @@ public class RemoveAllByDistance implements ICommand {
     public ServerResponse execute(Set<Route> set) {
         ServerResponse serverResponse = new ServerResponse();
         Stream<Route> stream = set.stream();
-        if (set.removeAll(stream.filter(r -> r.getDistance()==distance).collect(Collectors.toSet()))) serverResponse.setText("Удалены все элементы значение поля distance которых "+distance);
-        else if (set.stream().noneMatch(r -> r.getDistance() == distance)) serverResponse.setText("Коллекция не изменилась так как в ней не обнаружено элементов со значением поля distance "+distance);
+        if (set.removeAll(stream.filter(r -> (r.getDistance()==distance && r.getOwner().equals(user))).collect(Collectors.toSet()))) serverResponse.setText("Удалены все элементы значение поля distance которых "+distance);
         else serverResponse.setText("Коллекция не была изменена");
         return serverResponse;
     }

@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class CountGreaterThanDistance implements ICommand {
+
     public CountGreaterThanDistance(double distance) {
         this.distance = distance;
     }

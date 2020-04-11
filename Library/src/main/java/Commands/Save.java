@@ -9,9 +9,11 @@ import java.util.Set;
 
 public class Save implements ICommand {
     private String fileName;
+    private String user;
 
-    public void setFileName(String fileName) {
+    public void setFileName(String fileName, String user) {
         this.fileName = fileName;
+        this.user = user;
     }
 
     @Override
@@ -34,3 +36,8 @@ public class Save implements ICommand {
         return serverResponse;
     }
 }
+
+//TODO rework save
+//TODO change so that user can save only his elements
+
+

@@ -8,10 +8,12 @@ import java.util.Set;
 
 public class UpdateId implements ICommand {
     private Route elementToAdd;
+    private String user;
 
-    public UpdateId(long id, Route elementToAdd){
+    public UpdateId(long id, Route elementToAdd, String user){
         this.elementToAdd = elementToAdd;
         elementToAdd.setId(id);
+        this.user=user;
     }
 
     @Override
@@ -26,11 +28,13 @@ public class UpdateId implements ICommand {
         ServerResponse serverResponse = new ServerResponse();
 
         if(set.stream().anyMatch(r -> r.getId() == elementToAdd.getId())){
-            set.removeIf(r->r.getId()==elementToAdd.getId());
-            set.add(elementToAdd);
-            serverResponse.setText("Значения полей указанного элемента успешно обновлены");
+            if (set.removeIf(r->(r.getId()==elementToAdd.getId() && r.getOwner().equals(user)))){
+                set.add(elementToAdd);
+                serverResponse.setText("Значения полей указанного элемента успешно обновлены.");
+            }
+            else serverResponse.setText("Значения полей не были обновлены так как у Вас нет прав на его модификацию");
         }
-        else serverResponse.setText("Элемента с таким id в коллекции не обнаружено. Коллекция не изменилась");
+        else serverResponse.setText("В коллекции не найдено объекта с таким id.");
 
         return serverResponse;
     }
