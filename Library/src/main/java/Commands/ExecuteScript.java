@@ -142,7 +142,6 @@ public class ExecuteScript implements ICommand {
                         case "info":
                             if (SplitCommand.length == 1){
                                 Info info = new Info();
-                                info.setFileName(CollectionFile);
                                 commandToExecute = info;
                                 serverResponse.addText(commandToExecute.execute(set).getText());
                             }

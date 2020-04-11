@@ -7,6 +7,13 @@ import java.io.Serializable;
  */
 
 public class Location implements Serializable {
+    public Location(){};
+    public Location(Integer x, Long y, String name) {
+        this.x = x;
+        this.y = y;
+        this.name = name;
+    }
+
     /** Поле для хранения координаты х. Поле не может быть null */
     private Integer x;
     /** Поле для хранения координаты у. Поле не может быть null */
@@ -14,50 +21,22 @@ public class Location implements Serializable {
     /** Поле для хранения названия точки. Поле не может быть null */
     private String name;
 
-    /**
-     * Функция получения значения поля {@link Location#x}
-     * @return координату х
-     */
+
     public Integer getX(){
         return x;
     }
-
-    /**
-     * Функция получения значения поля {@link Location#y}
-     * @return координату y
-     */
     public Long getY(){
         return y;
     }
-
-    /**
-     * Функция получения значения поля {@link Location#name}
-     * @return название точки
-     */
     public String getName(){
         return name;
     }
-
-    /**
-     * * Метод для присваивания значения полю {@link Location#y}
-     * @param X значение для координаты x
-     */
     public void setX(Integer X){
         x = X;
     }
-
-    /**
-     * * Метод для присваивания значения полю {@link Location#x}
-     * @param Y значение для координаты у
-     */
     public void setY(Long Y){
         y = Y;
     }
-
-    /**
-     * * Метод для присваивания значения полю {@link Location#name}
-     * @param Name название точки
-     */
     public void setName(String Name){
         name = Name;
     }

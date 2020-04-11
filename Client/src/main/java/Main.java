@@ -5,8 +5,12 @@ import Exceptions.EOFCommandGetException;
 import Instruments.ClientRequest;
 import Instruments.ServerResponse;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
+import java.math.BigInteger;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class Main {
     //private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -36,16 +40,20 @@ public class Main {
                 temp = reader.readLine();
                 if(temp.equals("log_in")||temp.equals("sign_up")) break;
             }
+            MessageDigest messageDigest = MessageDigest.getInstance("MD2");
             while (true){
                 outputInfo("Ведите логин:");
                 login=reader.readLine();
+                outputInfo("Ведите пароль:");
+                password= String.valueOf(reader.readPassword());
                 if(temp.equals("log_in")){
-                    outputInfo("Ведите пароль:");
-                    password= String.valueOf(reader.readPassword());
                     toServerStream.writeObject(new ClientRequest(new LogIn(),login,""));
                     sr = (ServerResponse) fromServerStream.readObject();
                     if(sr.isAccess()){
                         password=password+sr.getText();
+                        messageDigest.reset();
+                        messageDigest.update(password.getBytes());
+                        password = DatatypeConverter.printHexBinary(messageDigest.digest());
                         toServerStream.writeObject(new ClientRequest(new LogIn(),login,password));
                         sr = (ServerResponse) fromServerStream.readObject();
                         if(sr.isAccess()){
@@ -53,19 +61,20 @@ public class Main {
                             break;
                         }
                         else outputInfo(sr.getText());
-                    }
+                    }else outputInfo(sr.getText());
                 }
                 if(temp.equals("sign_up")){
                     toServerStream.writeObject(new ClientRequest(new SignUp(),login,""));
                     sr = (ServerResponse) fromServerStream.readObject();
                     if(sr.isAccess()){
-                        outputInfo("Ведите пароль:");
-                        password= String.valueOf(reader.readPassword());
 
                         outputInfo("Ведите e-mail:");
                         String email= String.valueOf(reader.readPassword());
 
                         password=password+sr.getText();
+                        messageDigest.reset();
+                        messageDigest.update(password.getBytes());
+                        password = DatatypeConverter.printHexBinary(messageDigest.digest());
                         toServerStream.writeObject(new ClientRequest(new SignUp(),login,password));
                         sr = (ServerResponse) fromServerStream.readObject();
                         if(sr.isAccess()){
@@ -73,10 +82,8 @@ public class Main {
                             break;
                         }
                         else outputInfo(sr.getText());
-                    }
-                    else{
-                        outputInfo(sr.getText());
-                    }
+                    }else outputInfo(sr.getText());
+
                 }
             }
             while (true) {
@@ -126,7 +133,7 @@ public class Main {
                 }
             }
 
-        } catch (IOException | ClassNotFoundException | InterruptedException e) {
+        } catch (IOException | ClassNotFoundException | InterruptedException | NoSuchAlgorithmException e) {
             outputInfo("Ошибка подключения. Завершение работы...");
             e.printStackTrace();
             System.exit(1);

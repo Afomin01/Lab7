@@ -7,14 +7,18 @@ import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Random;
+import java.util.Set;
 import java.util.logging.Handler;
 
 public class SocketHandler implements Runnable {
@@ -22,11 +26,11 @@ public class SocketHandler implements Runnable {
     private SocketChannel client;
     private ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
-    private LinkedHashSet<Route> set;
+    private Set<Route> set;
     private ArrayList<String> history = new ArrayList<>();
     private String login="";
 
-    SocketHandler(SocketChannel client, LinkedHashSet<Route> route) throws SocketHandlerException {
+    SocketHandler(SocketChannel client, Set<Route> route) throws SocketHandlerException {
         this.client = client;
         set = route;
         try {
@@ -58,19 +62,28 @@ public class SocketHandler implements Runnable {
                     clientRequest = (ClientRequest) inputStream.readObject();
                     command = clientRequest.getCommand();
                     if (command.getClass() == LogIn.class) {
-                        String salt="";/////////////////
-                        resp = new ServerResponse(salt);
-                        outputStream.writeObject(resp);
-                        clientRequest = (ClientRequest) inputStream.readObject();
-                        //////////////////////////clientRequest.getPassword();
-
-                        if(true){//login exists and password correct
-                            resp = new ServerResponse("Авторизация успешна");
+                        ResultSet resultSet = Main.getStatement().executeQuery("select * from users where username=\'"+clientRequest.getLogin()+"\'");
+                        if(resultSet.next()){
+                            String passwordHash = resultSet.getString(2);
+                            ResultSet saltSet = Main.getStatement().executeQuery("select * from users where username=\'"+clientRequest.getLogin()+"\'");
+                            saltSet.next();
+                            String salt= saltSet.getString(3);
+                            resp = new ServerResponse(salt);
                             outputStream.writeObject(resp);
+                            clientRequest = (ClientRequest) inputStream.readObject();
+                            if(passwordHash.equals(clientRequest.getPassword())) {
+                                resp = new ServerResponse("Авторизация успешна");
+                                outputStream.writeObject(resp);
 
-                            login = clientRequest.getLogin();
-                            Main.log.info("Client with login "+login+" authorised successfully");
-                            break;
+                                login = clientRequest.getLogin();
+                                Main.log.info("Client with login " + login + " authorised successfully");
+                                break;
+                            }
+                            else {
+                                resp = new ServerResponse("Неверный логин/пароль, попробуйте снова");
+                                resp.setAccess(false);
+                                outputStream.writeObject(resp);
+                            }
                         }
                         else {
                             resp = new ServerResponse("Неверный логин/пароль, попробуйте снова");
@@ -79,8 +92,9 @@ public class SocketHandler implements Runnable {
                         }
                     }
                     if (command.getClass() == SignUp.class) {
-                        if(true){//login !exists
-                            byte[] array = new byte[15]; // length is bounded by 7
+                        ResultSet resultSet = Main.getStatement().executeQuery("select * from users where username='" +clientRequest.getLogin()+ "'");
+                        if(!resultSet.next()){
+                            byte[] array = new byte[9];
                             new Random().nextBytes(array);
                             String salt = new String(array, StandardCharsets.UTF_8);
 
@@ -88,14 +102,23 @@ public class SocketHandler implements Runnable {
 
                             outputStream.writeObject(resp);
                             clientRequest = (ClientRequest) inputStream.readObject();
-                            //////////////clientRequest.getPassword();
 
-                            resp = new ServerResponse("Регистрация и авторизация успешна");
-                            outputStream.writeObject(resp);
+                            try {
+                                String sql = "insert into users values ('" + clientRequest.getLogin() + "' , '" + clientRequest.getPassword() + "' , '" + salt + "' )";
+                                Main.getStatement().execute(sql);
 
-                            login = clientRequest.getLogin();
-                            Main.log.info("Client with login "+login+" registered and authorised successfully");
-                            break;
+                                resp = new ServerResponse("Регистрация и авторизация успешна");
+                                outputStream.writeObject(resp);
+
+                                login = clientRequest.getLogin();
+                                Main.log.info("Client with login " + login + " registered and authorised successfully");
+                                break;
+                            }catch (SQLException e){
+                                e.printStackTrace();
+                                resp = new ServerResponse("Ошибка регистрации, попробуйте еще раз.");
+                                resp.setAccess(false);
+                                outputStream.writeObject(resp);
+                            }
                         }
                         else {
                             resp = new ServerResponse("Пользователь с данным login уже существует. Введите другой.");
@@ -119,7 +142,6 @@ public class SocketHandler implements Runnable {
                         Main.log.fine("Command executed: " + command.getCommandEnum().toString()+" client "+login);
                     } else if (command.getCommandEnum() == EAvailableCommands.Info) {
                         Info info = (Info) command;
-                        info.setFileName(Main.getFile());
                         response = info.execute(set);
                         Main.log.fine("Command executed: " + command.getCommandEnum().toString()+" client "+login);
                     } else {
@@ -146,8 +168,16 @@ public class SocketHandler implements Runnable {
             } catch (ClassNotFoundException e) {
                 Main.log.severe("Class not found client "+login);
                 throw new SocketHandlerException();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                Main.log.severe("SQL error for client "+login);
+                throw new SocketHandlerException();
             }
         } catch (SocketHandlerException e) {
+            try {
+                outputStream.writeObject(new ServerResponse("Критическая ошибка на стороне сервера", true));
+            } catch (IOException ignored) {
+            }
             Main.log.info(e.getMessage()+" for client "+ login);
         }
     }
