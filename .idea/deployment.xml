@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="hellios" autoUploadExternalChanges="true">
+    <serverData>
+      <paths name="hellios">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/s284718/prog/Lab7" local="$PROJECT_DIR$/Server/build/libs" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>
