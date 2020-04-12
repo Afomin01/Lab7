@@ -87,10 +87,10 @@ public class CommandFactory {
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Remove_Greater);
                     break;
-                case "save":
+/*                case "save":
                     if (type.length == 1) returning = new Save();
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Save);
-                    break;
+                    break;*/
                 case "show":
                     if (type.length == 1) returning = new Show();
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Show);

@@ -1,11 +1,10 @@
 package Commands;
 
+import Instruments.ICollectionManager;
 import Instruments.ServerResponse;
 import Storable.Route;
 
 import java.util.Date;
-import java.util.Set;
-import java.util.UUID;
 
 public class AddIfMax implements ICommand {
 
@@ -21,14 +20,13 @@ public class AddIfMax implements ICommand {
     }
 
     @Override
-    public ServerResponse execute(Set<Route> set) {
+    public ServerResponse execute(ICollectionManager<Route> manager) {
 
-        elementToAdd.setId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
         elementToAdd.setCreationDate(new Date());
 
         ServerResponse serverResponse = new ServerResponse();
-        if(elementToAdd.compareTo(set.stream().max(Route::compareTo).get()) > 0){
-            set.add(elementToAdd);
+        if(elementToAdd.compareTo(manager.stream().max(Route::compareTo).get()) > 0){
+            manager.add(elementToAdd);
             serverResponse.setText("Элемент был успешно добавлен в коллекцию");
         }
         else serverResponse.setText("Элемент не был добавлен в коллекцию");

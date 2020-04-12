@@ -1,9 +1,8 @@
 package Commands;
-
-import Instruments.ServerResponse;
+import Instruments.ICollectionManager;
 import Storable.Route;
+import Instruments.ServerResponse;
 
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class PrintUniqueDistance implements ICommand {
@@ -14,10 +13,10 @@ public class PrintUniqueDistance implements ICommand {
     }
 
     @Override
-    public ServerResponse execute(Set<Route> set) {
+    public ServerResponse execute(ICollectionManager<Route> manager) {
         ServerResponse serverResponse = new ServerResponse();
         String text = "";
-        for(Route r: set.stream().filter(r->set.stream().filter(c->c.getDistance()==r.getDistance()).count()==1).collect(Collectors.toSet())){
+        for(Route r: manager.stream().filter(r-> manager.stream().filter(c->c.getDistance()==r.getDistance()).count()==1).collect(Collectors.toSet())){
             text = text + r.getDistance() + "\n";
         }
         if (text.equals(""))serverResponse.setText("Уникальных значений поля distance в коллекции не обнаружено");

@@ -1,9 +1,9 @@
 package Commands;
 
+import Instruments.ICollectionManager;
 import Instruments.ServerResponse;
 import Storable.Route;
 
-import java.util.Set;
 import java.util.stream.Stream;
 
 public class CountGreaterThanDistance implements ICommand {
@@ -20,9 +20,9 @@ public class CountGreaterThanDistance implements ICommand {
     }
 
     @Override
-    public ServerResponse execute(Set<Route> set) {
+    public ServerResponse execute(ICollectionManager<Route> manager) {
         ServerResponse serverResponse = new ServerResponse();
-        Stream<Route> stream = set.stream();
+        Stream<Route> stream = manager.stream();
         long i = stream.filter(r -> r.getDistance() >= distance).count();
         serverResponse.setText("Всего "+i+" элементов");
         return serverResponse;

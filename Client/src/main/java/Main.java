@@ -6,8 +6,10 @@ import Instruments.ClientRequest;
 import Instruments.ServerResponse;
 
 import javax.xml.bind.DatatypeConverter;
-import java.io.*;
-import java.math.BigInteger;
+import java.io.Console;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -39,7 +41,9 @@ public class Main {
                 temp = reader.readLine();
                 if(temp.equals("log_in")||temp.equals("sign_up")) break;
             }
+
             MessageDigest messageDigest = MessageDigest.getInstance("MD2");
+
             while (true){
                 outputInfo("Ведите логин:");
                 login=reader.readLine();
@@ -138,7 +142,6 @@ public class Main {
 
         } catch (IOException | ClassNotFoundException | InterruptedException | NoSuchAlgorithmException e) {
             outputInfo("Ошибка подключения. Завершение работы...");
-            e.printStackTrace();
             System.exit(1);
         }
     }

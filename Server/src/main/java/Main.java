@@ -8,15 +8,9 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.SSLSocket;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -30,20 +24,11 @@ import java.util.logging.SimpleFormatter;
 
 public class Main {
     static final Logger log = Logger.getGlobal();
-    private static String file;
     private static Connection DBconnection;
     private static Statement statement;
 
-    public static Statement getStatement() {
-        return statement;
-    }
-
     public static Connection getDBconnection() {
         return DBconnection;
-    }
-
-    public static String getFile() {
-        return file;
     }
 
     public static void main(String[] args){
@@ -65,8 +50,8 @@ public class Main {
 
         try {
             SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
-            Handler fh = new FileHandler("log_"+df.format(Calendar.getInstance().getTime())+".log");
-            fh.setFormatter(new SimpleFormatter());
+            //Handler fh = new FileHandler("log_"+df.format(Calendar.getInstance().getTime())+".log");
+            //fh.setFormatter(new SimpleFormatter());
             //log.addHandler(fh);
 
         } catch (Exception e) {
@@ -97,32 +82,12 @@ public class Main {
             System.exit(1);
         }
 
-        CollectionManager manager = new CollectionManager(args[0]);
-        LinkedHashSet<Route> collectionLink = manager.getRoutes();
-        Set<Route> syncSet= Collections.synchronizedSet(new LinkedHashSet<Route>());
-
-        try {
-            ResultSet resultSet = statement.executeQuery("select * from routes");
-            while (resultSet.next()){
-                Route route = new Route(resultSet.getLong(1),
-                        resultSet.getString(2),
-                        new Coordinates(resultSet.getDouble(3),resultSet.getDouble(4)),
-                        resultSet.getTimestamp(5),
-                        new Location(resultSet.getInt(6),resultSet.getLong(7),resultSet.getString(8)),
-                        new Location(resultSet.getInt(9),resultSet.getLong(10),resultSet.getString(11)),
-                        resultSet.getDouble(12),
-                        resultSet.getString(13));
-                syncSet.add(route);
-            }
-            syncSet.forEach(System.out::println);
-        } catch (SQLException e) {
-            log.severe("Error reading collection from database. Shutting down ...");
-            for(Handler h : log.getHandlers())  h.close();
-            System.exit(1);
-        }
+        CollectionManager collectionManager = new CollectionManager(DBconnection);
 
 
-        file = args[0];
+
+
+
         //SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
         //SSLServerSocket sslserversocket = null;
         SocketAddress address = new InetSocketAddress(port);
@@ -136,7 +101,7 @@ public class Main {
             for(Handler h : log.getHandlers())  h.close();
             System.exit(1);
         }
-
+        System.out.println();
         log.info("The server started successfully. Port: " + port);
 
         SocketChannel client;
@@ -144,7 +109,7 @@ public class Main {
             while (true) {
                 //SSLSocket client = (SSLSocket) sslserversocket.accept();
                 client = ss.accept();
-                SocketHandler handler = new SocketHandler(client, syncSet);
+                LegacySocketHandler handler = new LegacySocketHandler(client, collectionManager);
                 handler.run();
             }
         } catch (IOException | SocketHandlerException e) {

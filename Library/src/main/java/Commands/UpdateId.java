@@ -1,10 +1,10 @@
 package Commands;
 
+import Instruments.ICollectionManager;
 import Instruments.ServerResponse;
 import Storable.Route;
 
 import java.util.Date;
-import java.util.Set;
 
 public class UpdateId implements ICommand {
     private Route elementToAdd;
@@ -22,17 +22,17 @@ public class UpdateId implements ICommand {
     }
 
     @Override
-    public ServerResponse execute(Set<Route> set) {
+    public ServerResponse execute(ICollectionManager<Route> manager) {
 
         elementToAdd.setCreationDate(new Date());
         ServerResponse serverResponse = new ServerResponse();
 
-        if(set.stream().anyMatch(r -> r.getId() == elementToAdd.getId())){
-            if (set.removeIf(r->(r.getId()==elementToAdd.getId() && r.getOwner().equals(user)))){
-                set.add(elementToAdd);
+        if(manager.stream().anyMatch(r -> r.getId() == elementToAdd.getId())){
+            if (manager.removeIf(r->(r.getId()==elementToAdd.getId() && r.getOwner().equals(user)))){
+                manager.add(elementToAdd);
                 serverResponse.setText("Значения полей указанного элемента успешно обновлены.");
             }
-            else serverResponse.setText("Значения полей не были обновлены так как у Вас нет прав на его модификацию");
+            else serverResponse.setText("Значения полей указанного элемента не были обновлены так как у Вас нет прав на его модификацию");
         }
         else serverResponse.setText("В коллекции не найдено объекта с таким id.");
 

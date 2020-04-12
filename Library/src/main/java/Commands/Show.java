@@ -1,7 +1,7 @@
 package Commands;
 
+import Instruments.ICollectionManager;
 import Instruments.ServerResponse;
-import Storable.Coordinates;
 import Storable.Route;
 
 import java.util.*;
@@ -15,7 +15,7 @@ public class Show implements ICommand {
     }
 
     @Override
-    public ServerResponse execute(Set<Route> set) {
+    public ServerResponse execute(ICollectionManager<Route> manager) {
         Comparator<Route> compareRoute  = new Comparator<Route>() {
             @Override
             public int compare(Route o1, Route o2) {
@@ -25,7 +25,7 @@ public class Show implements ICommand {
             }
         };
         ServerResponse serverResponse = new ServerResponse("Элементы в коллекции:\n");
-        set.stream().sorted(compareRoute).collect(Collectors.toList()).forEach(r->serverResponse.addText("\n"+r.toString()+"\n"));
+        manager.stream().sorted(compareRoute).collect(Collectors.toList()).forEach(r->serverResponse.addText("\n"+r.toString()+"\n"));
 
         return serverResponse;
     }

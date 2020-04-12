@@ -1,11 +1,10 @@
 package Commands;
 
+import Instruments.ICollectionManager;
 import Instruments.ServerResponse;
 import Storable.Route;
 
 import java.util.Date;
-import java.util.Set;
-import java.util.UUID;
 
 public class Add implements ICommand {
     private Route elementToAdd;
@@ -21,13 +20,12 @@ public class Add implements ICommand {
 
 
     @Override
-    public ServerResponse execute(Set<Route> set) {
-        elementToAdd.setId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
+    public ServerResponse execute(ICollectionManager<Route> manager) {
+
         elementToAdd.setCreationDate(new Date());
 
         ServerResponse serverResponse = new ServerResponse();
-        if(set.add(elementToAdd)) serverResponse.setText("Элемент был успешно добавлен в коллекию");
-
+        if(manager.add(elementToAdd)) serverResponse.setText("Элемент был успешно добавлен в коллекию");
         else serverResponse.setText("Элемент не был доабвлен в коллекцию");
 
         return serverResponse;

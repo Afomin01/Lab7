@@ -1,9 +1,9 @@
 package Commands;
 
+import Instruments.ICollectionManager;
 import Instruments.ServerResponse;
 import Storable.Route;
 
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Clear implements ICommand {
@@ -19,14 +19,11 @@ public class Clear implements ICommand {
     }
 
     @Override
-    public ServerResponse execute(Set<Route> set) {
+    public ServerResponse execute(ICollectionManager<Route> manager) {
 
         ServerResponse serverResponse = new ServerResponse();
-        if(set.isEmpty()) serverResponse.setText("Коллекция уже пуста");
-        else{
-            set.removeAll(set.stream().filter(r-> r.getOwner().equals(user)).collect(Collectors.toSet()));
-            serverResponse.setText("Все Ваши элементы удалены из коллекции");
-        }
+        if(manager.removeAll(manager.stream().filter(r-> r.getOwner().equals(user)).collect(Collectors.toSet()))) serverResponse.setText("Все Ваши элементы удалены из коллекции");
+        else serverResponse.setText("В коллекции не обнаружено элементов, пренадлежащих Вам.");
 
         return serverResponse;
     }

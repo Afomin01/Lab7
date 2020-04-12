@@ -1,11 +1,13 @@
 package Commands;
 
+import Instruments.ICollectionManager;
 import Instruments.ServerResponse;
 import Instruments.XMLParser;
 import Storable.Route;
 
 import java.util.LinkedHashSet;
-import java.util.Set;
+
+//legacy class as it supposed to write the collection into file and we do not have any file now
 
 public class Save implements ICommand {
     private String fileName;
@@ -18,14 +20,14 @@ public class Save implements ICommand {
 
     @Override
     public EAvailableCommands getCommandEnum() {
-        return EAvailableCommands.Save;
-    }
+        return EAvailableCommands.Show;
+    }/////////////////////////////////
 
     @Override
-    public ServerResponse execute(Set<Route> set) {
+    public ServerResponse execute(ICollectionManager<Route> manager) {
         ServerResponse serverResponse = new ServerResponse();
         try {
-            XMLParser.unparse((LinkedHashSet<Route>) set, fileName);
+            XMLParser.unparse((LinkedHashSet<Route>) manager, fileName);
             serverResponse.setText("Сохранение успешно");
         }
         catch (Exception e){
@@ -37,7 +39,5 @@ public class Save implements ICommand {
     }
 }
 
-//TODO rework save
-//TODO change so that user can save only his elements
 
 

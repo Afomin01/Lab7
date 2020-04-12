@@ -1,9 +1,7 @@
 package Commands;
-
-import Instruments.ServerResponse;
+import Instruments.ICollectionManager;
 import Storable.Route;
-
-import java.util.Set;
+import Instruments.ServerResponse;
 
 public class Exit implements ICommand {
     private String user;
@@ -18,7 +16,7 @@ public class Exit implements ICommand {
     }
 
     @Override
-    public ServerResponse execute(Set<Route> set) {
+    public ServerResponse execute(ICollectionManager<Route> manager) {
         return new ServerResponse("Завершение работы. Изменения не сохранены.", true);
     }
 }

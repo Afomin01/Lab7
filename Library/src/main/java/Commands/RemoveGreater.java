@@ -1,5 +1,6 @@
 package Commands;
 
+import Instruments.ICollectionManager;
 import Instruments.ServerResponse;
 import Storable.Route;
 
@@ -32,12 +33,12 @@ public class RemoveGreater implements ICommand {
     }
 
     @Override
-    public ServerResponse execute(Set<Route> set) {
+    public ServerResponse execute(ICollectionManager<Route> manager) {
         ServerResponse serverResponse = new ServerResponse();
-        Stream<Route> stream = set.stream();
+        Stream<Route> stream = manager.stream();
         Set<Route> temp = stream.filter(r -> (r.compareTo(route) > 0 && r.getOwner().equals(user))).collect(Collectors.toSet());
 
-        if (set.removeAll(temp)) serverResponse.setText("Из коллекции удалено "+temp.size()+" элементов");
+        if (manager.removeAll(temp)) serverResponse.setText("Из коллекции удалено "+temp.size()+" элементов");
         else serverResponse.setText("Коллекция не изменилась");
         return serverResponse;
     }

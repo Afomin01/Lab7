@@ -1,9 +1,9 @@
 package Commands;
 
+import Instruments.ICollectionManager;
 import Instruments.ServerResponse;
 import Storable.Route;
 
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,10 +22,10 @@ public class RemoveAllByDistance implements ICommand {
     }
 
     @Override
-    public ServerResponse execute(Set<Route> set) {
+    public ServerResponse execute(ICollectionManager<Route> manager) {
         ServerResponse serverResponse = new ServerResponse();
-        Stream<Route> stream = set.stream();
-        if (set.removeAll(stream.filter(r -> (r.getDistance()==distance && r.getOwner().equals(user))).collect(Collectors.toSet()))) serverResponse.setText("Удалены все элементы значение поля distance которых "+distance);
+        Stream<Route> stream = manager.stream();
+        if (manager.removeAll(stream.filter(r -> (r.getDistance()==distance && r.getOwner().equals(user))).collect(Collectors.toSet()))) serverResponse.setText("Удалены все элементы значение поля distance которых "+distance);
         else serverResponse.setText("Коллекция не была изменена");
         return serverResponse;
     }

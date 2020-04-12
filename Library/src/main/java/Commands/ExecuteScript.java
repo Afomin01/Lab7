@@ -1,11 +1,11 @@
 package Commands;
 
+import Instruments.ICollectionManager;
 import Instruments.ServerResponse;
 import Storable.Coordinates;
 import Storable.Location;
 import Storable.Route;
 
-import javax.xml.crypto.dsig.spec.XSLTTransformParameterSpec;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -36,7 +36,7 @@ public class ExecuteScript implements ICommand {
     }
 
     @Override
-    public ServerResponse execute(Set<Route> set) {
+    public ServerResponse execute(ICollectionManager<Route> manager) {
         if (executeScriptStack.contains(fileName)) {
             serverResponse.addText("\nОбнаружена рукурсия. Прерывание команды.");
             return serverResponse;
@@ -72,7 +72,7 @@ public class ExecuteScript implements ICommand {
                                 Route adding = elementCreator(scanner);
                                 if (adding != null){
                                     commandToExecute = new Add(adding);
-                                    serverResponse.addText(commandToExecute.execute(set).getText());
+                                    serverResponse.addText(commandToExecute.execute(manager).getText());
                                 }
                                 else throw new ScriptException();
                             } else throw new ScriptException(line, currentLine, "Слишком много или недостаточно аргументов для команды");
@@ -82,7 +82,7 @@ public class ExecuteScript implements ICommand {
                                 Route adding = elementCreator(scanner);
                                 if (adding != null){
                                     commandToExecute = new AddIfMax(adding);
-                                    serverResponse.addText(commandToExecute.execute(set).getText());
+                                    serverResponse.addText(commandToExecute.execute(manager).getText());
                                 }
                                 else throw new ScriptException();
                             } else throw new ScriptException(line, currentLine, "Слишком много или недостаточно аргументов для команды");
@@ -90,7 +90,7 @@ public class ExecuteScript implements ICommand {
                         case "clean":
                             if (SplitCommand.length == 1){
                                 commandToExecute = new Clear(user);
-                                serverResponse.addText(commandToExecute.execute(set).getText());
+                                serverResponse.addText(commandToExecute.execute(manager).getText());
                             }
                             else throw new ScriptException(line, currentLine, "Слишком много или недостаточно аргументов для команды");
                             break;
@@ -98,7 +98,7 @@ public class ExecuteScript implements ICommand {
                             if (SplitCommand.length == 2){
                                 try {
                                     commandToExecute = new CountGreaterThanDistance(Double.parseDouble(SplitCommand[1]));
-                                    serverResponse.addText(commandToExecute.execute(set).getText());
+                                    serverResponse.addText(commandToExecute.execute(manager).getText());
                                 }catch (NumberFormatException e){
                                     serverResponse.addText("Некорректный ввод числового значения в строке."+line+" Необходим double");
                                     return serverResponse;
@@ -109,7 +109,7 @@ public class ExecuteScript implements ICommand {
                         case "history":
                             if (SplitCommand.length == 1){
                                 commandToExecute = new History(user);
-                                serverResponse.addText(commandToExecute.execute(set).getText());
+                                serverResponse.addText(commandToExecute.execute(manager).getText());
                             }
                             else throw new ScriptException(line, currentLine, "Слишком много или недостаточно аргументов для команды");
                             break;
@@ -118,7 +118,7 @@ public class ExecuteScript implements ICommand {
                                 temp = fileName;
                                 executeScriptStack.add(SplitCommand[1]);
                                 fileName=SplitCommand[1];
-                                execute(set);
+                                execute(manager);
                                 for(int i = executeScriptStack.size()-1; i>=0; i--){
                                     if(executeScriptStack.get(i).equals(fileName)) executeScriptStack.remove(i);
                                     break;
@@ -137,21 +137,21 @@ public class ExecuteScript implements ICommand {
                         case "help":
                             if (SplitCommand.length == 1){
                                 commandToExecute = new Help();
-                                serverResponse.addText(commandToExecute.execute(set).getText());
+                                serverResponse.addText(commandToExecute.execute(manager).getText());
                             }
                             else throw new ScriptException(line, currentLine, "Слишком много или недостаточно аргументов для команды");
                             break;
                         case "info":
                             if (SplitCommand.length == 1){
                                 commandToExecute = new Info();
-                                serverResponse.addText(commandToExecute.execute(set).getText());
+                                serverResponse.addText(commandToExecute.execute(manager).getText());
                             }
                             else throw new ScriptException(line, currentLine, "Слишком много или недостаточно аргументов для команды");
                             break;
                         case "print_unique_distance":
                             if (SplitCommand.length == 1){
                                 commandToExecute = new PrintUniqueDistance();
-                                serverResponse.addText(commandToExecute.execute(set).getText());
+                                serverResponse.addText(commandToExecute.execute(manager).getText());
                             }
                             else throw new ScriptException(line, currentLine, "Слишком много или недостаточно аргументов для команды");
                             break;
@@ -159,7 +159,7 @@ public class ExecuteScript implements ICommand {
                             try {
                                 if (SplitCommand.length == 2) {
                                     commandToExecute = new RemoveAllByDistance(Double.parseDouble(SplitCommand[1]),user);
-                                    serverResponse.addText(commandToExecute.execute(set).getText());
+                                    serverResponse.addText(commandToExecute.execute(manager).getText());
                                 } else
                                     throw new ScriptException(line, currentLine, "Слишком много или недостаточно аргументов для команды");
                             }
@@ -173,7 +173,7 @@ public class ExecuteScript implements ICommand {
                                 Route adding = elementCreator(scanner);
                                 if (adding != null){
                                     commandToExecute = new RemoveGreater( adding,user);
-                                    serverResponse.addText(commandToExecute.execute(set).getText());
+                                    serverResponse.addText(commandToExecute.execute(manager).getText());
                                 }
                             }
                             else throw new ScriptException(line, currentLine, "Слишком много или недостаточно аргументов для команды");
@@ -183,14 +183,14 @@ public class ExecuteScript implements ICommand {
                                 Save save = new Save();
                                 save.setFileName(CollectionFile,user);
                                 commandToExecute = save;
-                                serverResponse.addText(commandToExecute.execute(set).getText());
+                                serverResponse.addText(commandToExecute.execute(manager).getText());
                             }
                             else throw new ScriptException(line, currentLine, "Слишком много или недостаточно аргументов для команды");
                             break;
                         case "show":
                             if (SplitCommand.length == 1){
                                 commandToExecute = new Show();
-                                serverResponse.addText(commandToExecute.execute(set).getText());
+                                serverResponse.addText(commandToExecute.execute(manager).getText());
                             }
                             else throw new ScriptException(line, currentLine, "Слишком много или недостаточно аргументов для команды");
                             break;
@@ -198,7 +198,7 @@ public class ExecuteScript implements ICommand {
                             try {
                                 if (SplitCommand.length == 2) {
                                     commandToExecute = new RemoveById(Long.parseLong(SplitCommand[1]),user);
-                                    serverResponse.addText(commandToExecute.execute(set).getText());
+                                    serverResponse.addText(commandToExecute.execute(manager).getText());
                                 } else
                                     throw new ScriptException(line, currentLine, "Слишком много или недостаточно аргументов для команды");
                             }
@@ -213,7 +213,7 @@ public class ExecuteScript implements ICommand {
                                     Route adding = elementCreator(scanner);
                                     if (adding != null) {
                                         commandToExecute = new UpdateId(Long.parseLong(SplitCommand[1]), adding,user);
-                                        serverResponse.addText(commandToExecute.execute(set).getText());
+                                        serverResponse.addText(commandToExecute.execute(manager).getText());
                                     } else throw new ScriptException();
                                 }catch (NumberFormatException e){
                                     serverResponse.addText("Некорректный ввод числового значения в строке."+line+" Необходим double");

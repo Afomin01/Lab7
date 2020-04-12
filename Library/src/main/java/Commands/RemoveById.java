@@ -1,10 +1,9 @@
 package Commands;
 
+import Instruments.ICollectionManager;
 import Instruments.ServerResponse;
 import Storable.Route;
 
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RemoveById implements ICommand {
@@ -23,12 +22,12 @@ public class RemoveById implements ICommand {
     }
 
     @Override
-    public ServerResponse execute(Set<Route> set) {
+    public ServerResponse execute(ICollectionManager<Route> manager) {
         ServerResponse serverResponse = new ServerResponse();
-        Stream<Route> stream = set.stream();
+        Stream<Route> stream = manager.stream();
 
-        if(set.stream().anyMatch(r -> r.getId()==id)){
-            if(set.removeIf(r -> (r.getId()==id && r.getOwner().equals(user)))) serverResponse.setText("Элемент с id "+id+" был успешно удален из коллекции");
+        if(manager.stream().anyMatch(r -> r.getId()==id)){
+            if(manager.removeIf(r -> (r.getId()==id && r.getOwner().equals(user)))) serverResponse.setText("Элемент с id "+id+" был успешно удален из коллекции");
             else serverResponse.setText("Элемент не был удален так как у Вас нет прав на его модификацию");
         }else serverResponse.setText("Элемента с id "+id+" в коллекции не найдено");
 

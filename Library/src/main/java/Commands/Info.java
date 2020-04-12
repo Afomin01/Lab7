@@ -1,9 +1,8 @@
 package Commands;
 
-import Instruments.ServerResponse;
+import Instruments.ICollectionManager;
 import Storable.Route;
-
-import java.util.Set;
+import Instruments.ServerResponse;
 
 public class Info implements ICommand {
     private String user;
@@ -14,12 +13,12 @@ public class Info implements ICommand {
     }
 
     @Override
-    public ServerResponse execute(Set<Route> set) {
+    public ServerResponse execute(ICollectionManager<Route> manager) {
         ServerResponse serverResponse = new ServerResponse();
 
         String out="";
-        out = out + "Тип коллекции: "+set.getClass().getTypeName();
-        out = out + "\nКоличесвто элементов коллекции: "+set.size();
+        out = out + "Тип коллекции: "+ manager.getClass().getTypeName();
+        out = out + "\nКоличесвто элементов коллекции: "+ manager.getSet().size();
 
         serverResponse.setText(out);
         return serverResponse;

@@ -1,9 +1,8 @@
 package Commands;
-
-import Instruments.ServerResponse;
+import Instruments.ICollectionManager;
 import Storable.Route;
+import Instruments.ServerResponse;
 
-import java.util.Set;
 //fake class only for authorisation
 public class LogIn implements ICommand {
 
@@ -13,7 +12,7 @@ public class LogIn implements ICommand {
     }
 
     @Override
-    public ServerResponse execute(Set<Route> set) {
+    public ServerResponse execute(ICollectionManager<Route> manager) {
         return null;
     }
 }

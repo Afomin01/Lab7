@@ -1,5 +1,6 @@
 import Commands.*;
 import Instruments.ClientRequest;
+import Instruments.ICollectionManager;
 import Instruments.ServerResponse;
 import Storable.Route;
 
@@ -15,24 +16,32 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.Handler;
 
-public class SocketHandler implements Runnable {
+public class LegacySocketHandler implements Runnable {
     //private SSLSocket client;
     private SocketChannel client;
     private ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
-    private Set<Route> set;
+    private ICollectionManager<Route> manager;
     private ArrayList<String> history = new ArrayList<>();
     private String login="";
+    private Statement statement;
 
-    SocketHandler(SocketChannel client, Set<Route> route) throws SocketHandlerException {
+    LegacySocketHandler(SocketChannel client, ICollectionManager<Route> manager) throws SocketHandlerException {
         this.client = client;
-        set = route;
+        this.manager = manager;
+        try {
+            statement=Main.getDBconnection().createStatement();
+        } catch (SQLException e) {
+            Main.log.severe("An error occurred while creating the output stream.");
+            throw new SocketHandlerException();
+        }
         try {
             outputStream = new ObjectOutputStream(client.socket().getOutputStream());
             outputStream.flush();
@@ -44,7 +53,6 @@ public class SocketHandler implements Runnable {
             inputStream = new ObjectInputStream(client.socket().getInputStream());
             outputStream.writeObject(new ServerResponse("Соединение успешно установлено"));
         } catch (IOException e) {
-            e.printStackTrace();
             Main.log.severe("An error occurred while creating the input stream.");
             throw new SocketHandlerException();
         }
@@ -62,10 +70,10 @@ public class SocketHandler implements Runnable {
                     clientRequest = (ClientRequest) inputStream.readObject();
                     command = clientRequest.getCommand();
                     if (command.getClass() == LogIn.class) {
-                        ResultSet resultSet = Main.getStatement().executeQuery("select * from users where username='"+clientRequest.getLogin()+"'");
+                        ResultSet resultSet = statement.executeQuery("select * from users where username='"+clientRequest.getLogin()+"'");
                         if(resultSet.next()){
                             String passwordHash = resultSet.getString(2);
-                            ResultSet saltSet = Main.getStatement().executeQuery("select * from users where username='"+clientRequest.getLogin()+"'");
+                            ResultSet saltSet = statement.executeQuery("select * from users where username='"+clientRequest.getLogin()+"'");
                             saltSet.next();
                             String salt= saltSet.getString(3);
                             resp = new ServerResponse(salt);
@@ -92,7 +100,7 @@ public class SocketHandler implements Runnable {
                         }
                     }
                     if (command.getClass() == SignUp.class) {
-                        ResultSet resultSet = Main.getStatement().executeQuery("select * from users where username='" +clientRequest.getLogin()+ "'");
+                        ResultSet resultSet = statement.executeQuery("select * from users where username='" +clientRequest.getLogin()+ "'");
                         if(!resultSet.next()){
                             byte[] array = new byte[9];
                             new Random().nextBytes(array);
@@ -105,7 +113,7 @@ public class SocketHandler implements Runnable {
 
                             try {
                                 String sql = "insert into users values ('" + clientRequest.getLogin() + "' , '" + clientRequest.getPassword() + "' , '" + salt + "' )";
-                                Main.getStatement().execute(sql);
+                                statement.execute(sql);
 
                                 resp = new ServerResponse("Регистрация и авторизация успешна");
                                 outputStream.writeObject(resp);
@@ -130,22 +138,22 @@ public class SocketHandler implements Runnable {
                 while (true) {
                     clientRequest = (ClientRequest) inputStream.readObject();
                     command = clientRequest.getCommand();
-                    if (command.getCommandEnum() == EAvailableCommands.Save) {
+/*                    if (command.getCommandEnum() == EAvailableCommands.Save) {
                         Save save = (Save) command;
-                        save.setFileName(Main.getFile(),login);
+                        save.setFileName("sgd",login);
                         response = save.execute(set);
-                        Main.log.fine("Command executed: " + command.getCommandEnum().toString()+" client "+login);
-                    } else if (command.getCommandEnum() == EAvailableCommands.Execute_Script) {
+                        Main.log.fine("Command executed: " + command.getCommandEnum().toString()+" client "+login);*/
+                    if (command.getCommandEnum() == EAvailableCommands.Execute_Script) {
                         ExecuteScript executeScript = (ExecuteScript) command;
-                        executeScript.setCollectionFile(Main.getFile());
-                        response = executeScript.execute(set);
+                        executeScript.setCollectionFile("");
+                        response = executeScript.execute(manager);
                         Main.log.fine("Command executed: " + command.getCommandEnum().toString()+" client "+login);
                     } else if (command.getCommandEnum() == EAvailableCommands.Info) {
                         Info info = (Info) command;
-                        response = info.execute(set);
+                        response = info.execute(manager);
                         Main.log.fine("Command executed: " + command.getCommandEnum().toString()+" client "+login);
                     } else {
-                        response = command.execute(set);
+                        response = command.execute(manager);
                         Main.log.fine("Command executed: " + command.getCommandEnum().toString()+" client "+login);
                     }
                     if (command.getCommandEnum() == EAvailableCommands.History) response.setText(historyPrinter());

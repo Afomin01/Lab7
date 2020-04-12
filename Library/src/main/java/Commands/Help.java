@@ -1,9 +1,7 @@
 package Commands;
-
-import Instruments.ServerResponse;
+import Instruments.ICollectionManager;
 import Storable.Route;
-
-import java.util.Set;
+import Instruments.ServerResponse;
 
 public class Help implements ICommand {
 
@@ -13,7 +11,7 @@ public class Help implements ICommand {
     }
 
     @Override
-    public ServerResponse execute(Set<Route> set) {
+    public ServerResponse execute(ICollectionManager<Route> manager) {
         String out = "Информация по доступным командам:\n";
         for ( EAvailableCommands c : EAvailableCommands.values()) {
             out =out+c.getCommandInfo()+"\n";
