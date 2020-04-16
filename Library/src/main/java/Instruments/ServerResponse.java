@@ -3,48 +3,38 @@ package Instruments;
 import java.io.Serializable;
 
 public class ServerResponse implements Serializable {
-    private String text="";
-    private boolean shutdown = false;
-    private boolean access = true;
+    private String additionalInfo = "";
+    private ServerRespenseCodes code;
+    private boolean access = false;
 
-    public ServerResponse(String text) {
-        this.text = text;
+    public ServerResponse(ServerRespenseCodes code) {
+        this.code = code;
     }
 
-    public ServerResponse(String text, boolean shutdown) {
-        this.text = text;
-        this.shutdown = shutdown;
-    }
-
-    public ServerResponse() {
-
+    public ServerResponse(ServerRespenseCodes code, String additionalInfo) {
+        this.additionalInfo = additionalInfo;
+        this.code = code;
     }
 
     public boolean isAccess() {
         return access;
     }
-
     public void setAccess(boolean access) {
         this.access = access;
     }
-
-    public boolean isShutdown() {
-        return shutdown;
+    public void setCode(ServerRespenseCodes code) {
+        this.code = code;
     }
-
-    public void setShutdown(boolean shutdown) {
-        this.shutdown = shutdown;
+    public ServerRespenseCodes getCode() {
+        return code;
     }
-
-    public String getText() {
-        return text;
+    public String getAdditionalInfo() {
+        return additionalInfo;
     }
-
-    public void setText(String text) {
-        this.text = text;
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
     }
-
     public void addText(String text){
-        this.text = this.text + "\n" + text;
+        this.additionalInfo = this.additionalInfo + "\n" + text;
     }
 }

@@ -1,5 +1,6 @@
 package Commands;
 import Instruments.ICollectionManager;
+import Instruments.ServerRespenseCodes;
 import Storable.Route;
 import Instruments.ServerResponse;
 
@@ -17,6 +18,6 @@ public class Help implements ICommand {
             out =out+c.getCommandInfo()+"\n";
         }
 
-        return new ServerResponse(out);
+        return new ServerResponse(ServerRespenseCodes.TEXT_ONLY,out);
     }
 }

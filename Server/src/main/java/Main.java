@@ -1,7 +1,3 @@
-import Storable.Coordinates;
-import Storable.Location;
-import Storable.Route;
-
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -10,17 +6,13 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 public class Main {
     static final Logger log = Logger.getGlobal();
@@ -35,6 +27,16 @@ public class Main {
         System.setProperty("java.util.logging.SimpleFormatter.format",
                 "%1$td.%1$tm.%1$tY %1$tH:%1$tM:%1$tS %2$s%n%4$s: %5$s %n%n");
 
+        try {
+            SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
+            //Handler fh = new FileHandler("log_"+df.format(Calendar.getInstance().getTime())+".log");
+            //fh.setFormatter(new SimpleFormatter());
+            //log.addHandler(fh);
+
+        } catch (Exception e) {
+            log.warning("Unable to create log file. Logging to a file will not be performed.");
+        }
+
         Properties property = new Properties();
         try {
             property.load(ClassLoader.getSystemClassLoader().getResourceAsStream("db.properties"));
@@ -48,25 +50,11 @@ public class Main {
             System.exit(1);
         }
 
-        try {
-            SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
-            //Handler fh = new FileHandler("log_"+df.format(Calendar.getInstance().getTime())+".log");
-            //fh.setFormatter(new SimpleFormatter());
-            //log.addHandler(fh);
-
-        } catch (Exception e) {
-            log.warning("Unable to create log file. Logging to a file will not be performed.");
-        }
         int port = 47836;
-        if (args.length == 0) {
-            log.severe("The path to the xml file is not specified. Shutting down ...");
-            for(Handler h : log.getHandlers())  h.close();
-            System.exit(1);
-        }
-        if (args.length == 2) {
+        if (args.length == 1) {
             try {
                 port = Integer.parseInt(args[1]);
-            } catch (NumberFormatException e) {
+            } catch (Exception e) {
                 log.info("Port value parsing error. The default port is selected: " + port);
             }
         }
@@ -84,17 +72,11 @@ public class Main {
 
         CollectionManager collectionManager = new CollectionManager(DBconnection);
 
-
-
-
-
         //SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
         //SSLServerSocket sslserversocket = null;
-        SocketAddress address = new InetSocketAddress(port);
-        ServerSocketChannel ss = null;
+        ServerSocket ss = null;
         try {
-            ss = ServerSocketChannel.open();
-            ss.bind(address);
+            ss = new ServerSocket(port);
             //sslserversocket = (SSLServerSocket) sslserversocketfactory.createServerSocket(9999);
         } catch (IOException e) {
             log.severe("Error while creating ServerSocket. Shutting down ...");
@@ -104,13 +86,18 @@ public class Main {
         System.out.println();
         log.info("The server started successfully. Port: " + port);
 
-        SocketChannel client;
+        Socket client;
+        long clientID=0;
+        SocketsHandler socketsHandler = new SocketsHandler(collectionManager);
+        new Thread(socketsHandler,"Main Socket Handler Thread").start();
+
         try {
             while (true) {
                 //SSLSocket client = (SSLSocket) sslserversocket.accept();
                 client = ss.accept();
-                LegacySocketHandler handler = new LegacySocketHandler(client, collectionManager);
-                handler.run();
+                SocketConnected socket = new SocketConnected(client,clientID);
+                socketsHandler.addSocket(clientID,socket);
+                clientID++;
             }
         } catch (IOException | SocketHandlerException e) {
             log.severe("Error accepting connection from client.");
@@ -143,6 +130,5 @@ public class Main {
             Transport.send(message);
             System.out.println("Email Sent successfully....");
         } catch (MessagingException mex){ mex.printStackTrace(); }
-
     }
 }

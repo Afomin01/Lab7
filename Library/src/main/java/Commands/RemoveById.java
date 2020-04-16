@@ -1,6 +1,7 @@
 package Commands;
 
 import Instruments.ICollectionManager;
+import Instruments.ServerRespenseCodes;
 import Instruments.ServerResponse;
 import Storable.Route;
 
@@ -23,14 +24,22 @@ public class RemoveById implements ICommand {
 
     @Override
     public ServerResponse execute(ICollectionManager<Route> manager) {
-        ServerResponse serverResponse = new ServerResponse();
-        Stream<Route> stream = manager.stream();
+        ServerResponse serverResponse = null;
 
-        if(manager.stream().anyMatch(r -> r.getId()==id)){
-            if(manager.removeIf(r -> (r.getId()==id && r.getOwner().equals(user)))) serverResponse.setText("Элемент с id "+id+" был успешно удален из коллекции");
-            else serverResponse.setText("Элемент не был удален так как у Вас нет прав на его модификацию");
-        }else serverResponse.setText("Элемента с id "+id+" в коллекции не найдено");
-
+        switch (manager.removeIf(r->r.getId()==id,user)){
+            case OK:
+                serverResponse = new ServerResponse(ServerRespenseCodes.DELETE_OK);
+                break;
+            case NO_CHANGES:
+                serverResponse = new ServerResponse(ServerRespenseCodes.NO_CHANGES);
+                break;
+            case SQL_ERROR:
+                serverResponse = new ServerResponse(ServerRespenseCodes.SQL_ERROR);
+                break;
+            case UNKNOWN_ERROR:
+                serverResponse = new ServerResponse(ServerRespenseCodes.ERROR);
+                break;
+        }
         return serverResponse;
     }
 }

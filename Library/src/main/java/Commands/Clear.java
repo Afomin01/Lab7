@@ -1,6 +1,7 @@
 package Commands;
 
 import Instruments.ICollectionManager;
+import Instruments.ServerRespenseCodes;
 import Instruments.ServerResponse;
 import Storable.Route;
 
@@ -21,10 +22,21 @@ public class Clear implements ICommand {
     @Override
     public ServerResponse execute(ICollectionManager<Route> manager) {
 
-        ServerResponse serverResponse = new ServerResponse();
-        if(manager.removeAll(manager.stream().filter(r-> r.getOwner().equals(user)).collect(Collectors.toSet()))) serverResponse.setText("Все Ваши элементы удалены из коллекции");
-        else serverResponse.setText("В коллекции не обнаружено элементов, пренадлежащих Вам.");
-
+        ServerResponse serverResponse = null;
+        switch (manager.removeAll(manager.stream().filter(r-> r.getOwner().equals(user)).collect(Collectors.toSet()),user)) {
+            case OK:
+                serverResponse = new ServerResponse(ServerRespenseCodes.CLEAR_OK);
+                break;
+            case NO_CHANGES:
+                serverResponse = new ServerResponse(ServerRespenseCodes.NO_CHANGES);
+                break;
+            case SQL_ERROR:
+                serverResponse = new ServerResponse(ServerRespenseCodes.SQL_ERROR);
+                break;
+            case UNKNOWN_ERROR:
+                serverResponse = new ServerResponse(ServerRespenseCodes.ERROR);
+                break;
+        }
         return serverResponse;
     }
 }

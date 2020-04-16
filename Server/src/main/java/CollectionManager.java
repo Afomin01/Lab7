@@ -1,4 +1,5 @@
 import Instruments.ICollectionManager;
+import Instruments.ManagerResponseCodes;
 import Storable.Coordinates;
 import Storable.Location;
 import Storable.Route;
@@ -12,6 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.logging.Handler;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CollectionManager implements ICollectionManager<Route> {
@@ -45,7 +47,7 @@ public class CollectionManager implements ICollectionManager<Route> {
     }
 
     @Override
-    public boolean add(Route element) {
+    public ManagerResponseCodes add(Route element) {
         try {
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String sql = "insert into routes(name, coordinate_x, coordinate_y, creation_date, from_x, from_y, from_name, to_x, to_y, to_name, distance, owner) values (" +
@@ -64,31 +66,86 @@ public class CollectionManager implements ICollectionManager<Route> {
             ResultSet rs = connection.createStatement().executeQuery(sql);
             if(rs.next()){
                 element.setId(rs.getLong(1));
-                return syncSet.add(element);
+                syncSet.add(element);
+                return ManagerResponseCodes.OK;
             }
             else{
-                return false;
+                return ManagerResponseCodes.UNKNOWN_ERROR;
             }
         }
         catch (SQLException e){
-            e.printStackTrace();
-            return false;
+            return ManagerResponseCodes.SQL_ERROR;
         }
     }
 
     @Override
-    public boolean removeAll(Set<Route> c) {
-        return syncSet.removeAll(c);
+    public ManagerResponseCodes removeAll(Set<Route> c, String user) {
+        try {
+            String sql;
+            int count = 0;
+            for (Route r : c) {
+                sql = "delete from routes where id="+r.getId()+" and owner='"+user+"'";
+                if(connection.createStatement().executeUpdate(sql)>0){
+                    if(syncSet.remove(r))count++;
+                }
+            }
+            if(count>0) return ManagerResponseCodes.OK;
+            else return ManagerResponseCodes.NO_CHANGES;
+        }catch (SQLException e){
+            return ManagerResponseCodes.SQL_ERROR;
+        }
     }
 
     @Override
-    public boolean removeIf(Predicate<Route> filter) {
-        return syncSet.removeIf(filter);
+    public ManagerResponseCodes removeIf(Predicate<Route> filter, String user) {
+        try {
+            String sql;
+            int count = 0;
+            Set<Route> temp = syncSet.stream().filter(filter).collect(Collectors.toSet());
+            for (Route r : temp) {
+                sql = "delete from routes where id="+r.getId()+" and owner='"+user+"'";
+                if(connection.createStatement().executeUpdate(sql)>0){
+                    if(syncSet.remove(r))count++;
+                }
+            }
+            if(count>0) return ManagerResponseCodes.OK;
+            else return ManagerResponseCodes.NO_CHANGES;
+        }catch (SQLException e){
+            return ManagerResponseCodes.SQL_ERROR;
+        }
     }
 
     @Override
-    public Set<Route> getSet() {
-        return syncSet;
+    public ManagerResponseCodes update(long id, Route r, String user) {
+        try{
+            String sql="select count(*) from routes where id="+id+" and owner='"+user+"'";
+            ResultSet rs = connection.createStatement().executeQuery(sql);
+            rs.next();
+            if(rs.getLong(1)>0){
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                sql="update routes " +
+                        "set name='"+r.getName()+
+                        "', coordinate_x="+r.getCoordinates().getx()+
+                        " , coordinate_y="+r.getCoordinates().gety()+
+                        " , creation_date='"+df.format(r.getCreationDate())+
+                        "', from_x="+r.getFrom().getX()+
+                        " , from_y="+r.getFrom().getY()+
+                        " , from_name='"+r.getFrom().getName()+
+                        "', to_x="+r.getTo().getX()+
+                        " , to_y="+r.getTo().getY()+
+                        " , to_name='"+r.getTo().getName()+
+                        "', distance="+r.getDistance()+
+                        " , owner='"+r.getOwner()+"' where id="+id+" and owner='"+user+"'";
+                if(connection.createStatement().executeUpdate(sql)>0) {
+                    Route adding = new Route(id, r.getName(),r.getCoordinates(),r.getCreationDate(),r.getFrom(),r.getTo(),r.getDistance(),r.getOwner());
+                    syncSet.removeIf(t->(t.getId()==id && t.getOwner().equals(user)) );
+                    syncSet.add(adding);
+                    return ManagerResponseCodes.OK;
+                }else return ManagerResponseCodes.NO_CHANGES;
+            } else return ManagerResponseCodes.NO_CHANGES;
+        }catch (SQLException e){
+            return ManagerResponseCodes.SQL_ERROR;
+        }
     }
 
     @Override

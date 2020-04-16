@@ -1,6 +1,7 @@
 package Commands;
 
 import Instruments.ICollectionManager;
+import Instruments.ServerRespenseCodes;
 import Instruments.ServerResponse;
 import Storable.Route;
 
@@ -24,10 +25,21 @@ public class Add implements ICommand {
 
         elementToAdd.setCreationDate(new Date());
 
-        ServerResponse serverResponse = new ServerResponse();
-        if(manager.add(elementToAdd)) serverResponse.setText("Элемент был успешно добавлен в коллекию");
-        else serverResponse.setText("Элемент не был доабвлен в коллекцию");
-
+        ServerResponse serverResponse = null;
+        switch (manager.add(elementToAdd)){
+            case OK:
+                serverResponse = new ServerResponse(ServerRespenseCodes.ADD_OK);
+                break;
+            case NO_CHANGES:
+                serverResponse = new ServerResponse(ServerRespenseCodes.NO_CHANGES);
+                break;
+            case SQL_ERROR:
+                serverResponse = new ServerResponse(ServerRespenseCodes.SQL_ERROR);
+                break;
+            case UNKNOWN_ERROR:
+                serverResponse = new ServerResponse(ServerRespenseCodes.ERROR);
+                break;
+        }
         return serverResponse;
     }
 }

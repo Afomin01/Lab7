@@ -1,5 +1,6 @@
 package Commands;
 import Instruments.ICollectionManager;
+import Instruments.ServerRespenseCodes;
 import Storable.Route;
 import Instruments.ServerResponse;
 
@@ -14,13 +15,15 @@ public class PrintUniqueDistance implements ICommand {
 
     @Override
     public ServerResponse execute(ICollectionManager<Route> manager) {
-        ServerResponse serverResponse = new ServerResponse();
+        ServerResponse serverResponse = null;
         String text = "";
+        int count=0;
         for(Route r: manager.stream().filter(r-> manager.stream().filter(c->c.getDistance()==r.getDistance()).count()==1).collect(Collectors.toSet())){
             text = text + r.getDistance() + "\n";
+            count++;
         }
-        if (text.equals(""))serverResponse.setText("Уникальных значений поля distance в коллекции не обнаружено");
-        else serverResponse.setText("Уникальные значения поля distance:\n"+text);
+        if (count==0)serverResponse = new ServerResponse(ServerRespenseCodes.SEARCH_NOT_FOUND);
+        else serverResponse = new ServerResponse(ServerRespenseCodes.SEARCH_OK,text);
         return serverResponse;
     }
 }

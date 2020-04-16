@@ -1,6 +1,7 @@
 package Commands;
 
 import Instruments.ICollectionManager;
+import Instruments.ServerRespenseCodes;
 import Storable.Route;
 import Instruments.ServerResponse;
 
@@ -14,13 +15,12 @@ public class Info implements ICommand {
 
     @Override
     public ServerResponse execute(ICollectionManager<Route> manager) {
-        ServerResponse serverResponse = new ServerResponse();
 
         String out="";
-        out = out + "Тип коллекции: "+ manager.getClass().getTypeName();
-        out = out + "\nКоличесвто элементов коллекции: "+ manager.getSet().size();
+        out = out + "Тип коллекции: LinkedHashSet";
+        out = out + "\nКоличесвто элементов коллекции: "+ manager.stream().count();
+        out = out + "\nТип хранимых элементов: Routes";
 
-        serverResponse.setText(out);
-        return serverResponse;
+        return new ServerResponse(ServerRespenseCodes.TEXT_ONLY, out);
     }
 }

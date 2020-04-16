@@ -1,0 +1,23 @@
+package Instruments;
+
+public enum ServerRespenseCodes {
+    CONNECTED,
+    AUTHORISED,
+    INCORRECT_LOG_IN,
+    SIGN_UP_OK,
+    SEARCH_OK,
+    COUNT,
+    SEARCH_NOT_FOUND,
+    SQL_ERROR,
+    ADD_OK,
+    NO_CHANGES,
+    DELETE_OK,
+    CLEAR_OK,
+    UPDATE_OK,
+    ERROR,
+    SCRIPT_RESULT,
+    SERVER_FATAL_ERROR,
+    TEXT_ONLY,
+    SURPRISE_NOT_CORRECT_LOGIN_OR_PASSWORD,
+    EXIT;
+}

@@ -1,6 +1,7 @@
 package Commands;
 
 import Instruments.ICollectionManager;
+import Instruments.ServerRespenseCodes;
 import Instruments.ServerResponse;
 import Storable.Route;
 
@@ -9,10 +10,11 @@ import java.util.Date;
 public class UpdateId implements ICommand {
     private Route elementToAdd;
     private String user;
+    private long id;
 
     public UpdateId(long id, Route elementToAdd, String user){
         this.elementToAdd = elementToAdd;
-        elementToAdd.setId(id);
+        this.id=id;
         this.user=user;
     }
 
@@ -25,16 +27,21 @@ public class UpdateId implements ICommand {
     public ServerResponse execute(ICollectionManager<Route> manager) {
 
         elementToAdd.setCreationDate(new Date());
-        ServerResponse serverResponse = new ServerResponse();
-
-        if(manager.stream().anyMatch(r -> r.getId() == elementToAdd.getId())){
-            if (manager.removeIf(r->(r.getId()==elementToAdd.getId() && r.getOwner().equals(user)))){
-                manager.add(elementToAdd);
-                serverResponse.setText("Значения полей указанного элемента успешно обновлены.");
-            }
-            else serverResponse.setText("Значения полей указанного элемента не были обновлены так как у Вас нет прав на его модификацию");
+        ServerResponse serverResponse = null;
+        switch (manager.update(id,elementToAdd,user)){
+            case OK:
+                serverResponse = new ServerResponse(ServerRespenseCodes.UPDATE_OK);
+                break;
+            case NO_CHANGES:
+                serverResponse = new ServerResponse(ServerRespenseCodes.NO_CHANGES);
+                break;
+            case SQL_ERROR:
+                serverResponse = new ServerResponse(ServerRespenseCodes.SQL_ERROR);
+                break;
+            case UNKNOWN_ERROR:
+                serverResponse = new ServerResponse(ServerRespenseCodes.ERROR);
+                break;
         }
-        else serverResponse.setText("В коллекции не найдено объекта с таким id.");
 
         return serverResponse;
     }

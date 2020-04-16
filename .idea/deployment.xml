@@ -5,7 +5,7 @@
       <paths name="hellios">
         <serverdata>
           <mappings>
-            <mapping deploy="/home/s284718/prog/Lab7" local="$PROJECT_DIR$/Server/build/libs" web="/" />
+            <mapping deploy="/prog/Lab7" local="$PROJECT_DIR$/Server/build/libs" web="/" />
           </mappings>
         </serverdata>
       </paths>

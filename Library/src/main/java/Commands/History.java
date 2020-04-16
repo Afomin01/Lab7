@@ -1,5 +1,6 @@
 package Commands;
 import Instruments.ICollectionManager;
+import Instruments.ServerRespenseCodes;
 import Storable.Route;
 import Instruments.ServerResponse;
 
@@ -17,6 +18,6 @@ public class History implements ICommand {
 
     @Override
     public ServerResponse execute(ICollectionManager<Route> manager) {
-        return new ServerResponse();
+        return new ServerResponse(ServerRespenseCodes.TEXT_ONLY);
     }
 }
