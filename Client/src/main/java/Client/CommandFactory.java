@@ -1,13 +1,13 @@
+package Client;
+
 import Commands.*;
-import Exceptions.EOFElementCreationException;
-import Exceptions.WrongCommandArgumentsException;
+import Client.Exceptions.EOFElementCreationException;
+import Client.Exceptions.WrongCommandArgumentsException;
 import Storable.Coordinates;
 import Storable.Location;
 import Storable.Route;
 
-import java.io.BufferedReader;
 import java.io.Console;
-import java.io.IOException;
 
 public class CommandFactory {
     private String username;

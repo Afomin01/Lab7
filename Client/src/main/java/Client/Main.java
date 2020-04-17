@@ -1,12 +1,12 @@
+package Client;
+
 import Commands.Exit;
 import Commands.ICommand;
 import Commands.LogIn;
 import Commands.SignUp;
-import Exceptions.EOFCommandGetException;
 import Instruments.ClientRequest;
 import Instruments.SerializeManager;
 import Instruments.ServerResponse;
-import Storable.Route;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;

@@ -1,4 +1,5 @@
-import Instruments.ClientRequest;
+package Server;
+
 import Instruments.SerializeManager;
 import Instruments.ServerRespenseCodes;
 import Instruments.ServerResponse;

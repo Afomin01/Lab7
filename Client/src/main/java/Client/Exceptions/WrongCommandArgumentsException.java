@@ -1,4 +1,4 @@
-package Exceptions;
+package Client.Exceptions;
 
 import Commands.EAvailableCommands;
 

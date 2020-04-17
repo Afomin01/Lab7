@@ -1,3 +1,5 @@
+package Server;
+
 import Instruments.ICollectionManager;
 import Instruments.ManagerResponseCodes;
 import Storable.Coordinates;

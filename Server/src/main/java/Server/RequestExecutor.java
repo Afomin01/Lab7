@@ -1,3 +1,5 @@
+package Server;
+
 import Commands.*;
 import Instruments.ClientRequest;
 import Instruments.ICollectionManager;

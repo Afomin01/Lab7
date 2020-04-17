@@ -1,3 +1,5 @@
+package Server;
+
 import Instruments.ICollectionManager;
 import Instruments.ServerRespenseCodes;
 import Instruments.ServerResponse;

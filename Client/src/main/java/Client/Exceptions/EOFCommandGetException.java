@@ -1,4 +1,4 @@
-package Exceptions;
+package Client.Exceptions;
 
 public class EOFCommandGetException extends Exception {
     public EOFCommandGetException() {
