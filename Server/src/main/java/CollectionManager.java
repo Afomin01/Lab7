@@ -50,8 +50,8 @@ public class CollectionManager implements ICollectionManager<Route> {
     public ManagerResponseCodes add(Route element) {
         try {
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String sql = "insert into routes(name, coordinate_x, coordinate_y, creation_date, from_x, from_y, from_name, to_x, to_y, to_name, distance, owner) values (" +
-                    element.getName() + ", " +
+            String sql = "insert into routes(name, coordinate_x, coordinate_y, creation_date, from_x, from_y, from_name, to_x, to_y, to_name, distance, owner) values ('" +
+                    element.getName() + "', " +
                     element.getCoordinates().getx() + ", " +
                     element.getCoordinates().gety() + ", '" +
                     df.format(element.getCreationDate()) + "', " +
@@ -153,4 +153,3 @@ public class CollectionManager implements ICollectionManager<Route> {
         return syncSet.stream();
     }
 }
-//TODO singleton

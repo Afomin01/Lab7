@@ -76,7 +76,7 @@ public class RequestExecutor implements Runnable {
                         responsePool.execute(new ResponseSender(client, resp));
 
                     }else {
-                        String sql = "insert into users values ('" + clientRequest.getLogin() + "' , '" + clientRequest.getPassword() + "' , '" + ((SignUp) command).getSalt() + "' )";///TODO erhheth
+                        String sql = "insert into users values ('" + clientRequest.getLogin() + "' , '" + clientRequest.getPassword() + "' , '" + ((SignUp) command).getSalt() + "' )";
                         statement.execute(sql);
 
                         resp = new ServerResponse(ServerRespenseCodes.AUTHORISED);
@@ -116,7 +116,6 @@ public class RequestExecutor implements Runnable {
                     Main.log.severe("UNAUTHORISED CLINT " + clientRequest.getLogin());
                 }
             }
-
         }catch (SQLException e){
             responsePool.execute(new ResponseSender(client, new ServerResponse(ServerRespenseCodes.SQL_ERROR)));
             Main.log.severe("SQLException for client " + clientRequest.getLogin());

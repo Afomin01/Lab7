@@ -25,7 +25,7 @@ public class Show implements ICommand {
                 return (int) (temp1-temp2);
             }
         };
-        ServerResponse serverResponse = new ServerResponse(ServerRespenseCodes.TEXT_ONLY,"Элементы в коллекции:\n");
+        ServerResponse serverResponse = new ServerResponse(ServerRespenseCodes.SHOW);
         manager.stream().sorted(compareRoute).collect(Collectors.toList()).forEach(r->serverResponse.addText("\n"+r.toString()+"\n"));
 
         return serverResponse;

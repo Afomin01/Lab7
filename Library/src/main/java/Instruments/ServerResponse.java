@@ -1,11 +1,17 @@
 package Instruments;
 
+import Storable.Route;
+
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ServerResponse implements Serializable {
     private String additionalInfo = "";
     private ServerRespenseCodes code;
+    private ArrayList<ServerResponse> scriptReport = new ArrayList<>();
     private boolean access = false;
+    private List<Route> collectionSorted;
 
     public ServerResponse(ServerRespenseCodes code) {
         this.code = code;
@@ -37,4 +43,14 @@ public class ServerResponse implements Serializable {
     public void addText(String text){
         this.additionalInfo = this.additionalInfo + "\n" + text;
     }
+
+    public ArrayList<ServerResponse> getScriptReport() {
+        return scriptReport;
+    }
+
+    public void setScriptReport(ArrayList<ServerResponse> scriptReport) {
+        this.scriptReport = scriptReport;
+    }
+
+
 }

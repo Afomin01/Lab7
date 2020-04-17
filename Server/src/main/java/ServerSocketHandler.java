@@ -98,7 +98,6 @@ public class ServerSocketHandler{
                 Iterator<SelectionKey> iterator = selectedKeys.iterator();
 
                 while (iterator.hasNext()) {
-
                     key = iterator.next();
                     if(!key.channel().isOpen()){
                         key.cancel();
@@ -107,6 +106,7 @@ public class ServerSocketHandler{
                             SocketChannel client = ss.accept();
                             client.configureBlocking(false);
                             client.register(selector, SelectionKey.OP_READ);
+                            client.socket().setSendBufferSize(5000000);
                         }
 
                         if (key.isReadable()) {

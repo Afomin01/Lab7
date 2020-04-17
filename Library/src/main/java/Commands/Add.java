@@ -9,9 +9,11 @@ import java.util.Date;
 
 public class Add implements ICommand {
     private Route elementToAdd;
+    private String owner;
 
-    public Add(Route elementToAdd){
+    public Add(Route elementToAdd,String owner){
         this.elementToAdd = elementToAdd;
+        this.owner=owner;
     }
 
     @Override

@@ -123,7 +123,7 @@ public class Route implements Comparable<Route>, Serializable {
     @Override
     public String toString() {
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        return "id: "+id+"\nname: "+name+"\ncoordinates:\n"+coordinates.toString()+"\ncreationDate: "+df.format(creationDate)+"\nfrom:\n"+from.toString()+"\nto:\n"+to.toString()+"\ndistance: "+distance;
+        return "id: "+id+"\nname: "+name+"\ncoordinates:\n"+coordinates.toString()+"\ncreationDate: "+df.format(creationDate)+"\nfrom:\n"+from.toString()+"\nto:\n"+to.toString()+"\ndistance: "+distance+"\nowner: "+owner;
 
     }
 

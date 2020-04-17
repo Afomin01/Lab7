@@ -21,14 +21,14 @@ public class CommandFactory {
                 case "add":
                     if (type.length == 1){
                         Route adding = elementCreator(reader);
-                        if (adding != null) returning = new Add(adding);
+                        if (adding != null) returning = new Add(adding,user);
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Add);
                     break;
                 case "add_if_max":
                     if (type.length == 1){
                         Route adding = elementCreator(reader);
-                        if (adding != null) returning = new AddIfMax(adding);
+                        if (adding != null) returning = new AddIfMax(adding,user);
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Add_If_Max);
                     break;
@@ -42,6 +42,7 @@ public class CommandFactory {
                             returning = new CountGreaterThanDistance(Double.parseDouble(type[1]));
                         }catch (NumberFormatException e){
                             System.out.println("Некорректный ввод числового значения. Необходим double");
+                            Main.dollar();
                         }
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Count_Greater_Than_Distance);
@@ -76,6 +77,7 @@ public class CommandFactory {
                             returning = new RemoveAllByDistance(Double.parseDouble(type[1]),user);
                         }catch (NumberFormatException e){
                             System.out.println("Некорректный ввод числового значения. Необходим double");
+                            Main.dollar();
                         }
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Remove_All_By_Distance);
@@ -97,6 +99,7 @@ public class CommandFactory {
                             returning = new RemoveById(Long.parseLong(type[1]),user);
                         }catch (NumberFormatException e){
                             System.out.println("Некорректный ввод числового значения. Необходим int");
+                            Main.dollar();
                         }
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Remove_By_Id);
@@ -108,12 +111,14 @@ public class CommandFactory {
                             if (adding != null) returning = new UpdateId(Long.parseLong(type[1]), adding,user);
                         }catch (NumberFormatException e){
                             System.out.println("Некорректный ввод числового значения. Необходим long");
+                            Main.dollar();
                         }
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Update);
                     break;
                 default:
                     Main.outputInfo("Неопознанная команда \"" + type[0] + "\". Для вывода справки введите help");
+                    Main.dollar();
                     break;
             }
         }catch (WrongCommandArgumentsException e){
@@ -131,11 +136,13 @@ public class CommandFactory {
             Location Lto = new Location();
 
             Main.outputInfo("Введите значение поля name (String)");
+            Main.dollar();
             String temp = reader.readLine();
             if(temp == null) throw new EOFElementCreationException();
 
             while (temp.isEmpty() || temp.matches("[\\s]*")) {
                 Main.outputInfo("Данное поле не может быть пустым");
+                Main.dollar();
                 temp = reader.readLine();
                 if(temp == null) throw new EOFElementCreationException();
             }
@@ -143,12 +150,14 @@ public class CommandFactory {
             adding.setName(temp);
 
             Main.outputInfo("Введите значение  coordinates: x (double)");
+            Main.dollar();
             while (true) {
                 try {
                     temp = reader.readLine();
                     if(temp == null) throw new EOFElementCreationException();
                     while (temp.isEmpty()) {
                         Main.outputInfo("Данное поле не может быть пустым");
+                        Main.dollar();
                         temp = reader.readLine();
                         if(temp == null) throw new EOFElementCreationException();
                     }
@@ -156,21 +165,25 @@ public class CommandFactory {
                     break;
                 } catch (NumberFormatException e) {
                     Main.outputInfo("Некорректный ввод. Введите double");
+                    Main.dollar();
                 }
             }
 
             Main.outputInfo("Введите значение поля coordinates: y (Double)");
+            Main.dollar();
             while (true) {
                 try {
                     temp = reader.readLine();
                     if(temp == null) throw new EOFElementCreationException();
                     while (temp.isEmpty()) {
                         Main.outputInfo("Данное поле не может быть пустым");
+                        Main.dollar();
                         temp = reader.readLine();
                         if(temp == null) throw new EOFElementCreationException();
                     }
                     while (Double.parseDouble(temp) <= -462) {
                         Main.outputInfo("Значение поля должно быть больше -462");
+                        Main.dollar();
                         temp = reader.readLine();
                         if(temp == null) throw new EOFElementCreationException();
                     }
@@ -179,16 +192,19 @@ public class CommandFactory {
                     break;
                 } catch (NumberFormatException e) {
                     Main.outputInfo("Некорректный ввод. Введите Double");
+                    Main.dollar();
                 }
             }
 
             Main.outputInfo("Введите значение поля from: x (Integer)");
+            Main.dollar();
             while (true) {
                 try {
                     temp = reader.readLine();
                     if(temp == null) throw new EOFElementCreationException();
                     while (temp.isEmpty()) {
                         Main.outputInfo("Данное поле не может быть пустым");
+                        Main.dollar();
                         temp = reader.readLine();
                         if(temp == null) throw new EOFElementCreationException();
                     }
@@ -196,16 +212,19 @@ public class CommandFactory {
                     break;
                 } catch (NumberFormatException e) {
                     Main.outputInfo("Некорректный ввод. Введите Integer");
+                    Main.dollar();
                 }
             }
 
             Main.outputInfo("Введите значение поля from: y (Long)");
+            Main.dollar();
             while (true) {
                 try {
                     temp = reader.readLine();
                     if(temp == null) throw new EOFElementCreationException();
                     while (temp.isEmpty()) {
                         Main.outputInfo("Данное поле не может быть пустым");
+                        Main.dollar();
                         temp = reader.readLine();
                         if(temp == null) throw new EOFElementCreationException();
                     }
@@ -213,14 +232,17 @@ public class CommandFactory {
                     break;
                 } catch (NumberFormatException e) {
                     Main.outputInfo("Некорректный ввод. Введите Long");
+                    Main.dollar();
                 }
             }
 
             Main.outputInfo("Введите значение поля from: name (String)");
+            Main.dollar();
             temp = reader.readLine();
             if(temp == null) throw new EOFElementCreationException();
             while (temp.isEmpty() || temp.matches("[\\s]*")) {
                 Main.outputInfo("Данное поле не может быть пустым");
+                Main.dollar();
                 temp = reader.readLine();
                 if(temp == null) throw new EOFElementCreationException();
             }
@@ -228,12 +250,14 @@ public class CommandFactory {
             adding.setFrom(Lfrom);
 
             Main.outputInfo("Введите значение поля to: x (Integer)");
+            Main.dollar();
             while (true) {
                 try {
                     temp = reader.readLine();
                     if(temp == null) throw new EOFElementCreationException();
                     while (temp.isEmpty()) {
                         Main.outputInfo("Данное поле не может быть пустым");
+                        Main.dollar();
                         temp = reader.readLine();
                         if(temp == null) throw new EOFElementCreationException();
                     }
@@ -241,16 +265,19 @@ public class CommandFactory {
                     break;
                 } catch (NumberFormatException e) {
                     Main.outputInfo("Некорректный ввод. Введите Integer");
+                    Main.dollar();
                 }
             }
 
             Main.outputInfo("Введите значение поля to: y (Long)");
+            Main.dollar();
             while (true) {
                 try {
                     temp = reader.readLine();
                     if(temp == null) throw new EOFElementCreationException();
                     while (temp.isEmpty()) {
                         Main.outputInfo("Данное поле не может быть пустым");
+                        Main.dollar();
                         temp = reader.readLine();
                         if(temp == null) throw new EOFElementCreationException();
                     }
@@ -258,14 +285,17 @@ public class CommandFactory {
                     break;
                 } catch (NumberFormatException e) {
                     Main.outputInfo("Некорректный ввод. Введите Long");
+                    Main.dollar();
                 }
             }
 
             Main.outputInfo("Введите значение поля to: name (String)");
+            Main.dollar();
             temp = reader.readLine();
             if(temp == null) throw new EOFElementCreationException();
             while (temp.isEmpty() || temp.matches("[\\s]*")) {
                 Main.outputInfo("Данное поле не может быть пустым");
+                Main.dollar();
                 temp = reader.readLine();
                 if(temp == null) throw new EOFElementCreationException();
             }
@@ -273,12 +303,14 @@ public class CommandFactory {
             adding.setTo(Lto);
 
             Main.outputInfo("Введите значение поля distance (double)");
+            Main.dollar();
             while (true) {
                 try {
                     temp = reader.readLine();
                     if(temp == null) throw new EOFElementCreationException();
                     while (Double.parseDouble(temp) <= 1) {
                         Main.outputInfo("Данное поле должно быть больше 1");
+                        Main.dollar();
                         temp = reader.readLine();
                         if(temp == null) throw new EOFElementCreationException();
                     }
@@ -286,6 +318,7 @@ public class CommandFactory {
                     break;
                 } catch (NumberFormatException e) {
                     Main.outputInfo("Некорректный ввод. Введите double");
+                    Main.dollar();
                 }
             }
             return adding;

@@ -28,8 +28,8 @@ public class SocketReader implements Runnable {
             int bytesRead = client.read(buf);
             try {
                 if (bytesRead == -1) {
-                    Main.log.severe("Client forced disconnect. Socket for this client was closed and removed.");
-                    System.out.println("sdgoijsogjg");
+                    Main.log.info("Client forced disconnect. Socket for this client was closed and removed.");
+
                     client.close();
                     responsePool.execute(new ResponseSender(client, new ServerResponse(ServerRespenseCodes.SERVER_FATAL_ERROR)));
                 }

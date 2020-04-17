@@ -19,7 +19,7 @@ public class ResponseSender implements Runnable {
     @Override
     public void run() {
         try {
-            ByteBuffer buf = ByteBuffer.allocate(5000);
+            ByteBuffer buf = ByteBuffer.allocate(1000000);
             buf.clear();
             buf.put(SerializeManager.toByte(serverResponse));
             buf.flip();

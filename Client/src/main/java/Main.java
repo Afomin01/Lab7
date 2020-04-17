@@ -6,6 +6,7 @@ import Exceptions.EOFCommandGetException;
 import Instruments.ClientRequest;
 import Instruments.SerializeManager;
 import Instruments.ServerResponse;
+import Storable.Route;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
@@ -27,11 +28,12 @@ public class Main {
                 try {
                     port = Integer.parseInt(args[0]);
                 } catch (NumberFormatException e) {
-                    outputText("Ошибка парсинга порта. Выбран порт по-умолчанию: "+port);
+                    outputInfo("Ошибка парсинга порта. Выбран порт по-умолчанию: "+port);
                 }
             }
 
             Socket channel = new Socket("localhost", port);
+            channel.setReceiveBufferSize(100000000);
 
             InputStream fromServer = channel.getInputStream();
             OutputStream toServer = channel.getOutputStream();
@@ -44,6 +46,7 @@ public class Main {
             String temp;
             while (true){
                 outputInfo("Ведите команду log_in, чтобы войти, или sign_up, чтобы зарегестрироваться");
+                dollar();
                 temp = reader.readLine();
                 if (temp==null){
                     outputInfo("Введен специальный символ. Завершение работы...");
@@ -54,26 +57,28 @@ public class Main {
 
             MessageDigest messageDigest = MessageDigest.getInstance("MD2");
 
-            if(temp.equals("sign_up")) outputText("Пароль должен быть не менее 5 символов в длинну, содержать как минимум 1 цифру и 1 прописную букву.");
+            if(temp.equals("sign_up")) outputInfo("Пароль должен быть не менее 5 символов в длинну, содержать как минимум 1 цифру и 1 прописную букву.");
             while (true){
                 outputInfo("Ведите имя пользователя:");
+                dollar();
                 login=reader.readLine();
                 if (login==null){
                     outputInfo("Введен специальный символ. Завершение работы...");
                     System.exit(0);
                 }
                 if(temp.equals("sign_up") && login.length()<3){
-                    outputText("Имя пользователя не может быть короче 3 символов.");
+                    outputInfo("Имя пользователя не может быть короче 3 символов.");
                     continue;
                 }
                 outputInfo("Ведите пароль:");
+                dollar();
                 password= String.valueOf(reader.readPassword());
                 if (password==null){
                     outputInfo("Введен специальный символ. Завершение работы...");
                     System.exit(0);
                 }
                 if(temp.equals("sign_up") && (password.length()<5 || !password.matches(".*\\d+.*") || !password.matches(".*[A-Z].*"))){
-                    outputText("Пароль не соответствует требованиям: пароль должен быть не менее 5 символов в длинну, содержать как минимум 1 цифру и 1 прописную букву.");
+                    outputInfo("Пароль не соответствует требованиям: пароль должен быть не менее 5 символов в длинну, содержать как минимум 1 цифру и 1 прописную букву.");
                     continue;
                 }
                 if(temp.equals("log_in")){
@@ -94,6 +99,7 @@ public class Main {
                             sr = (ServerResponse) SerializeManager.fromByte(b);
                             if (sr.isAccess()) {
                                 outputInfo("Авторизация успешна");
+                                dollar();
                                 break;
                             } else {
                                 switch (sr.getCode()) {
@@ -118,12 +124,35 @@ public class Main {
                             }
                         }
                     }catch (NullPointerException e){
-                        outputText("Сервер не доступен");
+                        long t = System.currentTimeMillis();
+                        long end = t + 15000;
+                        foo=false;
+                        while (System.currentTimeMillis() < end) {
+                            try {
+                                outputInfo("Ожидание...");
+                                channel = new Socket("localhost", port);
+
+                                fromServer = channel.getInputStream();
+                                toServer = channel.getOutputStream();
+                                toServer.flush();
+
+                                reader = System.console();
+                                foo=true;
+                                break;
+                            } catch (Exception ignored) {
+                                Thread.sleep(500);
+                            }
+                        }
+                        if(!foo){
+                            outputInfo("Ошибка подключения. Завершение работы...");
+                            System.exit(1);
+                        }
                     }
                 }
                 if(temp.equals("sign_up")){
                     try {
                     outputInfo("Повторите пароль:");
+                    dollar();
                     String temppsw= String.valueOf(reader.readPassword());
                     if(temppsw.equals(password)) {
 
@@ -133,8 +162,12 @@ public class Main {
                         sr = (ServerResponse) SerializeManager.fromByte(b);
                         if (sr.isAccess()) {
 
-                            outputInfo("Ведите e-mail, либо no для отказза ввода:");//TODO while
-                            String email = String.valueOf(reader.readLine());
+                            while (true) {
+                                outputInfo("Ведите корректный e-mail, либо \'no\' для отказа ввода:");
+                                dollar();
+                                String email = String.valueOf(reader.readLine());
+                                if (email=="no" || email.matches(".*@.*\\..*")) break;
+                            }
 
                             password = password + sr.getAdditionalInfo();
                             messageDigest.reset();
@@ -148,7 +181,8 @@ public class Main {
                             fromServer.read(b);
                             sr = (ServerResponse) SerializeManager.fromByte(b);
                             if (sr.isAccess()) {
-                                outputInfo(sr.getAdditionalInfo());
+                                outputInfo("Регистарция и авторизация успешна.");
+                                dollar();
                                 break;
                             } else{
                                 switch (sr.getCode()){
@@ -161,7 +195,6 @@ public class Main {
                                     case SQL_ERROR:
                                         outputInfo("Ошибка регистрации, попробуйте еще раз");
                                         break;
-
                                 }
                             }
                         } else{
@@ -181,7 +214,29 @@ public class Main {
                         outputInfo("Пароли не совпадают.");
                     }
                     }catch (NullPointerException e){
-                        outputText("Сервер не доступен");//TODO reconnect
+                        long t = System.currentTimeMillis();
+                        long end = t + 15000;
+                        foo=false;
+                        while (System.currentTimeMillis() < end) {
+                            try {
+                                outputInfo("Ожидание...");
+                                channel = new Socket("localhost", port);
+
+                                fromServer = channel.getInputStream();
+                                toServer = channel.getOutputStream();
+                                toServer.flush();
+
+                                reader = System.console();
+                                foo=true;
+                                break;
+                            } catch (Exception ignored) {
+                                Thread.sleep(500);
+                            }
+                        }
+                        if(!foo){
+                            outputInfo("Ошибка подключения. Завершение работы...");
+                            System.exit(1);
+                        }
                     }
                 }
             }
@@ -195,7 +250,7 @@ public class Main {
                         byte[] b = new byte[10000];
                         fromServer.read(b);
                         ServerResponse resp = (ServerResponse) SerializeManager.fromByte(b);
-                        outputText("Введен специальный символ. Завершение работы...");
+                        outputInfo("Введен специальный символ. Завершение работы...");
                         System.exit(1);
                     }
                     ICommand command = commandFactory.getCommand(currentCommand.trim().split(" "), reader, login);
@@ -203,60 +258,11 @@ public class Main {
 
                         toServer.write(SerializeManager.toByte(new ClientRequest(command,login,password)));
 
-                        byte[] b = new byte[10000];
+                        byte[] b = new byte[100000000];
                         fromServer.read(b);
                         ServerResponse response = (ServerResponse) SerializeManager.fromByte(b);
-                        switch (response.getCode()){//TODO null pointer when server offline
-                            case SEARCH_OK:
-                                outputInfo("Результаты поиска:\n"+response.getAdditionalInfo() + "\n");
-                                break;
-                            case COUNT:
-                                outputInfo("Результаты подсчета:\n"+response.getAdditionalInfo() + "\n");
-                                break;
-                            case SEARCH_NOT_FOUND:
-                                outputInfo("Поиск не дал результатов.");
-                                break;
-                            case SQL_ERROR:
-                                outputInfo("Ошибка исполнения запроса. Попробуйте еще раз.");
-                                break;
-                            case ADD_OK:
-                                outputInfo("Элемент успешно добавлен.");
-                                break;
-                            case NO_CHANGES:
-                                outputInfo("Коллекция не изменилась");
-                                break;
-                            case DELETE_OK:
-                                outputInfo("Удаление успешно");
-                                break;
-                            case CLEAR_OK:
-                                outputInfo("Все Ваши элементы успешно удалены");
-                                break;
-                            case UPDATE_OK:
-                                outputInfo("Поля элемента успешно обновлены");
-                                break;
-                            case ERROR:
-                                outputInfo("Неизвестная ошибка. Попробуйте еще раз.");
-                                break;
-                            case SCRIPT_RESULT:
-                                outputInfo("Результат работы скрипта:\n"+response.getAdditionalInfo() + "\n");
-                                break;
-                            case SERVER_FATAL_ERROR:
-                                outputInfo("\nКритическая ошибка сервера. Завершение работы...");
-                                System.exit(0);
-                                break;
-                            case TEXT_ONLY:
-                                outputInfo("Ответ сервера: \n"+response.getAdditionalInfo() + "\n");
-                                break;
-                            case EXIT:
-                                outputText( "\nЗавершение работы...");
-                                System.exit(0);
-                                break;
-                            case CONNECTED:
-                                outputInfo("Соединение установлено");
-                                break;
-                            case SURPRISE_NOT_CORRECT_LOGIN_OR_PASSWORD:
-                                outputInfo("Каким-то образом вы пытались выполнить команду, введя неверные данные для входа! Хакерам здесь не рады!:)");
-                        }
+                        serverResponseDecode(response);
+                        dollar();
                     }
                 }catch (IOException | NullPointerException e) {
                     long t = System.currentTimeMillis();
@@ -271,8 +277,10 @@ public class Main {
                             toServer = channel.getOutputStream();
                             toServer.flush();
 
-                            reader = System.console();//TODO log_in no
+                            reader = System.console();
                             foo=true;
+                            outputInfo("Подключение восстановлено.");
+                            dollar();
                             break;
                         } catch (Exception ignored) {
                             Thread.sleep(500);
@@ -286,16 +294,83 @@ public class Main {
             }
 
         } catch (IOException | InterruptedException | NoSuchAlgorithmException e) {
-            outputInfo("Ошибка подключения. Завершение работы...");
+            outputInfo("Ошибка подключения к серверу. Завершение работы...");
             System.exit(1);
         }
     }
 
     public static void outputInfo(String text) {
         System.out.println(text);
+    }
+    public static void dollar(){
         System.out.print("$");
     }
-    public static void outputText(String text){
-        System.out.println(text);
+
+    public static void serverResponseDecode(ServerResponse response) throws NullPointerException{
+        switch (response.getCode()){
+            case SEARCH_OK:
+                outputInfo("Результаты поиска:\n"+response.getAdditionalInfo() + "\n");
+                break;
+            case COUNT:
+                outputInfo("Результаты подсчета:\n"+response.getAdditionalInfo() + "\n");
+                break;
+            case SEARCH_NOT_FOUND:
+                outputInfo("Поиск не дал результатов.");
+                break;
+            case SQL_ERROR:
+                outputInfo("Ошибка исполнения запроса. Попробуйте еще раз.");
+                break;
+            case ADD_OK:
+                outputInfo("Элемент успешно добавлен.");
+                break;
+            case NO_CHANGES:
+                outputInfo("Коллекция не изменилась");
+                break;
+            case DELETE_OK:
+                outputInfo("Удаление успешно");
+                break;
+            case CLEAR_OK:
+                outputInfo("Все Ваши элементы успешно удалены");
+                break;
+            case UPDATE_OK:
+                outputInfo("Поля элемента успешно обновлены");
+                break;
+            case ERROR:
+                outputInfo("Неизвестная ошибка. Попробуйте еще раз.");
+                break;
+            case SCRIPT_RESULT:
+                for (ServerResponse r : response.getScriptReport()){
+                    serverResponseDecode(r);
+                }
+                break;
+            case SERVER_FATAL_ERROR:
+                outputInfo("\nКритическая ошибка сервера. Завершение работы...");
+                System.exit(0);
+                break;
+            case TEXT_ONLY:
+                outputInfo("Ответ сервера: \n"+response.getAdditionalInfo() + "\n");
+                break;
+            case EXIT:
+                outputInfo( "\nЗавершение работы...");
+                System.exit(0);
+                break;
+            case CONNECTED:
+                outputInfo("Соединение установлено");
+                break;
+            case SURPRISE_NOT_CORRECT_LOGIN_OR_PASSWORD:
+                outputInfo("Каким-то образом вы пытались выполнить команду, введя неверные данные для входа! Хакерам здесь не рады!:)");
+                break;
+            case SCRIPT_REC:
+                outputInfo("В процессе выполнения скрипта юыла обнаружена рекурсия. Дальнейшее выполнение не производится."+response.getAdditionalInfo());
+                break;
+            case SCRIPT_FILE_ERR:
+                outputInfo("Обнаружена ошибка чтения файла. Проверьте доступность и правильность пути к файлу.");
+                break;
+            case SCRIPT_COMMAND_ERR:
+                outputInfo("В процессе выполнения была обнаружена ошибка в файле скрипта. Дальнейшее выполнение невозможно."+response.getAdditionalInfo());
+                break;
+            case SHOW:
+                outputInfo("Элементы коллекции:\n"+response.getAdditionalInfo());
+        }
     }
 }

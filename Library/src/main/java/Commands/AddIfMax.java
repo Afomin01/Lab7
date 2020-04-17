@@ -10,9 +10,11 @@ import java.util.Date;
 public class AddIfMax implements ICommand {
 
     private Route elementToAdd;
+    String owner;
 
-    public AddIfMax(Route elementToAdd){
+    public AddIfMax(Route elementToAdd, String owner){
         this.elementToAdd = elementToAdd;
+        this.owner=owner;
     }
 
     @Override
