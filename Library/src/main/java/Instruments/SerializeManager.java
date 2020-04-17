@@ -1,3 +1,5 @@
+package Instruments;
+
 import java.io.*;
 
 public class SerializeManager {
@@ -19,7 +21,6 @@ public class SerializeManager {
             ObjectInputStream objectInputStream = new ObjectInputStream(byteInputStream);
             return objectInputStream.readObject();
         }catch (Exception e){
-            Main.outputInfo("Ошибка сереализации команды. Попробуйте еще раз.");
             return null;
         }
     }

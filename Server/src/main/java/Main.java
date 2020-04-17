@@ -6,8 +6,12 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -39,7 +43,7 @@ public class Main {
 
         Properties property = new Properties();
         try {
-            property.load(ClassLoader.getSystemClassLoader().getResourceAsStream("db.properties"));
+            property.load(ClassLoader.getSystemClassLoader().getResourceAsStream("app.properties"));
         } catch (FileNotFoundException e) {
             log.severe("Database properties file not found. Shutting down...");
             for(Handler h : log.getHandlers())  h.close();
@@ -71,37 +75,7 @@ public class Main {
         }
 
         CollectionManager collectionManager = new CollectionManager(DBconnection);
-
-        //SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-        //SSLServerSocket sslserversocket = null;
-        ServerSocket ss = null;
-        try {
-            ss = new ServerSocket(port);
-            //sslserversocket = (SSLServerSocket) sslserversocketfactory.createServerSocket(9999);
-        } catch (IOException e) {
-            log.severe("Error while creating ServerSocket. Shutting down ...");
-            for(Handler h : log.getHandlers())  h.close();
-            System.exit(1);
-        }
-        System.out.println();
-        log.info("The server started successfully. Port: " + port);
-
-        Socket client;
-        long clientID=0;
-        SocketsHandler socketsHandler = new SocketsHandler(collectionManager);
-        new Thread(socketsHandler,"Main Socket Handler Thread").start();
-
-        try {
-            while (true) {
-                //SSLSocket client = (SSLSocket) sslserversocket.accept();
-                client = ss.accept();
-                SocketConnected socket = new SocketConnected(client,clientID);
-                socketsHandler.addSocket(clientID,socket);
-                clientID++;
-            }
-        } catch (IOException | SocketHandlerException e) {
-            log.severe("Error accepting connection from client.");
-        }
+        ServerSocketHandler socketsHandler = new ServerSocketHandler(collectionManager, port);
     }
 
     public static void sendMail(String mail, String text){

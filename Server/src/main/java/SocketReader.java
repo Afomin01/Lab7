@@ -1,21 +1,21 @@
-import Instruments.ClientRequest;
-import Instruments.ICollectionManager;
-import Instruments.ServerRespenseCodes;
-import Instruments.ServerResponse;
+import Instruments.*;
 import Storable.Route;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class SocketReader implements Runnable {
-    private final SocketConnected socket;
+    private final SocketChannel client;
     private final ThreadPoolExecutor executePool;
     private final ThreadPoolExecutor responsePool;
     private ClientRequest clientRequest;
     private final ICollectionManager<Route> manager;
+    ByteBuffer buf = ByteBuffer.allocate(10000);
 
-    public SocketReader(SocketConnected socket, ThreadPoolExecutor executePool, ThreadPoolExecutor responsePool,ICollectionManager<Route> manager){
-        this.socket = socket;
+    public SocketReader(SocketChannel client, ThreadPoolExecutor executePool, ThreadPoolExecutor responsePool,ICollectionManager<Route> manager){
+        this.client = client;
         this.executePool = executePool;
         this.responsePool = responsePool;
         this.manager = manager;
@@ -24,14 +24,21 @@ public class SocketReader implements Runnable {
     @Override
     public void run() {
         try {
-            clientRequest = (ClientRequest) socket.getInputStream().readObject();
-            executePool.execute(new RequestExecutor(socket,clientRequest,responsePool,manager));
-        } catch (IOException e) {
-            responsePool.execute(new ResponseSender(socket, clientRequest, new ServerResponse(ServerRespenseCodes.SERVER_FATAL_ERROR)));
-            Main.log.severe("IOException for client " + socket.getLogin());
-        } catch (ClassNotFoundException e) {
-            responsePool.execute(new ResponseSender(socket, clientRequest, new ServerResponse(ServerRespenseCodes.SERVER_FATAL_ERROR)));
-            Main.log.severe("ClassNotFound for client " + socket.getLogin());
+            buf.clear();
+            int bytesRead = client.read(buf);
+            if (bytesRead > 4) {
+                buf.flip();
+                clientRequest = (ClientRequest) SerializeManager.fromByte(buf.array());
+                if(clientRequest==null) throw new NullRequestException();
+                executePool.execute(new RequestExecutor(client, clientRequest, responsePool,manager));
+            }
+
+        } catch (IOException e){
+            responsePool.execute(new ResponseSender(client, new ServerResponse(ServerRespenseCodes.SERVER_FATAL_ERROR)));
+            Main.log.severe("IOException for client. Disconnecting...");
+        } catch (NullRequestException e) {
+            responsePool.execute(new ResponseSender(client, new ServerResponse(ServerRespenseCodes.SERVER_FATAL_ERROR)));
+            Main.log.severe("Null request for client. Disconnecting...");
         }
     }
 }

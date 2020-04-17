@@ -3,14 +3,11 @@ import Commands.LogIn;
 import Commands.SignUp;
 import Exceptions.EOFCommandGetException;
 import Instruments.ClientRequest;
-import Instruments.ServerRespenseCodes;
+import Instruments.SerializeManager;
 import Instruments.ServerResponse;
 
 import javax.xml.bind.DatatypeConverter;
-import java.io.Console;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -35,9 +32,9 @@ public class Main {
 
             Socket channel = new Socket("localhost", port);
 
-            ObjectInputStream fromServerStream = new ObjectInputStream(channel.getInputStream());
-            ObjectOutputStream toServerStream = new ObjectOutputStream(channel.getOutputStream());
-            toServerStream.flush();
+            InputStream fromServer = channel.getInputStream();
+            OutputStream toServer = channel.getOutputStream();
+            toServer.flush();
 
             ServerResponse sr; //= (ServerResponse) fromServerStream.readObject();
             //outputInfo(sr.getAdditionalInfo());
@@ -68,18 +65,20 @@ public class Main {
                     continue;
                 }
                 if(temp.equals("log_in")){
-                    toServerStream.write(1);
-                    toServerStream.writeObject(new ClientRequest(new LogIn(),login,"%"));
-                    sr = (ServerResponse) fromServerStream.readObject();
-                    System.out.println(sr.isAccess());
+                    toServer.write(SerializeManager.toByte(new ClientRequest(new LogIn(),login,"%")));
+                    byte[] b = new byte[10000];
+                    fromServer.read(b);
+                    sr = (ServerResponse) SerializeManager.fromByte(b);
                     if(sr.isAccess()){
                         password=password+sr.getAdditionalInfo();
                         messageDigest.reset();
                         messageDigest.update(password.getBytes());
                         password = DatatypeConverter.printHexBinary(messageDigest.digest());
-                        toServerStream.write(1);
-                        toServerStream.writeObject(new ClientRequest(new LogIn(),login,password));
-                        sr = (ServerResponse) fromServerStream.readObject();
+
+                        toServer.write(SerializeManager.toByte(new ClientRequest(new LogIn(),login,password)));
+                        b = new byte[10000];
+                        fromServer.read(b);
+                        sr = (ServerResponse) SerializeManager.fromByte(b);
                         if(sr.isAccess()){
                             outputInfo("Авторизация успешна");
                             break;
@@ -100,7 +99,6 @@ public class Main {
                                 outputInfo("Неизвестная ошибка. Попробуйте еще раз.");
                                 break;
                             case INCORRECT_LOG_IN:
-                                System.out.println("erwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
                                 outputInfo("Неверный логин/пароль.");
                                 break;
                         }
@@ -110,12 +108,14 @@ public class Main {
                     outputInfo("Повторите пароль:");
                     String temppsw= String.valueOf(reader.readPassword());
                     if(temppsw.equals(password)) {
-                        toServerStream.write(1);
-                        toServerStream.writeObject(new ClientRequest(new SignUp(), login, "%"));
-                        sr = (ServerResponse) fromServerStream.readObject();
+
+                        toServer.write(SerializeManager.toByte(new ClientRequest(new SignUp(), login, "%")));
+                        byte[] b = new byte[10000];
+                        fromServer.read(b);
+                        sr = (ServerResponse) SerializeManager.fromByte(b);
                         if (sr.isAccess()) {
 
-                            outputInfo("Ведите e-mail:");
+                            outputInfo("Ведите e-mail, либо no для отказза ввода:");//TODO while
                             String email = String.valueOf(reader.readLine());
 
                             password = password + sr.getAdditionalInfo();
@@ -124,9 +124,11 @@ public class Main {
                             password = DatatypeConverter.printHexBinary(messageDigest.digest());
                             SignUp signUp = new SignUp();
                             signUp.setSalt(sr.getAdditionalInfo());
-                            toServerStream.write(1);
-                            toServerStream.writeObject(new ClientRequest(signUp, login, password));
-                            sr = (ServerResponse) fromServerStream.readObject();
+
+                            toServer.write(SerializeManager.toByte(new ClientRequest(signUp, login, password)));
+                            b = new byte[10000];
+                            fromServer.read(b);
+                            sr = (ServerResponse) SerializeManager.fromByte(b);
                             if (sr.isAccess()) {
                                 outputInfo(sr.getAdditionalInfo());
                                 break;
@@ -162,11 +164,13 @@ public class Main {
                     if (currentCommand == null) throw new EOFCommandGetException();
                     ICommand command = commandFactory.getCommand(currentCommand.trim().split(" "), reader, login);
                     if (command != null) {
-                        toServerStream.write(1);
-                        toServerStream.writeObject(new ClientRequest(command,login,password));
-                        ServerResponse response = (ServerResponse) fromServerStream.readObject();
-                        switch (response.getCode()){
 
+                        toServer.write(SerializeManager.toByte(new ClientRequest(command,login,password)));
+
+                        byte[] b = new byte[10000];
+                        fromServer.read(b);
+                        ServerResponse response = (ServerResponse) SerializeManager.fromByte(b);
+                        switch (response.getCode()){//TODO null pointer when server offline
                             case SEARCH_OK:
                                 outputInfo("Результаты поиска:\n"+response.getAdditionalInfo() + "\n");
                                 break;
@@ -218,21 +222,20 @@ public class Main {
                                 outputInfo("Каким-то образом вы пытались выполнить команду, введя неверные данные для входа! Хакерам здесь не рады!:)");
                         }
                     }
-                }catch (IOException e) {
+                }catch (IOException | NullPointerException e) {
                     long t = System.currentTimeMillis();
                     long end = t + 15000;
                     foo=false;
                     while (System.currentTimeMillis() < end) {
                         try {
                             outputInfo("Ожидание...");
-                            Socket chan = new Socket("localhost", port);
-                            fromServerStream = new ObjectInputStream(chan.getInputStream());
-                            toServerStream = new ObjectOutputStream(chan.getOutputStream());
-                            toServerStream.flush();
+                            channel = new Socket("localhost", port);
 
-                            reader = System.console();
-                            sr = (ServerResponse) fromServerStream.readObject();
-                            outputInfo(sr.getAdditionalInfo());
+                            fromServer = channel.getInputStream();
+                            toServer = channel.getOutputStream();
+                            toServer.flush();
+
+                            reader = System.console();//TODO log_in no
                             foo=true;
                             break;
                         } catch (Exception ignored) {
@@ -249,7 +252,7 @@ public class Main {
                 }
             }
 
-        } catch (IOException | ClassNotFoundException | InterruptedException | NoSuchAlgorithmException e) {
+        } catch (IOException | InterruptedException | NoSuchAlgorithmException e) {
             outputInfo("Ошибка подключения. Завершение работы...");
             System.exit(1);
         }
