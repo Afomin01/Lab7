@@ -26,7 +26,16 @@ public class SocketReader implements Runnable {
         try {
             buf.clear();
             int bytesRead = client.read(buf);
-            if (bytesRead > 4) {
+            try {
+                if (bytesRead == -1) {
+                    Main.log.severe("Client forced disconnect. Socket for this client was closed and removed.");
+                    System.out.println("sdgoijsogjg");
+                    client.close();
+                    responsePool.execute(new ResponseSender(client, new ServerResponse(ServerRespenseCodes.SERVER_FATAL_ERROR)));
+                }
+            }catch (IOException ignored){}
+
+            if (bytesRead > 4){
                 buf.flip();
                 clientRequest = (ClientRequest) SerializeManager.fromByte(buf.array());
                 if(clientRequest==null) throw new NullRequestException();
@@ -34,8 +43,10 @@ public class SocketReader implements Runnable {
             }
 
         } catch (IOException e){
-            responsePool.execute(new ResponseSender(client, new ServerResponse(ServerRespenseCodes.SERVER_FATAL_ERROR)));
-            Main.log.severe("IOException for client. Disconnecting...");
+            if(client.isOpen()) {
+                responsePool.execute(new ResponseSender(client, new ServerResponse(ServerRespenseCodes.SERVER_FATAL_ERROR)));
+                Main.log.severe("IOException for client. Disconnecting...");
+            }
         } catch (NullRequestException e) {
             responsePool.execute(new ResponseSender(client, new ServerResponse(ServerRespenseCodes.SERVER_FATAL_ERROR)));
             Main.log.severe("Null request for client. Disconnecting...");

@@ -21,8 +21,8 @@ public class HistoryHandler {
     }
 
     public String getHistory(){
-        String out = "Последние введенные команды:\n";
-        for (String s : history) out = out + s + "\n";
+        String out = "";
+        for (String s : history) out += s + "\n";
         return out;
     }
 

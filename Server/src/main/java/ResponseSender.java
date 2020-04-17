@@ -35,12 +35,12 @@ public class ResponseSender implements Runnable {
             }
 
         }catch (IOException e){
-            Main.log.severe("IOException for client.");
-            if(serverResponse.getCode()==ServerRespenseCodes.SERVER_FATAL_ERROR){
-                try {
-                    client.close();
-                } catch (IOException ignored) {
-                }
+            if (serverResponse.getCode() != ServerRespenseCodes.SERVER_FATAL_ERROR) {
+                Main.log.severe("IOException for client.");
+            }
+            try {
+                client.close();
+            } catch (IOException ignored) {
             }
         }
     }

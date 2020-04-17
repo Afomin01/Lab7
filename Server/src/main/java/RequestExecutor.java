@@ -101,8 +101,10 @@ public class RequestExecutor implements Runnable {
                         if (command.getCommandEnum() == EAvailableCommands.History)
                             resp.setAdditionalInfo(ServerSocketHandler.getHistory(clientRequest.getLogin()));
                         ServerSocketHandler.addCommandToHistory(clientRequest.getLogin(), command.getCommandEnum().toString());
-                        if (resp.getCode() == ServerRespenseCodes.EXIT)
+                        if (resp.getCode() == ServerRespenseCodes.EXIT){
                             ServerSocketHandler.deleteHistory(clientRequest.getLogin());
+                            Main.log.info("Client with login "+clientRequest.getLogin()+ " exits server. Socket for this client was closed and removed.");
+                        }
                         responsePool.execute(new ResponseSender(client, resp));
 
                     } else {

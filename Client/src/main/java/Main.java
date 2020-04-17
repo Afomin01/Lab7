@@ -1,3 +1,4 @@
+import Commands.Exit;
 import Commands.ICommand;
 import Commands.LogIn;
 import Commands.SignUp;
@@ -24,7 +25,7 @@ public class Main {
             int port = 4004;
             if (args.length == 1) {
                 try {
-                    port = Integer.parseInt(args[1]);
+                    port = Integer.parseInt(args[0]);
                 } catch (NumberFormatException e) {
                     outputText("Ошибка парсинга порта. Выбран порт по-умолчанию: "+port);
                 }
@@ -36,8 +37,7 @@ public class Main {
             OutputStream toServer = channel.getOutputStream();
             toServer.flush();
 
-            ServerResponse sr; //= (ServerResponse) fromServerStream.readObject();
-            //outputInfo(sr.getAdditionalInfo());
+            ServerResponse sr;
 
             String currentCommand;
             CommandFactory commandFactory = new CommandFactory();
@@ -45,6 +45,10 @@ public class Main {
             while (true){
                 outputInfo("Ведите команду log_in, чтобы войти, или sign_up, чтобы зарегестрироваться");
                 temp = reader.readLine();
+                if (temp==null){
+                    outputInfo("Введен специальный символ. Завершение работы...");
+                    System.exit(0);
+                }
                 if(temp.equals("log_in")||temp.equals("sign_up")) break;
             }
 
@@ -54,57 +58,71 @@ public class Main {
             while (true){
                 outputInfo("Ведите имя пользователя:");
                 login=reader.readLine();
+                if (login==null){
+                    outputInfo("Введен специальный символ. Завершение работы...");
+                    System.exit(0);
+                }
                 if(temp.equals("sign_up") && login.length()<3){
                     outputText("Имя пользователя не может быть короче 3 символов.");
                     continue;
                 }
                 outputInfo("Ведите пароль:");
                 password= String.valueOf(reader.readPassword());
+                if (password==null){
+                    outputInfo("Введен специальный символ. Завершение работы...");
+                    System.exit(0);
+                }
                 if(temp.equals("sign_up") && (password.length()<5 || !password.matches(".*\\d+.*") || !password.matches(".*[A-Z].*"))){
                     outputText("Пароль не соответствует требованиям: пароль должен быть не менее 5 символов в длинну, содержать как минимум 1 цифру и 1 прописную букву.");
                     continue;
                 }
                 if(temp.equals("log_in")){
-                    toServer.write(SerializeManager.toByte(new ClientRequest(new LogIn(),login,"%")));
-                    byte[] b = new byte[10000];
-                    fromServer.read(b);
-                    sr = (ServerResponse) SerializeManager.fromByte(b);
-                    if(sr.isAccess()){
-                        password=password+sr.getAdditionalInfo();
-                        messageDigest.reset();
-                        messageDigest.update(password.getBytes());
-                        password = DatatypeConverter.printHexBinary(messageDigest.digest());
-
-                        toServer.write(SerializeManager.toByte(new ClientRequest(new LogIn(),login,password)));
-                        b = new byte[10000];
+                    try {
+                        toServer.write(SerializeManager.toByte(new ClientRequest(new LogIn(), login, "%")));
+                        byte[] b = new byte[10000];
                         fromServer.read(b);
                         sr = (ServerResponse) SerializeManager.fromByte(b);
-                        if(sr.isAccess()){
-                            outputInfo("Авторизация успешна");
-                            break;
-                        }
-                        else{
-                            switch (sr.getCode()){
+                        if (sr.isAccess()) {
+                            password = password + sr.getAdditionalInfo();
+                            messageDigest.reset();
+                            messageDigest.update(password.getBytes());
+                            password = DatatypeConverter.printHexBinary(messageDigest.digest());
+
+                            toServer.write(SerializeManager.toByte(new ClientRequest(new LogIn(), login, password)));
+                            b = new byte[10000];
+                            fromServer.read(b);
+                            sr = (ServerResponse) SerializeManager.fromByte(b);
+                            if (sr.isAccess()) {
+                                outputInfo("Авторизация успешна");
+                                break;
+                            } else {
+                                switch (sr.getCode()) {
+                                    case ERROR:
+                                        outputInfo("Неизвестная ошибка. Попробуйте еще раз.");
+                                        break;
+                                    case INCORRECT_LOG_IN:
+                                    case SQL_ERROR:
+                                        outputInfo("Неверный логин/пароль.");
+                                        break;
+                                }
+                            }
+                        } else {
+                            switch (sr.getCode()) {
                                 case ERROR:
                                     outputInfo("Неизвестная ошибка. Попробуйте еще раз.");
                                     break;
                                 case INCORRECT_LOG_IN:
+                                case SQL_ERROR:
                                     outputInfo("Неверный логин/пароль.");
                                     break;
                             }
                         }
-                    }else{
-                        switch (sr.getCode()){
-                            case ERROR:
-                                outputInfo("Неизвестная ошибка. Попробуйте еще раз.");
-                                break;
-                            case INCORRECT_LOG_IN:
-                                outputInfo("Неверный логин/пароль.");
-                                break;
-                        }
+                    }catch (NullPointerException e){
+                        outputText("Сервер не доступен");
                     }
                 }
                 if(temp.equals("sign_up")){
+                    try {
                     outputInfo("Повторите пароль:");
                     String temppsw= String.valueOf(reader.readPassword());
                     if(temppsw.equals(password)) {
@@ -140,6 +158,10 @@ public class Main {
                                     case INCORRECT_LOG_IN:
                                         outputInfo("Пользователь с данным login уже существует.");
                                         break;
+                                    case SQL_ERROR:
+                                        outputInfo("Ошибка регистрации, попробуйте еще раз");
+                                        break;
+
                                 }
                             }
                         } else{
@@ -150,10 +172,16 @@ public class Main {
                                 case INCORRECT_LOG_IN:
                                     outputInfo("Пользователь с данным login уже существует");
                                     break;
+                                case SQL_ERROR:
+                                    outputInfo("Ошибка регистрации, попробуйте еще раз");
+                                    break;
                             }
                         }
                     }else{
                         outputInfo("Пароли не совпадают.");
+                    }
+                    }catch (NullPointerException e){
+                        outputText("Сервер не доступен");//TODO reconnect
                     }
                 }
             }
@@ -161,7 +189,15 @@ public class Main {
             while (true) {
                 try {
                     currentCommand = reader.readLine();
-                    if (currentCommand == null) throw new EOFCommandGetException();
+                    if (currentCommand == null){
+                        toServer.write(SerializeManager.toByte(new ClientRequest(new Exit(login), login, password)));
+
+                        byte[] b = new byte[10000];
+                        fromServer.read(b);
+                        ServerResponse resp = (ServerResponse) SerializeManager.fromByte(b);
+                        outputText("Введен специальный символ. Завершение работы...");
+                        System.exit(1);
+                    }
                     ICommand command = commandFactory.getCommand(currentCommand.trim().split(" "), reader, login);
                     if (command != null) {
 
@@ -212,7 +248,7 @@ public class Main {
                                 outputInfo("Ответ сервера: \n"+response.getAdditionalInfo() + "\n");
                                 break;
                             case EXIT:
-                                outputInfo( "\nЗавершение работы...");
+                                outputText( "\nЗавершение работы...");
                                 System.exit(0);
                                 break;
                             case CONNECTED:
@@ -246,9 +282,6 @@ public class Main {
                         outputInfo("Ошибка повторного подключения. Завершение работы...");
                         System.exit(1);
                     }
-                } catch (EOFCommandGetException e) {
-                    outputInfo(e.getMessage());
-                    System.exit(1);
                 }
             }
 

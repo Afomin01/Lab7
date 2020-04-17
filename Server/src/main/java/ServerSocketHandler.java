@@ -25,17 +25,17 @@ public class ServerSocketHandler{
         historyHandlers.add(new HistoryHandler(login));
     }
     public static void addCommandToHistory(String user, String command){
-        historyHandlers.stream().filter(r->r.getLogin()==user).forEach(r->r.addHistory(command));
+        historyHandlers.stream().filter(r-> r.getLogin().equals(user)).forEach(r->r.addHistory(command));
     }
     public static String getHistory(String user){
         String out ="";
-        for(HistoryHandler r : historyHandlers.stream().filter(r->r.getLogin()==user).collect(Collectors.toList())){
-            out=out+r.getHistory();
+        for(HistoryHandler r : historyHandlers.stream().filter(r-> r.getLogin().equals(user)).collect(Collectors.toList())){
+            out=r.getHistory();
         }
         return out;
     }
     public static void deleteHistory(String login){
-        historyHandlers.removeIf(r->r.getLogin()==login);
+        historyHandlers.removeIf(r-> r.getLogin().equals(login));
     }
 
     private final ICollectionManager<Route> manager;
@@ -100,16 +100,15 @@ public class ServerSocketHandler{
                 while (iterator.hasNext()) {
 
                     key = iterator.next();
-
-                    if (key.isAcceptable()) {//TODO Exception in thread "main" java.nio.channels.CancelledKeyException
-                        SocketChannel client = ss.accept();
-                        client.configureBlocking(false);
-                        client.register(selector, SelectionKey.OP_READ);
-                    }
-
                     if(!key.channel().isOpen()){
                         key.cancel();
                     }else {
+                        if (key.isAcceptable()) {
+                            SocketChannel client = ss.accept();
+                            client.configureBlocking(false);
+                            client.register(selector, SelectionKey.OP_READ);
+                        }
+
                         if (key.isReadable()) {
                             readPool.execute(new SocketReader((SocketChannel) key.channel(), executePool, responsePool, manager));
                         }
@@ -121,7 +120,6 @@ public class ServerSocketHandler{
                 log.warning("IOException for client. Connection was closed.");
                 responsePool.execute(new ResponseSender((SocketChannel) key.channel(), new ServerResponse(ServerRespenseCodes.SERVER_FATAL_ERROR)));
             }
-
         }
     }
 }
