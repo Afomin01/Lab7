@@ -8,11 +8,18 @@ import Instruments.ClientRequest;
 import Instruments.SerializeManager;
 import Instruments.ServerResponse;
 
-import javax.mail.*;
+import javax.mail.Message;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.xml.bind.DatatypeConverter;
-import java.io.*;
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
+import java.io.Console;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -25,9 +32,7 @@ public class Main {
 
     public static void main(String[] args){
         try{
-            /*SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-            SSLSocket channel = (SSLSocket) sslsocketfactory.createSocket("localhost", 4004);*/
-            int port = 4004;
+            int port = 47836;
             if (args.length == 1) {
                 try {
                     port = Integer.parseInt(args[0]);
@@ -88,17 +93,18 @@ public class Main {
                 if(temp.equals("log_in")){
                     try {
                         toServer.write(SerializeManager.toByte(new ClientRequest(new LogIn(), login, "%")));
-                        byte[] b = new byte[10000];
+                        byte[] b = new byte[100000];
                         fromServer.read(b);
                         sr = (ServerResponse) SerializeManager.fromByte(b);
                         if (sr.isAccess()) {
                             password = password + sr.getAdditionalInfo();
                             messageDigest.reset();
                             messageDigest.update(password.getBytes());
+
                             password = DatatypeConverter.printHexBinary(messageDigest.digest());
 
                             toServer.write(SerializeManager.toByte(new ClientRequest(new LogIn(), login, password)));
-                            b = new byte[10000];
+                            b = new byte[100000];
                             fromServer.read(b);
                             sr = (ServerResponse) SerializeManager.fromByte(b);
                             if (sr.isAccess()) {
@@ -161,7 +167,7 @@ public class Main {
                     if(temppsw.equals(password)) {
 
                         toServer.write(SerializeManager.toByte(new ClientRequest(new SignUp(), login, "%")));
-                        byte[] b = new byte[10000];
+                        byte[] b = new byte[100000];
                         fromServer.read(b);
                         sr = (ServerResponse) SerializeManager.fromByte(b);
                         if (sr.isAccess()) {
@@ -187,19 +193,19 @@ public class Main {
                             signUp.setSalt(sr.getAdditionalInfo());
 
                             toServer.write(SerializeManager.toByte(new ClientRequest(signUp, login, password)));
-                            b = new byte[10000];
+                            b = new byte[100000];
                             fromServer.read(b);
                             sr = (ServerResponse) SerializeManager.fromByte(b);
                             if (sr.isAccess()) {
                                 outputInfo("Регистарция и авторизация успешна.");
-                                if(!email.equals("no")) {
+/*                                if(!email.equals("no")) {
                                     try {
                                         sendEmail(email, passwordc, login);
                                         passwordc="";
                                     } catch (Exception e) {
                                         outputInfo("Ошибка отрпавки письма.");
                                     }
-                                }
+                                }*/
                                 dollar();
                                 break;
                             } else{
@@ -276,7 +282,7 @@ public class Main {
 
                         toServer.write(SerializeManager.toByte(new ClientRequest(command,login,password)));
 
-                        byte[] b = new byte[100000000];
+                        byte[] b = new byte[100000];
                         fromServer.read(b);
                         ServerResponse response = (ServerResponse) SerializeManager.fromByte(b);
                         serverResponseDecode(response);
@@ -391,7 +397,7 @@ public class Main {
                 outputInfo("Элементы коллекции:\n"+response.getAdditionalInfo());
         }
     }
-    public static void sendEmail(String mail, String password, String user) throws Exception {
+/*    public static void sendEmail(String mail, String password, String user) throws Exception {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
@@ -416,5 +422,5 @@ public class Main {
 
         Transport.send(message);
         outputInfo("Email sent");
-    }
+    }*/
 }

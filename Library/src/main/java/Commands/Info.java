@@ -19,7 +19,7 @@ public class Info implements ICommand {
         String out="";
         out = out + "Тип коллекции: LinkedHashSet";
         out = out + "\nКоличесвто элементов коллекции: "+ manager.stream().count();
-        out = out + "\nТип хранимых элементов: Routes";
+        out = out + "\nТип хранимых элементов: Route";
 
         return new ServerResponse(ServerRespenseCodes.TEXT_ONLY, out);
     }

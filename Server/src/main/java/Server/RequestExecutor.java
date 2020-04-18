@@ -80,8 +80,8 @@ public class RequestExecutor implements Runnable {
                         responsePool.execute(new ResponseSender(client, resp));
 
                     } else {
-                        //try {
-                            //sendMail(((SignUp) command).getEmail(), clientRequest.getLogin(), ((SignUp) command).getPassword());
+                        try {
+                            sendMail(((SignUp) command).getEmail(), clientRequest.getLogin(), ((SignUp) command).getPassword());
                             String sql = "insert into users values ('" + clientRequest.getLogin() + "' , '" + clientRequest.getPassword() + "' , '" + ((SignUp) command).getSalt() + "' )";
                             statement.execute(sql);
 
@@ -91,11 +91,11 @@ public class RequestExecutor implements Runnable {
 
                             ServerSocketHandler.addClient(clientRequest.getLogin());
                             Main.log.info("Client with login " + clientRequest.getLogin() + " registered and authorised successfully");
-                        //} catch (MessagingException e) {
-                        //    resp = new ServerResponse(ServerRespenseCodes.ERROR);
-                        //    resp.setAccess(false);
-                        //    responsePool.execute(new ResponseSender(client, resp));
-                        //}
+                        } catch (MessagingException e) {
+                            resp = new ServerResponse(ServerRespenseCodes.ERROR);
+                            resp.setAccess(false);
+                            responsePool.execute(new ResponseSender(client, resp));
+                        }
                     }
                 } else {
                     resp = new ServerResponse(ServerRespenseCodes.INCORRECT_LOG_IN);
@@ -151,7 +151,7 @@ public class RequestExecutor implements Runnable {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress("proglab7@gmail.com"));
             message.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse("mrafomin@gmail.com"));
+                    InternetAddress.parse(mail));
             message.setSubject("Programming lab password and login");
             message.setText("Dear user,"
                     + "\n\n Here are your login details for client-server app:\n\npassword: " + password + "\nlogin: " + login + "\n\nAll the best,\n helios");
