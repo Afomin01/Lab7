@@ -8,11 +8,15 @@ import Instruments.ClientRequest;
 import Instruments.SerializeManager;
 import Instruments.ServerResponse;
 
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Properties;
 
 public class Main {
     private static Console reader = System.console();
@@ -162,18 +166,24 @@ public class Main {
                         sr = (ServerResponse) SerializeManager.fromByte(b);
                         if (sr.isAccess()) {
 
+                            String email;
                             while (true) {
                                 outputInfo("Ведите корректный e-mail, либо \'no\' для отказа ввода:");
                                 dollar();
-                                String email = String.valueOf(reader.readLine());
-                                if (email=="no" || email.matches(".*@.*\\..*")) break;
+                                email = String.valueOf(reader.readLine());
+                                if (email.equals("no") || email.matches(".*@.*\\..*")){
+                                    break;
+                                }
                             }
+                            SignUp signUp = new SignUp();
+                            signUp.setEmail(email);
+                            if(!email.equals("no")) signUp.setPassword(password);
+                            String passwordc = password;
 
                             password = password + sr.getAdditionalInfo();
                             messageDigest.reset();
                             messageDigest.update(password.getBytes());
                             password = DatatypeConverter.printHexBinary(messageDigest.digest());
-                            SignUp signUp = new SignUp();
                             signUp.setSalt(sr.getAdditionalInfo());
 
                             toServer.write(SerializeManager.toByte(new ClientRequest(signUp, login, password)));
@@ -182,12 +192,20 @@ public class Main {
                             sr = (ServerResponse) SerializeManager.fromByte(b);
                             if (sr.isAccess()) {
                                 outputInfo("Регистарция и авторизация успешна.");
+                                if(!email.equals("no")) {
+                                    try {
+                                        sendEmail(email, passwordc, login);
+                                        passwordc="";
+                                    } catch (Exception e) {
+                                        outputInfo("Ошибка отрпавки письма.");
+                                    }
+                                }
                                 dollar();
                                 break;
                             } else{
                                 switch (sr.getCode()){
                                     case ERROR:
-                                        outputInfo("Неизвестная ошибка. Попробуйте еще раз.");
+                                        outputInfo("Ошибка отпарвки письма на почту. Проверьте правильность ввода почты. ");
                                         break;
                                     case INCORRECT_LOG_IN:
                                         outputInfo("Пользователь с данным login уже существует.");
@@ -372,5 +390,31 @@ public class Main {
             case SHOW:
                 outputInfo("Элементы коллекции:\n"+response.getAdditionalInfo());
         }
+    }
+    public static void sendEmail(String mail, String password, String user) throws Exception {
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        Properties property = new Properties();
+        property.load(ClassLoader.getSystemClassLoader().getResourceAsStream("email.properties"));
+
+        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(property.getProperty("email"), property.getProperty("password"));
+            }
+        });
+
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress("no-reply@ProgLab.com"));
+        message.setRecipients(Message.RecipientType.TO,
+                InternetAddress.parse(mail));
+        message.setSubject("Programming lab password and login");
+        message.setText("Dear user,"
+                + "\n\n Here are your login details for client-server app:\n\npassword: " + password + "\nlogin: " + login + "\n\nAll the best,\n helios");
+
+        Transport.send(message);
+        outputInfo("Email sent");
     }
 }
