@@ -76,7 +76,7 @@ public class CommandFactory {
                         try {
                             returning = new RemoveAllByDistance(Double.parseDouble(type[1]),user);
                         }catch (NumberFormatException e){
-                            System.out.println("Некорректный ввод числового значения. Необходим double");
+                            Main.outputInfo("Некорректный ввод числового значения. Необходим double");
                             Main.dollar();
                         }
                     }
@@ -98,7 +98,7 @@ public class CommandFactory {
                         try {
                             returning = new RemoveById(Long.parseLong(type[1]),user);
                         }catch (NumberFormatException e){
-                            System.out.println("Некорректный ввод числового значения. Необходим int");
+                            Main.outputInfo("Некорректный ввод числового значения. Необходим int");
                             Main.dollar();
                         }
                     }
@@ -110,7 +110,7 @@ public class CommandFactory {
                             Route adding = elementCreator(reader);
                             if (adding != null) returning = new UpdateId(Long.parseLong(type[1]), adding,user);
                         }catch (NumberFormatException e){
-                            System.out.println("Некорректный ввод числового значения. Необходим long");
+                            Main.outputInfo("Некорректный ввод числового значения. Необходим long");
                             Main.dollar();
                         }
                     }
@@ -123,6 +123,7 @@ public class CommandFactory {
             }
         }catch (WrongCommandArgumentsException e){
             Main.outputInfo(e.getMessage());
+            Main.dollar();
             returning = null;
         }
         return returning;
@@ -324,6 +325,7 @@ public class CommandFactory {
             return adding;
         } catch (EOFElementCreationException e) {
             Main.outputInfo(e.getMessage());
+            Main.dollar();
             return null;
         }
     }

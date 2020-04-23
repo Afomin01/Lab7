@@ -42,7 +42,7 @@ public class Main {
             }
 
             Socket channel = new Socket("localhost", port);
-            channel.setReceiveBufferSize(100000000);
+            channel.setReceiveBufferSize(10000);
 
             InputStream fromServer = channel.getInputStream();
             OutputStream toServer = channel.getOutputStream();

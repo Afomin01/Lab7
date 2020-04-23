@@ -5,6 +5,8 @@ import Instruments.ServerRespenseCodes;
 import Instruments.ServerResponse;
 import Storable.Route;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -75,7 +77,8 @@ public class ServerSocketHandler{
         log.info("Server started successfully. Port: " + port);
 
         try{
-            property.load(ClassLoader.getSystemClassLoader().getResourceAsStream("app.properties"));
+            //property.load(ClassLoader.getSystemClassLoader().getResourceAsStream("app.properties"));
+            property.load(new FileInputStream("app.properties"));
             read = Integer.parseInt(property.getProperty("readPoolSize"));
             execute = Integer.parseInt(property.getProperty("executePoolSize"));
             response = Integer.parseInt(property.getProperty("writePoolSize"));

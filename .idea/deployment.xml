@@ -6,6 +6,7 @@
         <serverdata>
           <mappings>
             <mapping deploy="/prog/Lab7" local="$PROJECT_DIR$/Server/build/libs" web="/" />
+            <mapping deploy="/prog/Lab7" local="$PROJECT_DIR$/Client/build/libs" web="/" />
           </mappings>
         </serverdata>
       </paths>

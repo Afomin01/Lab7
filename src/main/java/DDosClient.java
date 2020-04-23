@@ -21,7 +21,7 @@ public class DDosClient implements Runnable {
     DDosClient(String scriptName) {
         try {
             this.scriptName=scriptName;
-            Socket channel = new Socket("localhost", 4004);
+            Socket channel = new Socket("localhost", 47836);
 
             fromServer = channel.getInputStream();
             toServer = channel.getOutputStream();
