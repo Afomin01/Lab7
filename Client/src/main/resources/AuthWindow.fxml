@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="400.0" maxWidth="600.0" prefHeight="361.0" prefWidth="426.0" style="-fx-background-color: #000A4C;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.AuthWindowController">
+   <children>
+      <AnchorPane layoutY="80.0" maxHeight="281.0" maxWidth="600.0" prefHeight="281.0" prefWidth="600.0" style="-fx-background-color: #FFFFFF;">
+         <children>
+            <HBox alignment="CENTER_LEFT" layoutY="249.0" prefHeight="32.0" prefWidth="600.0" spacing="10.0" style="-fx-background-color: #AFAFAF;">
+               <children>
+                  <ImageView fx:id="ruFlag" fitHeight="26.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@Flag_of_Russia.png" />
+                     </image>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </ImageView>
+                  <ImageView fx:id="spFlag" fitHeight="26.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@Flag_of_Spain.png" />
+                     </image>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </ImageView>
+                  <ImageView fx:id="horFlag" fitHeight="26.0" fitWidth="39.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@Flag_of_Croatia.png" />
+                     </image>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </ImageView>
+                  <ImageView fx:id="trFlag" fitHeight="26.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@Flag_of_Turkey.png" />
+                     </image>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </ImageView>
+                  <ImageView fx:id="usFlag" fitHeight="26.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@Flag_of_US.png" />
+                     </image>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </ImageView>
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </HBox>
+            <VBox layoutX="130.0" prefHeight="222.0" prefWidth="341.0" spacing="10.0">
+               <children>
+                  <Text fx:id="authLabel" strokeType="OUTSIDE" strokeWidth="0.0" text="%authorization" textAlignment="CENTER" wrappingWidth="341.0">
+                     <font>
+                        <Font name="Segoe Script Bold" size="28.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="loginFail" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="337.13671875">
+                     <VBox.margin>
+                        <Insets bottom="-10.0" top="-20.0" />
+                     </VBox.margin>
+                  </Text>
+                  <TextField fx:id="loginField" prefHeight="25.0" prefWidth="329.0" promptText="%login" />
+                  <PasswordField fx:id="passwordField" prefHeight="25.0" prefWidth="329.0" promptText="%password" />
+                  <PasswordField fx:id="repeatPasswordField" disable="true" promptText="%login.repeat" />
+                  <TextField fx:id="mailField" disable="true" promptText="%login.mail" />
+                  <HBox alignment="CENTER" prefHeight="30.0" prefWidth="329.0" spacing="5.0">
+                     <children>
+                        <Button fx:id="logInBtn" mnemonicParsing="false" prefWidth="1000.0" style="-fx-background-color: #EA5E42;" text="%logIn">
+                           <font>
+                              <Font name="Segoe Script" size="12.0" />
+                           </font>
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </Button>
+                        <Button fx:id="signUpBtn" mnemonicParsing="false" prefWidth="1000.0" style="-fx-background-color: #EA5E42;" text="%signUp">
+                           <font>
+                              <Font name="Segoe Script" size="12.0" />
+                           </font>
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </Button>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <HBox alignment="CENTER_LEFT" layoutX="480.0" layoutY="227.0" prefHeight="20.0" prefWidth="98.0" spacing="5.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%server.status" wrappingWidth="52.13671875">
+                     <font>
+                        <Font name="Segoe Script" size="12.0" />
+                     </font>
+                  </Text>
+                  <Circle fx:id="serverPoint" fill="#ff1f1f" radius="6.0" stroke="TRANSPARENT" strokeType="INSIDE" />
+                  <ImageView fx:id="refreshStatus" fitHeight="19.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@Refresh_icon.png" />
+                     </image>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </ImageView>
+               </children>
+            </HBox>
+         </children>
+      </AnchorPane>
+      <Text fill="WHITE" layoutX="209.0" layoutY="55.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Divoc" textAlignment="CENTER" wrappingWidth="181.13671875">
+         <font>
+            <Font name="Segoe Script" size="48.0" />
+         </font>
+      </Text>
+   </children>
+</AnchorPane>
