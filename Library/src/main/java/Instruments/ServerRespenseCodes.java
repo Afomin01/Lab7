@@ -21,6 +21,7 @@ public enum ServerRespenseCodes {
     SCRIPT_FILE_ERR,
     SERVER_FATAL_ERROR,
     TEXT_ONLY,
+    SET_ONLY,
     SURPRISE_NOT_CORRECT_LOGIN_OR_PASSWORD,
     EXIT;
 }

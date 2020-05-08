@@ -36,7 +36,6 @@ public class SocketReader implements Runnable {
                     responsePool.execute(new ResponseSender(client, new ServerResponse(ServerRespenseCodes.SERVER_FATAL_ERROR)));
                 }
             }catch (IOException ignored){}
-
             if (bytesRead > 4){
                 buf.flip();
                 clientRequest = (ClientRequest) SerializeManager.fromByte(buf.array());

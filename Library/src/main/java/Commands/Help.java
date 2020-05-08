@@ -15,7 +15,7 @@ public class Help implements ICommand {
     public ServerResponse execute(ICollectionManager<Route> manager) {
         String out = "Информация по доступным командам:\n";
         for ( EAvailableCommands c : EAvailableCommands.values()) {
-            out =out+c.getCommandInfo()+"\n";
+            if(!c.equals(EAvailableCommands.Get_Table_Items)) out =out+c.getCommandInfo()+"\n";
         }
 
         return new ServerResponse(ServerRespenseCodes.TEXT_ONLY,out);

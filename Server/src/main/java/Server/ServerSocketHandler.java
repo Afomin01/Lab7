@@ -110,6 +110,7 @@ public class ServerSocketHandler{
                         if (key.isAcceptable()) {
                             SocketChannel client = ss.accept();
                             client.configureBlocking(false);
+                            client.socket().setSendBufferSize(1000000);
                             client.register(selector, SelectionKey.OP_READ);
                             client.socket().setSendBufferSize(5000000);
                         }

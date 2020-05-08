@@ -1,270 +1,202 @@
 package Client;
 
-import Commands.Exit;
-import Commands.ICommand;
 import Commands.LogIn;
 import Commands.SignUp;
+import Controllers.MainWindowController;
+import Controllers.TableTabController;
 import Instruments.ClientRequest;
 import Instruments.SerializeManager;
+import Instruments.ServerRespenseCodes;
 import Instruments.ServerResponse;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-import javax.mail.Message;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.xml.bind.DatatypeConverter;
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
-import java.io.Console;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.channels.SocketChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Properties;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
-public class Main {
-    private static Console reader = System.console();
-    static boolean foo = false;
+public class Main extends Application {
     static String login="", password="";
+    public static Stage stage;
+    public static MainWindowController controller;
+    private static boolean loggedIn = false;
+    private static boolean connected = false;
+    private static boolean inMainWindow = false;
+    private static SocketChannel socketChannel;
+    public static SocketChannelHandler handler;//MAKE METHODS
 
-    public static void main(String[] args){
-        try{
-            int port = 47836;
-            if (args.length == 1) {
-                try {
-                    port = Integer.parseInt(args[0]);
-                } catch (NumberFormatException e) {
-                    outputInfo("Ошибка парсинга порта. Выбран порт по-умолчанию: "+port);
-                }
+    public static boolean isLoggedIn() {
+        return loggedIn;
+    }
+
+    public static boolean isConnected() {
+        return connected;
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    public static boolean connectServer() {
+        if (!connected) {
+            try {
+                SocketAddress a = new InetSocketAddress("localhost", 4004);
+                socketChannel = SocketChannel.open(a);
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
             }
+        } else return true;
+    }
 
-            Socket channel = new Socket("localhost", port);
-            channel.setReceiveBufferSize(10000);
+    @Override
+    public void start(Stage primaryStage) {
+        connected = connectServer();
+        try {
+            stage = primaryStage;
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setResources(ResourceBundle.getBundle("MessagesBundle", Locale.getDefault()));
 
-            InputStream fromServer = channel.getInputStream();
-            OutputStream toServer = channel.getOutputStream();
-            toServer.flush();
+            Parent root = fxmlLoader.load(this.getClass().getResource("/AuthWindow.fxml").openStream());
+            Scene scene = new Scene(root);
 
-            ServerResponse sr;
+            primaryStage.setScene(scene);
 
-            String currentCommand;
-            CommandFactory commandFactory = new CommandFactory();
-            String temp;
-            while (true){
-                outputInfo("Ведите команду log_in, чтобы войти, или sign_up, чтобы зарегестрироваться");
-                dollar();
-                temp = reader.readLine();
-                if (temp==null){
-                    outputInfo("Введен специальный символ. Завершение работы...");
-                    System.exit(0);
-                }
-                if(temp.equals("log_in")||temp.equals("sign_up")) break;
+            primaryStage.setTitle("Authorization");
+            primaryStage.setWidth(600);
+            primaryStage.setHeight(400);
+            primaryStage.setMaxHeight(400);
+            primaryStage.setMaxWidth(600);
+
+            primaryStage.show();
+        } catch (IOException ignored) {
+        }
+    }
+
+    public static void openMainWindow() {
+        if (loggedIn && !inMainWindow) {
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader();
+                fxmlLoader.setResources(ResourceBundle.getBundle("MessagesBundle", Locale.getDefault()));
+
+                Parent root = fxmlLoader.load(Main.class.getResource("/MainWindow.fxml").openStream());
+                controller = fxmlLoader.getController();
+
+                Scene scene = new Scene(root);
+                stage.setScene(scene);
+
+                stage.setTitle("Divoc");
+                stage.setWidth(1920);
+                stage.setHeight(1080);
+                stage.setMaxHeight(Integer.MAX_VALUE);
+                stage.setMaxWidth(Integer.MAX_VALUE);
+                stage.setMaximized(true);
+                inMainWindow = true;
+                handler = new SocketChannelHandler(socketChannel,controller,login,password);
+                Thread thread = new Thread(handler);
+                thread.setDaemon(true);
+                thread.start();
+
+            } catch (IOException ignored) {
+                ignored.printStackTrace();
             }
+        }
+    }
 
-            MessageDigest messageDigest = MessageDigest.getInstance("MD2");
+    public static ServerRespenseCodes logIn(String username, String pass) {
+        if (connected) {
+            try {
+                InputStream fromServer = socketChannel.socket().getInputStream();
+                OutputStream toServer = socketChannel.socket().getOutputStream();
+                toServer.flush();
+                toServer.write(SerializeManager.toByte(new ClientRequest(new LogIn(), username, "%")));
+                byte[] b = new byte[10000];
+                fromServer.read(b);
+                ServerResponse sr = (ServerResponse) SerializeManager.fromByte(b);
+                if (sr.isAccess()) {
+                    MessageDigest messageDigest = MessageDigest.getInstance("MD2");
+                    password = pass + sr.getAdditionalInfo();
+                    messageDigest.reset();
+                    messageDigest.update(password.getBytes());
 
-            if(temp.equals("sign_up")) outputInfo("Пароль должен быть не менее 5 символов в длинну, содержать как минимум 1 цифру и 1 прописную букву.");
-            while (true){
-                outputInfo("Ведите имя пользователя:");
-                dollar();
-                login=reader.readLine();
-                if (login==null){
-                    outputInfo("Введен специальный символ. Завершение работы...");
-                    System.exit(0);
+                    password = DatatypeConverter.printHexBinary(messageDigest.digest());
+                    login=username;
+
+                    toServer.write(SerializeManager.toByte(new ClientRequest(new LogIn(), username, password)));
+                    b = new byte[10000];
+                    fromServer.read(b);
+                    sr = (ServerResponse) SerializeManager.fromByte(b);
                 }
-                if(temp.equals("sign_up") && login.length()<3){
-                    outputInfo("Имя пользователя не может быть короче 3 символов.");
-                    continue;
+                if (sr.getCode() != ServerRespenseCodes.AUTHORISED) {
+                    loggedIn = false;
+                } else{
+                    loggedIn = true;
                 }
-                outputInfo("Ведите пароль:");
-                dollar();
-                password= String.valueOf(reader.readPassword());
-                if (password==null){
-                    outputInfo("Введен специальный символ. Завершение работы...");
-                    System.exit(0);
-                }
-                if(temp.equals("sign_up") && (password.length()<5 || !password.matches(".*\\d+.*") || !password.matches(".*[A-Z].*"))){
-                    outputInfo("Пароль не соответствует требованиям: пароль должен быть не менее 5 символов в длинну, содержать как минимум 1 цифру и 1 прописную букву.");
-                    continue;
-                }
-                if(temp.equals("log_in")){
-                    try {
-                        toServer.write(SerializeManager.toByte(new ClientRequest(new LogIn(), login, "%")));
-                        byte[] b = new byte[100000];
-                        fromServer.read(b);
-                        sr = (ServerResponse) SerializeManager.fromByte(b);
-                        if (sr.isAccess()) {
-                            password = password + sr.getAdditionalInfo();
-                            messageDigest.reset();
-                            messageDigest.update(password.getBytes());
-
-                            password = DatatypeConverter.printHexBinary(messageDigest.digest());
-
-                            toServer.write(SerializeManager.toByte(new ClientRequest(new LogIn(), login, password)));
-                            b = new byte[100000];
-                            fromServer.read(b);
-                            sr = (ServerResponse) SerializeManager.fromByte(b);
-                            if (sr.isAccess()) {
-                                outputInfo("Авторизация успешна");
-                                dollar();
-                                break;
-                            } else {
-                                switch (sr.getCode()) {
-                                    case ERROR:
-                                        outputInfo("Неизвестная ошибка. Попробуйте еще раз.");
-                                        break;
-                                    case INCORRECT_LOG_IN:
-                                    case SQL_ERROR:
-                                        outputInfo("Неверный логин/пароль.");
-                                        break;
-                                }
-                            }
-                        } else {
-                            switch (sr.getCode()) {
-                                case ERROR:
-                                    outputInfo("Неизвестная ошибка. Попробуйте еще раз.");
-                                    break;
-                                case INCORRECT_LOG_IN:
-                                case SQL_ERROR:
-                                    outputInfo("Неверный логин/пароль.");
-                                    break;
-                            }
-                        }
-                    }catch (NullPointerException e){
-                        long t = System.currentTimeMillis();
-                        long end = t + 15000;
-                        foo=false;
-                        while (System.currentTimeMillis() < end) {
-                            try {
-                                outputInfo("Ожидание...");
-                                channel = new Socket("localhost", port);
-
-                                fromServer = channel.getInputStream();
-                                toServer = channel.getOutputStream();
-                                toServer.flush();
-
-                                reader = System.console();
-                                foo=true;
-                                break;
-                            } catch (Exception ignored) {
-                                Thread.sleep(500);
-                            }
-                        }
-                        if(!foo){
-                            outputInfo("Ошибка подключения. Завершение работы...");
-                            System.exit(1);
-                        }
-                    }
-                }
-                if(temp.equals("sign_up")){
-                    try {
-                    outputInfo("Повторите пароль:");
-                    dollar();
-                    String temppsw= String.valueOf(reader.readPassword());
-                    if(temppsw.equals(password)) {
-
-                        toServer.write(SerializeManager.toByte(new ClientRequest(new SignUp(), login, "%")));
-                        byte[] b = new byte[100000];
-                        fromServer.read(b);
-                        sr = (ServerResponse) SerializeManager.fromByte(b);
-                        if (sr.isAccess()) {
-
-                            String email;
-                            while (true) {
-                                outputInfo("Ведите корректный e-mail, либо \'no\' для отказа ввода:");
-                                dollar();
-                                email = String.valueOf(reader.readLine());
-                                if (email.equals("no") || email.matches(".*@.*\\..*")){
-                                    break;
-                                }
-                            }
-                            SignUp signUp = new SignUp();
-                            signUp.setEmail(email);
-                            if(!email.equals("no")) signUp.setPassword(password);
-                            String passwordc = password;
-
-                            password = password + sr.getAdditionalInfo();
-                            messageDigest.reset();
-                            messageDigest.update(password.getBytes());
-                            password = DatatypeConverter.printHexBinary(messageDigest.digest());
-                            signUp.setSalt(sr.getAdditionalInfo());
-
-                            toServer.write(SerializeManager.toByte(new ClientRequest(signUp, login, password)));
-                            b = new byte[100000];
-                            fromServer.read(b);
-                            sr = (ServerResponse) SerializeManager.fromByte(b);
-                            if (sr.isAccess()) {
-                                outputInfo("Регистарция и авторизация успешна.");
-/*                                if(!email.equals("no")) {
-                                    try {
-                                        sendEmail(email, passwordc, login);
-                                        passwordc="";
-                                    } catch (Exception e) {
-                                        outputInfo("Ошибка отрпавки письма.");
-                                    }
-                                }*/
-                                dollar();
-                                break;
-                            } else{
-                                switch (sr.getCode()){
-                                    case ERROR:
-                                        outputInfo("Ошибка отпарвки письма на почту. Проверьте правильность ввода почты. ");
-                                        break;
-                                    case INCORRECT_LOG_IN:
-                                        outputInfo("Пользователь с данным login уже существует.");
-                                        break;
-                                    case SQL_ERROR:
-                                        outputInfo("Ошибка регистрации, попробуйте еще раз");
-                                        break;
-                                }
-                            }
-                        } else{
-                            switch (sr.getCode()){
-                                case ERROR:
-                                    outputInfo("Неизвестная ошибка. Попробуйте еще раз.");
-                                    break;
-                                case INCORRECT_LOG_IN:
-                                    outputInfo("Пользователь с данным login уже существует");
-                                    break;
-                                case SQL_ERROR:
-                                    outputInfo("Ошибка регистрации, попробуйте еще раз");
-                                    break;
-                            }
-                        }
-                    }else{
-                        outputInfo("Пароли не совпадают.");
-                    }
-                    }catch (NullPointerException e){
-                        long t = System.currentTimeMillis();
-                        long end = t + 15000;
-                        foo=false;
-                        while (System.currentTimeMillis() < end) {
-                            try {
-                                outputInfo("Ожидание...");
-                                channel = new Socket("localhost", port);
-
-                                fromServer = channel.getInputStream();
-                                toServer = channel.getOutputStream();
-                                toServer.flush();
-
-                                reader = System.console();
-                                foo=true;
-                                break;
-                            } catch (Exception ignored) {
-                                Thread.sleep(500);
-                            }
-                        }
-                        if(!foo){
-                            outputInfo("Ошибка подключения. Завершение работы...");
-                            System.exit(1);
-                        }
-                    }
-                }
+                return sr.getCode();
+            } catch (NullPointerException | IOException | NoSuchAlgorithmException e) {
+                loggedIn = false;
+                return ServerRespenseCodes.ERROR;
             }
+        } else {
+            loggedIn = false;
+            return ServerRespenseCodes.ERROR;
+        }
+    }
 
+    public static ServerRespenseCodes signUp(String username, String pass, String email) {
+        if (connected) {
+            try {
+                InputStream fromServer = socketChannel.socket().getInputStream();
+                OutputStream toServer = socketChannel.socket().getOutputStream();
+                toServer.flush();
+                toServer.write(SerializeManager.toByte(new ClientRequest(new SignUp(), username, "%")));
+                byte[] b = new byte[100000];
+                fromServer.read(b);
+                ServerResponse sr = (ServerResponse) SerializeManager.fromByte(b);
+                if (sr.isAccess()) {
+                    SignUp signUp = new SignUp();
+                    signUp.setEmail("no");
+                    if (!email.equals("no")) signUp.setPassword(pass);
+                    String passwordc = pass;
+
+                    MessageDigest messageDigest = MessageDigest.getInstance("MD2");
+                    password = pass + sr.getAdditionalInfo();
+                    messageDigest.reset();
+                    messageDigest.update(password.getBytes());
+                    password = DatatypeConverter.printHexBinary(messageDigest.digest());
+                    login=username;
+                    signUp.setSalt(sr.getAdditionalInfo());
+
+                    toServer.write(SerializeManager.toByte(new ClientRequest(signUp, username, password)));
+                    b = new byte[100000];
+                    fromServer.read(b);
+                    sr = (ServerResponse) SerializeManager.fromByte(b);
+                }
+                if(sr.getCode()==ServerRespenseCodes.AUTHORISED) loggedIn=true;
+                else loggedIn=false;
+                return sr.getCode();
+            } catch (IOException | NoSuchAlgorithmException e) {
+                loggedIn = false;
+                return ServerRespenseCodes.ERROR;
+            }
+        }else {
+            loggedIn = false;
+            return ServerRespenseCodes.ERROR;
+        }
+    }
+/*
             while (true) {
                 try {
                     currentCommand = reader.readLine();
@@ -321,7 +253,7 @@ public class Main {
             outputInfo("Ошибка подключения к серверу. Завершение работы...");
             System.exit(1);
         }
-    }
+    }*/
 
     public static void outputInfo(String text) {
         System.out.println(text);
@@ -397,30 +329,4 @@ public class Main {
                 outputInfo("Элементы коллекции:\n"+response.getAdditionalInfo());
         }
     }
-/*    public static void sendEmail(String mail, String password, String user) throws Exception {
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "587");
-        Properties property = new Properties();
-        property.load(ClassLoader.getSystemClassLoader().getResourceAsStream("email.properties"));
-
-        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(property.getProperty("email"), property.getProperty("password"));
-            }
-        });
-
-        Message message = new MimeMessage(session);
-        message.setFrom(new InternetAddress("no-reply@ProgLab.com"));
-        message.setRecipients(Message.RecipientType.TO,
-                InternetAddress.parse(mail));
-        message.setSubject("Programming lab password and login");
-        message.setText("Dear user,"
-                + "\n\n Here are your login details for client-server app:\n\npassword: " + password + "\nlogin: " + login + "\n\nAll the best,\n helios");
-
-        Transport.send(message);
-        outputInfo("Email sent");
-    }*/
 }
