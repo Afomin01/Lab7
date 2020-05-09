@@ -19,8 +19,10 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class TableTabController {
 
@@ -204,7 +206,24 @@ public class TableTabController {
         coordinatesCol.getColumns().addAll(coordinatesXCol,coordinatesYCol);
         tableView.getColumns().addAll(idCol,nameCol,coordinatesCol,creationDateCol,fromCol,toCol,distanceCol,ownerCol);
     }
-    public void updateTable(ObservableList<Route> list){
+    public void setupTable(ObservableList<Route> list){
         tableView.setItems(list);
+    }
+    public void removeItems(ObservableList<Route> list){
+        list.forEach(t->tableView.getItems().removeIf(r->r.getId()==t.getId()));
+    }
+    public void updateTable(Route route){
+        List<Route> list = tableView.getItems().stream().filter(r->r.getId()==route.getId()).collect(Collectors.toList());
+        if(list.size()==0){
+            tableView.getItems().add(route);
+        }else{
+            int i = 0;
+            for(Route r : tableView.getItems()){
+                if(r.getId()==route.getId()){
+                    tableView.getItems().set(i,route);
+                }
+                i++;
+            }
+        }
     }
 }

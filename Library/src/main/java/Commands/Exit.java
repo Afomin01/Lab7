@@ -1,6 +1,6 @@
 package Commands;
 import Instruments.ICollectionManager;
-import Instruments.ServerRespenseCodes;
+import Instruments.ServerResponseCodes;
 import Storable.Route;
 import Instruments.ServerResponse;
 
@@ -18,6 +18,6 @@ public class Exit implements ICommand {
 
     @Override
     public ServerResponse execute(ICollectionManager<Route> manager) {
-        return new ServerResponse(ServerRespenseCodes.EXIT);
+        return new ServerResponse(ServerResponseCodes.EXIT);
     }
 }

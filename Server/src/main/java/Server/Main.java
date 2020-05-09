@@ -72,5 +72,6 @@ public class Main {
 
         CollectionManager collectionManager = new CollectionManager(DBconnection);
         ServerSocketHandler socketsHandler = new ServerSocketHandler(collectionManager, port);
+        new Thread(socketsHandler).start();
     }
 }

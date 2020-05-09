@@ -1,7 +1,7 @@
 package Commands;
 
 import Instruments.ICollectionManager;
-import Instruments.ServerRespenseCodes;
+import Instruments.ServerResponseCodes;
 import Instruments.ServerResponse;
 import Storable.Route;
 
@@ -21,6 +21,6 @@ public class CountGreaterThanDistance implements ICommand {
     @Override
     public ServerResponse execute(ICollectionManager<Route> manager) {
         long i = manager.stream().filter(r -> r.getDistance() >= distance).count();
-        return new ServerResponse(ServerRespenseCodes.SEARCH_OK, String.valueOf(i));
+        return new ServerResponse(ServerResponseCodes.SEARCH_OK, String.valueOf(i));
     }
 }

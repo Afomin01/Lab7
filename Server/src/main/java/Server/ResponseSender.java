@@ -1,7 +1,7 @@
 package Server;
 
 import Instruments.SerializeManager;
-import Instruments.ServerRespenseCodes;
+import Instruments.ServerResponseCodes;
 import Instruments.ServerResponse;
 
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class ResponseSender implements Runnable {
                 client.write(buf);
             }
             buf.clear();
-            if(serverResponse.getCode()==ServerRespenseCodes.SERVER_FATAL_ERROR || serverResponse.getCode()==ServerRespenseCodes.EXIT){
+            if(serverResponse.getCode()== ServerResponseCodes.SERVER_FATAL_ERROR || serverResponse.getCode()== ServerResponseCodes.EXIT){
                 try {
                     client.close();
                 } catch (IOException ignored) {
@@ -36,7 +36,7 @@ public class ResponseSender implements Runnable {
             }
 
         }catch (IOException e){
-            if (serverResponse.getCode() != ServerRespenseCodes.SERVER_FATAL_ERROR) {
+            if (serverResponse.getCode() != ServerResponseCodes.SERVER_FATAL_ERROR) {
                 Main.log.severe("IOException for client.");
             }
             try {

@@ -1,7 +1,6 @@
 package Controllers;
 
 import Client.Main;
-import Commands.GetTableItems;
 import Storable.Route;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -56,6 +55,12 @@ public class MainWindowController {
     }
 
     public void updateTableView(ObservableList<Route> list){
-        tableTabController.updateTable(list);
+        tableTabController.setupTable(list);
+    }
+    public void addTableViewItem(Route route){
+        tableTabController.updateTable(route);
+    }
+    public void removeItems(ObservableList<Route> list){
+        tableTabController.removeItems(list);
     }
 }

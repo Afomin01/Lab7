@@ -1,7 +1,7 @@
 package Commands;
 
 import Instruments.ICollectionManager;
-import Instruments.ServerRespenseCodes;
+import Instruments.ServerResponseCodes;
 import Instruments.ServerResponse;
 import Storable.Route;
 
@@ -25,7 +25,7 @@ public class Show implements ICommand {
                 return (int) (temp1-temp2);
             }
         };
-        ServerResponse serverResponse = new ServerResponse(ServerRespenseCodes.SHOW);
+        ServerResponse serverResponse = new ServerResponse(ServerResponseCodes.SHOW);
         manager.stream().sorted(compareRoute).collect(Collectors.toList()).forEach(r->serverResponse.addText("\n"+r.toString()+"\n"));
 
         return serverResponse;

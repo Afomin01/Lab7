@@ -1,7 +1,7 @@
 package Commands;
 
 import Instruments.ICollectionManager;
-import Instruments.ServerRespenseCodes;
+import Instruments.ServerResponseCodes;
 import Instruments.ServerResponse;
 import Storable.Route;
 
@@ -31,20 +31,20 @@ public class AddIfMax implements ICommand {
         if(elementToAdd.compareTo(manager.stream().max(Route::compareTo).get()) > 0){
             switch (manager.add(elementToAdd)){
                 case OK:
-                    serverResponse = new ServerResponse(ServerRespenseCodes.ADD_OK);
+                    serverResponse = new ServerResponse(ServerResponseCodes.ADD_OK);
                     break;
                 case NO_CHANGES:
-                    serverResponse = new ServerResponse(ServerRespenseCodes.NO_CHANGES);
+                    serverResponse = new ServerResponse(ServerResponseCodes.NO_CHANGES);
                     break;
                 case SQL_ERROR:
-                    serverResponse = new ServerResponse(ServerRespenseCodes.SQL_ERROR);
+                    serverResponse = new ServerResponse(ServerResponseCodes.SQL_ERROR);
                     break;
                 case UNKNOWN_ERROR:
-                    serverResponse = new ServerResponse(ServerRespenseCodes.ERROR);
+                    serverResponse = new ServerResponse(ServerResponseCodes.ERROR);
                     break;
             }
         }
-        else serverResponse = new ServerResponse(ServerRespenseCodes.NO_CHANGES);
+        else serverResponse = new ServerResponse(ServerResponseCodes.NO_CHANGES);
 
         return serverResponse;
     }

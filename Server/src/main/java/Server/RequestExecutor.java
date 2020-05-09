@@ -3,7 +3,7 @@ package Server;
 import Commands.*;
 import Instruments.ClientRequest;
 import Instruments.ICollectionManager;
-import Instruments.ServerRespenseCodes;
+import Instruments.ServerResponseCodes;
 import Instruments.ServerResponse;
 import Storable.Route;
 
@@ -43,13 +43,13 @@ public class RequestExecutor implements Runnable {
                 if (resultSet.next()) {
                     if (clientRequest.getPassword().equals("%")) {
                         String salt = resultSet.getString(3);
-                        resp = new ServerResponse(ServerRespenseCodes.TEXT_ONLY, salt);
+                        resp = new ServerResponse(ServerResponseCodes.TEXT_ONLY, salt);
                         resp.setAccess(true);
                         responsePool.execute(new ResponseSender(client, resp));
                     } else {
                         String passwordHash = resultSet.getString(2);
                         if (passwordHash.equals(clientRequest.getPassword())) {
-                            resp = new ServerResponse(ServerRespenseCodes.AUTHORISED);
+                            resp = new ServerResponse(ServerResponseCodes.AUTHORISED);
                             resp.setAccess(true);
                             responsePool.execute(new ResponseSender(client, resp));
 
@@ -57,13 +57,13 @@ public class RequestExecutor implements Runnable {
                             Main.log.info("Client with login " + clientRequest.getLogin() + " authorised successfully");
 
                         } else {
-                            resp = new ServerResponse(ServerRespenseCodes.INCORRECT_LOG_IN);
+                            resp = new ServerResponse(ServerResponseCodes.INCORRECT_LOG_IN);
                             resp.setAccess(false);
                             responsePool.execute(new ResponseSender(client, resp));
                         }
                     }
                 } else {
-                    resp = new ServerResponse(ServerRespenseCodes.INCORRECT_LOG_IN);
+                    resp = new ServerResponse(ServerResponseCodes.INCORRECT_LOG_IN);
                     resp.setAccess(false);
                     responsePool.execute(new ResponseSender(client, resp));
                 }
@@ -75,7 +75,7 @@ public class RequestExecutor implements Runnable {
                         new Random().nextBytes(array);
                         String salt = new String(array, StandardCharsets.UTF_8);
 
-                        resp = new ServerResponse(ServerRespenseCodes.TEXT_ONLY, salt);
+                        resp = new ServerResponse(ServerResponseCodes.TEXT_ONLY, salt);
                         resp.setAccess(true);
                         responsePool.execute(new ResponseSender(client, resp));
 
@@ -85,20 +85,20 @@ public class RequestExecutor implements Runnable {
                             String sql = "insert into users values ('" + clientRequest.getLogin() + "' , '" + clientRequest.getPassword() + "' , '" + ((SignUp) command).getSalt() + "' )";
                             statement.execute(sql);
 
-                            resp = new ServerResponse(ServerRespenseCodes.AUTHORISED);
+                            resp = new ServerResponse(ServerResponseCodes.AUTHORISED);
                             resp.setAccess(true);
                             responsePool.execute(new ResponseSender(client, resp));
 
                             ServerSocketHandler.addClient(clientRequest.getLogin());
                             Main.log.info("Client with login " + clientRequest.getLogin() + " registered and authorised successfully");
                         } catch (MessagingException e) {
-                            resp = new ServerResponse(ServerRespenseCodes.ERROR);
+                            resp = new ServerResponse(ServerResponseCodes.ERROR);
                             resp.setAccess(false);
                             responsePool.execute(new ResponseSender(client, resp));
                         }
                     }
                 } else {
-                    resp = new ServerResponse(ServerRespenseCodes.INCORRECT_LOG_IN);
+                    resp = new ServerResponse(ServerResponseCodes.INCORRECT_LOG_IN);
                     resp.setAccess(false);
                     responsePool.execute(new ResponseSender(client, resp));
                 }
@@ -112,23 +112,23 @@ public class RequestExecutor implements Runnable {
                         if (command.getCommandEnum() == EAvailableCommands.History)
                             resp.setAdditionalInfo(ServerSocketHandler.getHistory(clientRequest.getLogin()));
                         ServerSocketHandler.addCommandToHistory(clientRequest.getLogin(), command.getCommandEnum().toString());
-                        if (resp.getCode() == ServerRespenseCodes.EXIT) {
+                        if (resp.getCode() == ServerResponseCodes.EXIT) {
                             ServerSocketHandler.deleteHistory(clientRequest.getLogin());
                             Main.log.info("Client with login " + clientRequest.getLogin() + " exits server. Socket for this client was closed and removed.");
                         }
                         responsePool.execute(new ResponseSender(client, resp));
 
                     } else {
-                        responsePool.execute(new ResponseSender(client, new ServerResponse(ServerRespenseCodes.SURPRISE_NOT_CORRECT_LOGIN_OR_PASSWORD)));
+                        responsePool.execute(new ResponseSender(client, new ServerResponse(ServerResponseCodes.SURPRISE_NOT_CORRECT_LOGIN_OR_PASSWORD)));
                         Main.log.severe("UNAUTHORISED CLINT " + clientRequest.getLogin());
                     }
                 } else {
-                    responsePool.execute(new ResponseSender(client, new ServerResponse(ServerRespenseCodes.SURPRISE_NOT_CORRECT_LOGIN_OR_PASSWORD)));
+                    responsePool.execute(new ResponseSender(client, new ServerResponse(ServerResponseCodes.SURPRISE_NOT_CORRECT_LOGIN_OR_PASSWORD)));
                     Main.log.severe("UNAUTHORISED CLINT " + clientRequest.getLogin());
                 }
             }
         } catch (SQLException e) {
-            responsePool.execute(new ResponseSender(client, new ServerResponse(ServerRespenseCodes.SQL_ERROR)));
+            responsePool.execute(new ResponseSender(client, new ServerResponse(ServerResponseCodes.SQL_ERROR)));
             Main.log.severe("SQLException for client " + clientRequest.getLogin());
         }
     }

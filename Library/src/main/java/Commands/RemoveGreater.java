@@ -1,13 +1,11 @@
 package Commands;
 
 import Instruments.ICollectionManager;
-import Instruments.ServerRespenseCodes;
+import Instruments.ServerResponseCodes;
 import Instruments.ServerResponse;
 import Storable.Route;
 
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class RemoveGreater implements ICommand {
     private String user;
@@ -39,16 +37,16 @@ public class RemoveGreater implements ICommand {
 
         switch (manager.removeAll(manager.stream().filter(r -> (r.compareTo(route) > 0 && r.getOwner().equals(user))).collect(Collectors.toSet()), user)){
             case OK:
-                serverResponse = new ServerResponse(ServerRespenseCodes.DELETE_OK);
+                serverResponse = new ServerResponse(ServerResponseCodes.DELETE_OK);
                 break;
             case NO_CHANGES:
-                serverResponse = new ServerResponse(ServerRespenseCodes.NO_CHANGES);
+                serverResponse = new ServerResponse(ServerResponseCodes.NO_CHANGES);
                 break;
             case SQL_ERROR:
-                serverResponse = new ServerResponse(ServerRespenseCodes.SQL_ERROR);
+                serverResponse = new ServerResponse(ServerResponseCodes.SQL_ERROR);
                 break;
             case UNKNOWN_ERROR:
-                serverResponse = new ServerResponse(ServerRespenseCodes.ERROR);
+                serverResponse = new ServerResponse(ServerResponseCodes.ERROR);
                 break;
         }
         return serverResponse;

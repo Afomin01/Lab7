@@ -1,7 +1,7 @@
 package Commands;
 
 import Instruments.ICollectionManager;
-import Instruments.ServerRespenseCodes;
+import Instruments.ServerResponseCodes;
 import Storable.Route;
 import Instruments.ServerResponse;
 
@@ -17,10 +17,10 @@ public class Info implements ICommand {
     public ServerResponse execute(ICollectionManager<Route> manager) {
 
         String out="";
-        out = out + "Тип коллекции: LinkedHashSet";
-        out = out + "\nКоличесвто элементов коллекции: "+ manager.stream().count();
-        out = out + "\nТип хранимых элементов: Route";
+        out = out + "LinkedHashSet ";
+        out = out + manager.stream().count();
+        out = out + " Route";
 
-        return new ServerResponse(ServerRespenseCodes.TEXT_ONLY, out);
+        return new ServerResponse(ServerResponseCodes.INFO, out);
     }
 }

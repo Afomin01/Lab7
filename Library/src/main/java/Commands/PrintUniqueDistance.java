@@ -1,6 +1,6 @@
 package Commands;
 import Instruments.ICollectionManager;
-import Instruments.ServerRespenseCodes;
+import Instruments.ServerResponseCodes;
 import Storable.Route;
 import Instruments.ServerResponse;
 
@@ -22,8 +22,8 @@ public class PrintUniqueDistance implements ICommand {
             text = text + r.getDistance() + "\n";
             count++;
         }
-        if (count==0)serverResponse = new ServerResponse(ServerRespenseCodes.SEARCH_NOT_FOUND);
-        else serverResponse = new ServerResponse(ServerRespenseCodes.SEARCH_OK,text);
+        if (count==0)serverResponse = new ServerResponse(ServerResponseCodes.SEARCH_NOT_FOUND);
+        else serverResponse = new ServerResponse(ServerResponseCodes.SEARCH_OK,text);
         return serverResponse;
     }
 }

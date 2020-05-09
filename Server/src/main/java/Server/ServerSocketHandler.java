@@ -1,11 +1,10 @@
 package Server;
 
 import Instruments.ICollectionManager;
-import Instruments.ServerRespenseCodes;
+import Instruments.ServerResponseCodes;
 import Instruments.ServerResponse;
 import Storable.Route;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -21,7 +20,7 @@ import java.util.logging.Handler;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class ServerSocketHandler{
+public class ServerSocketHandler implements Runnable{
 
     private static ArrayList<HistoryHandler> historyHandlers = new ArrayList<>();
 
@@ -42,7 +41,7 @@ public class ServerSocketHandler{
         historyHandlers.removeIf(r-> r.getLogin().equals(login));
     }
 
-    private final ICollectionManager<Route> manager;
+    private final CollectionManager manager;
 
     private final ThreadPoolExecutor readPool;
     private final ThreadPoolExecutor executePool;
@@ -54,7 +53,7 @@ public class ServerSocketHandler{
     private final Logger log = Main.log;
 
     public ServerSocketHandler(ICollectionManager<Route> manager, int port) {
-        this.manager = manager;
+        this.manager = (CollectionManager) manager;
         Properties property = new Properties();
         int read = 5;
         int execute = 10;
@@ -90,13 +89,14 @@ public class ServerSocketHandler{
             executePool = (ThreadPoolExecutor) Executors.newFixedThreadPool(execute);
             responsePool = (ThreadPoolExecutor) Executors.newFixedThreadPool(response);
             log.info("Pool sizes:\nread pool: "+read+"\nexecute pool: "+execute+"\nresponse pool: "+response);
+            this.manager.setExecutor(responsePool);
+            this.manager.setSelector(selector);
         }
-        run();
     }
 
     public void run() {
+        SelectionKey key=null;
         while (true){
-            SelectionKey key=null;
             try {
                 selector.select();
                 Set<SelectionKey> selectedKeys = selector.selectedKeys();
@@ -112,19 +112,17 @@ public class ServerSocketHandler{
                             client.configureBlocking(false);
                             client.socket().setSendBufferSize(1000000);
                             client.register(selector, SelectionKey.OP_READ);
-                            client.socket().setSendBufferSize(5000000);
+                            client.socket().setSendBufferSize(1000000);
                         }
-
                         if (key.isReadable()) {
                             readPool.execute(new SocketReader((SocketChannel) key.channel(), executePool, responsePool, manager));
                         }
                     }
-
                     iterator.remove();
                 }
             }catch (IOException e){
                 log.warning("IOException for client. Connection was closed.");
-                responsePool.execute(new ResponseSender((SocketChannel) key.channel(), new ServerResponse(ServerRespenseCodes.SERVER_FATAL_ERROR)));
+                responsePool.execute(new ResponseSender((SocketChannel) key.channel(), new ServerResponse(ServerResponseCodes.SERVER_FATAL_ERROR)));
             }
         }
     }

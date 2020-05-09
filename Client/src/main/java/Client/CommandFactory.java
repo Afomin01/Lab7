@@ -146,10 +146,10 @@ public class CommandFactory {
         textArea.end();
     }
     private void dollar(TextArea textArea){
-        textArea.setText(textArea.getText() + "$");
+        textArea.setText(textArea.getText() + "\n");
         textArea.end();
     }
-    private Route elementCreator(TextArea reader){
+    private Route elementCreator(TextArea reader){//TODO fix app stack in while true
         try {
             Route adding = new Route(username);
             Coordinates coord = new Coordinates();
@@ -344,6 +344,7 @@ public class CommandFactory {
             }
             return adding;
         } catch (EOFElementCreationException e) {
+            e.printStackTrace();
 /*            outputInfo(reader,e.getMessage());
             Main.dollar();*/
             return null;

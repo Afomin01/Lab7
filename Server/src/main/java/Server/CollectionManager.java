@@ -2,17 +2,21 @@ package Server;
 
 import Instruments.ICollectionManager;
 import Instruments.ManagerResponseCodes;
+import Instruments.ServerResponse;
+import Instruments.ServerResponseCodes;
 import Storable.Coordinates;
 import Storable.Location;
 import Storable.Route;
 
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Predicate;
 import java.util.logging.Handler;
 import java.util.stream.Collectors;
@@ -21,11 +25,49 @@ import java.util.stream.Stream;
 public class CollectionManager implements ICollectionManager<Route> {
     private Connection connection;
     private final Set<Route> syncSet = Collections.synchronizedSet(new LinkedHashSet<>());
+    private ThreadPoolExecutor executor;
+    private Selector selector;
 
-    public Set<Route> getSyncSet() {
-        return syncSet;
+    public void setExecutor(ThreadPoolExecutor executor) {
+        this.executor = executor;
     }
 
+    public void setSelector(Selector selector) {
+        this.selector = selector;
+    }
+
+    private void sendUpdate(Route route){
+        ServerResponse serverResponse = new ServerResponse(ServerResponseCodes.NEW_ITEM_OR_UPDATE);
+        serverResponse.setRoute(route);
+        SelectionKey key;
+        Set<SelectionKey> selectedKeys = selector.keys();;
+        Iterator<SelectionKey> iterator = selectedKeys.iterator();
+
+        while (iterator.hasNext()) {
+            key = iterator.next();
+            if (key.channel().isOpen()) {
+                if (key.interestOps()== SelectionKey.OP_READ){
+                    executor.execute(new ResponseSender((SocketChannel) key.channel(), serverResponse));
+                }
+            }
+        }
+    }
+    private void sendRemoveItems(ArrayList<Route> list){
+        ServerResponse serverResponse = new ServerResponse(ServerResponseCodes.REMOVE_ITEMS_UPDATE);
+        serverResponse.setSet(list);
+        SelectionKey key;
+        Set<SelectionKey> selectedKeys = selector.keys();
+        Iterator<SelectionKey> iterator = selectedKeys.iterator();
+
+        while (iterator.hasNext()) {
+            key = iterator.next();
+            if (key.channel().isOpen()) {
+                if (key.interestOps()== SelectionKey.OP_READ){
+                    executor.execute(new ResponseSender((SocketChannel) key.channel(), serverResponse));
+                }
+            }
+        }
+    }
     public CollectionManager(Connection connection){
         this.connection = connection;
         try {
@@ -69,6 +111,7 @@ public class CollectionManager implements ICollectionManager<Route> {
             if(rs.next()){
                 element.setId(rs.getLong(1));
                 syncSet.add(element);
+                sendUpdate(element);
                 return ManagerResponseCodes.OK;
             }
             else{
@@ -84,14 +127,21 @@ public class CollectionManager implements ICollectionManager<Route> {
     public ManagerResponseCodes removeAll(Set<Route> c, String user) {
         try {
             String sql;
+            ArrayList<Route> removeList = new ArrayList<>();
             int count = 0;
             for (Route r : c) {
                 sql = "delete from routes where id="+r.getId()+" and owner='"+user+"'";
                 if(connection.createStatement().executeUpdate(sql)>0){
-                    if(syncSet.remove(r))count++;
+                    if(syncSet.remove(r)){
+                        removeList.add(r);
+                        count++;
+                    }
                 }
             }
-            if(count>0) return ManagerResponseCodes.OK;
+            if(count>0) {
+                sendRemoveItems(removeList);
+                return ManagerResponseCodes.OK;
+            }
             else return ManagerResponseCodes.NO_CHANGES;
         }catch (SQLException e){
             return ManagerResponseCodes.SQL_ERROR;
@@ -102,15 +152,22 @@ public class CollectionManager implements ICollectionManager<Route> {
     public ManagerResponseCodes removeIf(Predicate<Route> filter, String user) {
         try {
             String sql;
+            ArrayList<Route> removeList = new ArrayList<>();
             int count = 0;
             Set<Route> temp = syncSet.stream().filter(filter).collect(Collectors.toSet());
             for (Route r : temp) {
                 sql = "delete from routes where id="+r.getId()+" and owner='"+user+"'";
                 if(connection.createStatement().executeUpdate(sql)>0){
-                    if(syncSet.remove(r))count++;
+                    if(syncSet.remove(r)){
+                        removeList.add(r);
+                        count++;
+                    }
                 }
             }
-            if(count>0) return ManagerResponseCodes.OK;
+            if(count>0){
+                sendRemoveItems(removeList);
+                return ManagerResponseCodes.OK;
+            }
             else return ManagerResponseCodes.NO_CHANGES;
         }catch (SQLException e){
             return ManagerResponseCodes.SQL_ERROR;
@@ -142,6 +199,7 @@ public class CollectionManager implements ICollectionManager<Route> {
                     Route adding = new Route(id, r.getName(),r.getCoordinates(),r.getCreationDate(),r.getFrom(),r.getTo(),r.getDistance(),r.getOwner());
                     syncSet.removeIf(t->(t.getId()==id && t.getOwner().equals(user)) );
                     syncSet.add(adding);
+                    sendUpdate(adding);
                     return ManagerResponseCodes.OK;
                 }else return ManagerResponseCodes.NO_CHANGES;
             } else return ManagerResponseCodes.NO_CHANGES;

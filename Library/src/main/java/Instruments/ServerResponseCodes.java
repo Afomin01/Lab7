@@ -1,10 +1,11 @@
 package Instruments;
 
-public enum ServerRespenseCodes {
-    CONNECTED,
+public enum ServerResponseCodes {
     AUTHORISED,
     INCORRECT_LOG_IN,
     SEARCH_OK,
+    NEW_ITEM_OR_UPDATE,
+    REMOVE_ITEMS_UPDATE,
     COUNT,
     SHOW,
     SEARCH_NOT_FOUND,
@@ -23,5 +24,8 @@ public enum ServerRespenseCodes {
     TEXT_ONLY,
     SET_ONLY,
     SURPRISE_NOT_CORRECT_LOGIN_OR_PASSWORD,
+    HELP,
+    INFO,
+    HISTORY,
     EXIT;
 }

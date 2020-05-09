@@ -1,11 +1,9 @@
 package Commands;
 
 import Instruments.ICollectionManager;
-import Instruments.ServerRespenseCodes;
+import Instruments.ServerResponseCodes;
 import Instruments.ServerResponse;
 import Storable.Route;
-
-import java.util.stream.Stream;
 
 public class RemoveById implements ICommand {
     private String user;
@@ -28,16 +26,16 @@ public class RemoveById implements ICommand {
 
         switch (manager.removeIf(r->r.getId()==id,user)){
             case OK:
-                serverResponse = new ServerResponse(ServerRespenseCodes.DELETE_OK);
+                serverResponse = new ServerResponse(ServerResponseCodes.DELETE_OK);
                 break;
             case NO_CHANGES:
-                serverResponse = new ServerResponse(ServerRespenseCodes.NO_CHANGES);
+                serverResponse = new ServerResponse(ServerResponseCodes.NO_CHANGES);
                 break;
             case SQL_ERROR:
-                serverResponse = new ServerResponse(ServerRespenseCodes.SQL_ERROR);
+                serverResponse = new ServerResponse(ServerResponseCodes.SQL_ERROR);
                 break;
             case UNKNOWN_ERROR:
-                serverResponse = new ServerResponse(ServerRespenseCodes.ERROR);
+                serverResponse = new ServerResponse(ServerResponseCodes.ERROR);
                 break;
         }
         return serverResponse;

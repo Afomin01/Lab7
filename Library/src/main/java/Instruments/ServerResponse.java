@@ -4,16 +4,23 @@ import Storable.Route;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class ServerResponse implements Serializable {
     private String additionalInfo = "";
-    private ServerRespenseCodes code;
+    private ServerResponseCodes code;
     private ArrayList<ServerResponse> scriptReport = new ArrayList<>();
     private boolean access = false;
     private ArrayList<Route> set = new ArrayList<>();
+    private Route route;
+
+    public Route getRoute() {
+        return route;
+    }
+
+    public void setRoute(Route route) {
+        this.route = route;
+    }
 
     public void setSet(List<Route> list) {
         this.set.addAll(list);
@@ -23,11 +30,11 @@ public class ServerResponse implements Serializable {
         return set;
     }
 
-    public ServerResponse(ServerRespenseCodes code) {
+    public ServerResponse(ServerResponseCodes code) {
         this.code = code;
     }
 
-    public ServerResponse(ServerRespenseCodes code, String additionalInfo) {
+    public ServerResponse(ServerResponseCodes code, String additionalInfo) {
         this.additionalInfo = additionalInfo;
         this.code = code;
     }
@@ -39,7 +46,7 @@ public class ServerResponse implements Serializable {
         this.access = access;
     }
 
-    public ServerRespenseCodes getCode() {
+    public ServerResponseCodes getCode() {
         return code;
     }
     public String getAdditionalInfo() {

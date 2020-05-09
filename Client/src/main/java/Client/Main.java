@@ -3,10 +3,9 @@ package Client;
 import Commands.LogIn;
 import Commands.SignUp;
 import Controllers.MainWindowController;
-import Controllers.TableTabController;
 import Instruments.ClientRequest;
 import Instruments.SerializeManager;
-import Instruments.ServerRespenseCodes;
+import Instruments.ServerResponseCodes;
 import Instruments.ServerResponse;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -115,7 +114,7 @@ public class Main extends Application {
         }
     }
 
-    public static ServerRespenseCodes logIn(String username, String pass) {
+    public static ServerResponseCodes logIn(String username, String pass) {
         if (connected) {
             try {
                 InputStream fromServer = socketChannel.socket().getInputStream();
@@ -139,7 +138,7 @@ public class Main extends Application {
                     fromServer.read(b);
                     sr = (ServerResponse) SerializeManager.fromByte(b);
                 }
-                if (sr.getCode() != ServerRespenseCodes.AUTHORISED) {
+                if (sr.getCode() != ServerResponseCodes.AUTHORISED) {
                     loggedIn = false;
                 } else{
                     loggedIn = true;
@@ -147,15 +146,15 @@ public class Main extends Application {
                 return sr.getCode();
             } catch (NullPointerException | IOException | NoSuchAlgorithmException e) {
                 loggedIn = false;
-                return ServerRespenseCodes.ERROR;
+                return ServerResponseCodes.ERROR;
             }
         } else {
             loggedIn = false;
-            return ServerRespenseCodes.ERROR;
+            return ServerResponseCodes.ERROR;
         }
     }
 
-    public static ServerRespenseCodes signUp(String username, String pass, String email) {
+    public static ServerResponseCodes signUp(String username, String pass, String email) {
         if (connected) {
             try {
                 InputStream fromServer = socketChannel.socket().getInputStream();
@@ -184,16 +183,16 @@ public class Main extends Application {
                     fromServer.read(b);
                     sr = (ServerResponse) SerializeManager.fromByte(b);
                 }
-                if(sr.getCode()==ServerRespenseCodes.AUTHORISED) loggedIn=true;
+                if(sr.getCode()== ServerResponseCodes.AUTHORISED) loggedIn=true;
                 else loggedIn=false;
                 return sr.getCode();
             } catch (IOException | NoSuchAlgorithmException e) {
                 loggedIn = false;
-                return ServerRespenseCodes.ERROR;
+                return ServerResponseCodes.ERROR;
             }
         }else {
             loggedIn = false;
-            return ServerRespenseCodes.ERROR;
+            return ServerResponseCodes.ERROR;
         }
     }
 /*

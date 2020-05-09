@@ -1,7 +1,7 @@
 package Commands;
 
 import Instruments.ICollectionManager;
-import Instruments.ServerRespenseCodes;
+import Instruments.ServerResponseCodes;
 import Instruments.ServerResponse;
 import Storable.Coordinates;
 import Storable.Location;
@@ -16,14 +16,20 @@ public class ExecuteScript implements ICommand {//TODO rework for file from user
     private String temp;
     private int line = 0;
     private ArrayList<String> executeScriptStack= new ArrayList<>();
-    private ServerResponse serverResponse = new ServerResponse(ServerRespenseCodes.SCRIPT_RESULT);
+    private ServerResponse serverResponse = new ServerResponse(ServerResponseCodes.SCRIPT_RESULT);
     private String currentLine="";
     private ICommand commandToExecute;
     private String user;
     private ArrayList<ServerResponse> scriptReport = new ArrayList<>();
+    private File file;
 
     public ExecuteScript(String fileName, String user) {
         this.fileName = fileName;
+        this.user=user;
+    }
+    public ExecuteScript(File file, String user) {
+        fileName="%";
+        this.file=file;
         this.user=user;
     }
 
@@ -35,16 +41,15 @@ public class ExecuteScript implements ICommand {//TODO rework for file from user
     @Override
     public ServerResponse execute(ICollectionManager<Route> manager) {
         if (executeScriptStack.contains(fileName)) {
-            scriptReport.add(new ServerResponse(ServerRespenseCodes.SCRIPT_REC,"\n "+line + "\n\t"+currentLine+"\n"));
+            scriptReport.add(new ServerResponse(ServerResponseCodes.SCRIPT_REC,"\n "+line + "\n\t"+currentLine+"\n"));
             serverResponse.setScriptReport(scriptReport);
             return serverResponse;
         }
         else {
-            File file;
             try {
-                file = new File(fileName);
+                if(!fileName.equals("%")) file = new File(fileName);
             }catch (Exception e){
-                scriptReport.add(new ServerResponse(ServerRespenseCodes.SCRIPT_FILE_ERR));
+                scriptReport.add(new ServerResponse(ServerResponseCodes.SCRIPT_FILE_ERR));
                 serverResponse.setScriptReport(scriptReport);
                 return serverResponse;
             }
@@ -52,7 +57,7 @@ public class ExecuteScript implements ICommand {//TODO rework for file from user
                 if (!file.exists()) throw new FileNotFoundException();
                 if (!file.canRead() || !file.canWrite()) throw new SecurityException();
                 if (file.length() == 0){
-                    scriptReport.add(new ServerResponse(ServerRespenseCodes.SCRIPT_FILE_ERR));
+                    scriptReport.add(new ServerResponse(ServerResponseCodes.SCRIPT_FILE_ERR));
                     serverResponse.setScriptReport(scriptReport);
                     return serverResponse;
                 }
@@ -100,7 +105,7 @@ public class ExecuteScript implements ICommand {//TODO rework for file from user
                                     commandToExecute = new CountGreaterThanDistance(Double.parseDouble(SplitCommand[1]));
                                     scriptReport.add(commandToExecute.execute(manager));
                                 }catch (NumberFormatException e){
-                                    scriptReport.add(new ServerResponse(ServerRespenseCodes.SCRIPT_COMMAND_ERR,"\n "+line + "\n\t"+currentLine+"\n"));
+                                    scriptReport.add(new ServerResponse(ServerResponseCodes.SCRIPT_COMMAND_ERR,"\n "+line + "\n\t"+currentLine+"\n"));
                                     serverResponse.setScriptReport(scriptReport);
                                     return serverResponse;
                                 }
@@ -130,7 +135,7 @@ public class ExecuteScript implements ICommand {//TODO rework for file from user
                             break;
                         case "exit":
                             if (SplitCommand.length == 1){
-                                scriptReport.add(new ServerResponse(ServerRespenseCodes.EXIT));
+                                scriptReport.add(new ServerResponse(ServerResponseCodes.EXIT));
                                 serverResponse.setScriptReport(scriptReport);
                                 return serverResponse;
                             }
@@ -165,7 +170,7 @@ public class ExecuteScript implements ICommand {//TODO rework for file from user
                                     throw new ScriptException(line, currentLine, "Слишком много или недостаточно аргументов для команды");
                             }
                             catch (NumberFormatException e){
-                                scriptReport.add(new ServerResponse(ServerRespenseCodes.SCRIPT_COMMAND_ERR,"\n "+line + "\n\t"+currentLine+"\n"));
+                                scriptReport.add(new ServerResponse(ServerResponseCodes.SCRIPT_COMMAND_ERR,"\n "+line + "\n\t"+currentLine+"\n"));
                                 serverResponse.setScriptReport(scriptReport);
                                 return serverResponse;
                             }
@@ -196,7 +201,7 @@ public class ExecuteScript implements ICommand {//TODO rework for file from user
                                     throw new ScriptException(line, currentLine, "Слишком много или недостаточно аргументов для команды");
                             }
                             catch (NumberFormatException e){
-                                scriptReport.add(new ServerResponse(ServerRespenseCodes.SCRIPT_COMMAND_ERR,"\n "+line + "\n\t"+currentLine+"\n"));
+                                scriptReport.add(new ServerResponse(ServerResponseCodes.SCRIPT_COMMAND_ERR,"\n "+line + "\n\t"+currentLine+"\n"));
                                 serverResponse.setScriptReport(scriptReport);
                                 return serverResponse;
                             }
@@ -210,7 +215,7 @@ public class ExecuteScript implements ICommand {//TODO rework for file from user
                                         scriptReport.add(commandToExecute.execute(manager));
                                     } else throw new ScriptException(line, currentLine, "Слишком много или недостаточно аргументов для команды");
                                 }catch (NumberFormatException e){
-                                    scriptReport.add(new ServerResponse(ServerRespenseCodes.SCRIPT_COMMAND_ERR,"\n "+line + "\n\t"+currentLine+"\n"));
+                                    scriptReport.add(new ServerResponse(ServerResponseCodes.SCRIPT_COMMAND_ERR,"\n "+line + "\n\t"+currentLine+"\n"));
                                     serverResponse.setScriptReport(scriptReport);
                                     return serverResponse;
                                 }
@@ -218,7 +223,7 @@ public class ExecuteScript implements ICommand {//TODO rework for file from user
                             else throw new ScriptException(line, currentLine, "Слишком много или недостаточно аргументов для команды");
                             break;
                         default:
-                            scriptReport.add(new ServerResponse(ServerRespenseCodes.SCRIPT_COMMAND_ERR,"\n "+line + "\n\t"+currentLine+"\n"));
+                            scriptReport.add(new ServerResponse(ServerResponseCodes.SCRIPT_COMMAND_ERR,"\n "+line + "\n\t"+currentLine+"\n"));
                             serverResponse.setScriptReport(scriptReport);
                             return serverResponse;
                     }
@@ -228,13 +233,13 @@ public class ExecuteScript implements ICommand {//TODO rework for file from user
                     return serverResponse;
                 }
             } catch (FileNotFoundException e) {
-                scriptReport.add(new ServerResponse(ServerRespenseCodes.SCRIPT_FILE_ERR));
+                scriptReport.add(new ServerResponse(ServerResponseCodes.SCRIPT_FILE_ERR));
             } catch (SecurityException e) {
-                scriptReport.add(new ServerResponse(ServerRespenseCodes.SCRIPT_FILE_ERR));
+                scriptReport.add(new ServerResponse(ServerResponseCodes.SCRIPT_FILE_ERR));
             }catch (ScriptException e){
-                scriptReport.add(new ServerResponse(ServerRespenseCodes.SCRIPT_COMMAND_ERR,e.getMessage()));
+                scriptReport.add(new ServerResponse(ServerResponseCodes.SCRIPT_COMMAND_ERR,e.getMessage()));
             } catch (Exception e) {
-                scriptReport.add(new ServerResponse(ServerRespenseCodes.SCRIPT_FILE_ERR));
+                scriptReport.add(new ServerResponse(ServerResponseCodes.SCRIPT_FILE_ERR));
             }
         }
         serverResponse.setScriptReport(scriptReport);
@@ -285,11 +290,11 @@ public class ExecuteScript implements ICommand {//TODO rework for file from user
             return adding;
         }
         catch (NumberFormatException e){
-            scriptReport.add(new ServerResponse(ServerRespenseCodes.SCRIPT_COMMAND_ERR,"\n "+line + "\n\t"+currentLine+"\n"));
+            scriptReport.add(new ServerResponse(ServerResponseCodes.SCRIPT_COMMAND_ERR,"\n "+line + "\n\t"+currentLine+"\n"));
             return null;
         }
         catch (Exception e){
-            scriptReport.add(new ServerResponse(ServerRespenseCodes.SCRIPT_COMMAND_ERR,"\n "+line + "\n\t"+currentLine+"\n"));
+            scriptReport.add(new ServerResponse(ServerResponseCodes.SCRIPT_COMMAND_ERR,"\n "+line + "\n\t"+currentLine+"\n"));
             return null;
         }
     }
