@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
-public class ExecuteScript implements ICommand {
+public class ExecuteScript implements ICommand {//TODO rework for file from user
     private String fileName;
     private String temp;
     private int line = 0;

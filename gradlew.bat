@@ -17,7 +17,7 @@
 @if "%DEBUG%" == "" @echo off
 @rem ##########################################################################
 @rem
-@rem  Gradle startup script for Windows
+@rem  Gradle startup script for CustomFilter
 @rem
 @rem ##########################################################################
 
@@ -62,7 +62,7 @@ echo location of your Java installation.
 goto fail
 
 :init
-@rem Get command-line arguments, handling Windows variants
+@rem Get command-line arguments, handling CustomFilter variants
 
 if not "%OS%" == "Windows_NT" goto win9xME_args
 

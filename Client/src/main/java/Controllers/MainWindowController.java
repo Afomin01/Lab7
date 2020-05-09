@@ -13,7 +13,13 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class MainWindowController {
-    TableTabController tableTabController;
+    private TableTabController tableTabController;
+    private CommandsTabController commandsTabController;
+
+    public CommandsTabController getCommandsTabController() {
+        return commandsTabController;
+    }
+
     @FXML
     private ResourceBundle resources;
 
@@ -35,6 +41,13 @@ public class MainWindowController {
             Parent tableTabView = fxmlLoader.load(Main.class.getResource("/TableTab.fxml").openStream());
             tableTabController = fxmlLoader.getController();
             tableTab.setContent(tableTabView);
+
+            fxmlLoader = new FXMLLoader();
+            fxmlLoader.setResources(ResourceBundle.getBundle("MessagesBundle", Locale.getDefault()));
+
+            Parent commandsTabView = fxmlLoader.load(Main.class.getResource("/CommandsTab.fxml").openStream());
+            commandsTabController = fxmlLoader.getController();
+            commandTab.setContent(commandsTabView);
 
         }catch (Exception e){
             e.printStackTrace();

@@ -2,6 +2,7 @@ package Client;
 
 import Commands.GetTableItems;
 import Commands.ICommand;
+import Controllers.CommandsTabController;
 import Controllers.MainWindowController;
 import Instruments.ClientRequest;
 import Instruments.SerializeManager;
@@ -16,9 +17,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 public class SocketChannelHandler implements Runnable{
-    ByteBuffer buf = ByteBuffer.allocate(1000000);
-    ObservableList<Route> list;
-    String login, password;
+    private ByteBuffer buf = ByteBuffer.allocate(1000000);
+    private ObservableList<Route> list;
+    private String login, password;
 
     private SocketChannel socketChannel;
     private MainWindowController controller;
@@ -45,6 +46,8 @@ public class SocketChannelHandler implements Runnable{
                     if(serverResponse.getCode().equals(ServerRespenseCodes.SET_ONLY)){
                         list = FXCollections.observableList(serverResponse.getSet());
                         controller.updateTableView(list);
+                    }else{
+                        controller.getCommandsTabController().displayServerResponse(serverResponse);
                     }
                 }
                 buf.clear();
@@ -53,14 +56,18 @@ public class SocketChannelHandler implements Runnable{
             e.printStackTrace();
         }
     }
-    public void sendRequest(ClientRequest request) throws IOException {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(10000);
-        byteBuffer.clear();
-        byteBuffer.put(SerializeManager.toByte(request));
-        byteBuffer.flip();
-        while (byteBuffer.hasRemaining()) {
-            socketChannel.write(byteBuffer);
+    public void sendRequest(ClientRequest request){
+        try {
+            ByteBuffer byteBuffer = ByteBuffer.allocate(10000);
+            byteBuffer.clear();
+            byteBuffer.put(SerializeManager.toByte(request));
+            byteBuffer.flip();
+            while (byteBuffer.hasRemaining()) {
+                socketChannel.write(byteBuffer);
+            }
+            byteBuffer.clear();
+        }catch (IOException e){
+            e.printStackTrace();
         }
-        byteBuffer.clear();
     }
 }

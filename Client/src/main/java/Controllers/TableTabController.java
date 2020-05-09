@@ -13,6 +13,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.ImageView;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -54,7 +55,11 @@ public class TableTabController {
         TableColumn<Route, Location> toNameCol = new TableColumn<>(resources.getString("table.name"));
         TableColumn<Route, Double> distanceCol = new TableColumn<>(resources.getString("table.distance"));
         TableColumn<Route, String> ownerCol = new TableColumn<>(resources.getString("table.owner"));
-        ownerCol.setMaxWidth(4000);
+        ownerCol.setMaxWidth(3000);
+        ImageView imageView = new ImageView("/filter-icon.png");
+        imageView.setScaleX(0.35);
+        imageView.setScaleY(0.35);
+        ownerCol.setGraphic(imageView);
 
         creationDateCol.setCellValueFactory(new PropertyValueFactory<>("creationDate"));
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));

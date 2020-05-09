@@ -27,7 +27,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class Main extends Application {
-    static String login="", password="";
+    public static String login="", password="";
     public static Stage stage;
     public static MainWindowController controller;
     private static boolean loggedIn = false;
@@ -255,15 +255,9 @@ public class Main extends Application {
         }
     }*/
 
-    public static void outputInfo(String text) {
-        System.out.println(text);
-    }
-    public static void dollar(){
-        System.out.print("$");
-    }
 
     public static void serverResponseDecode(ServerResponse response) throws NullPointerException{
-        switch (response.getCode()){
+/*        switch (response.getCode()){
             case SEARCH_OK:
                 outputInfo("Результаты поиска:\n"+response.getAdditionalInfo() + "\n");
                 break;
@@ -327,6 +321,6 @@ public class Main extends Application {
                 break;
             case SHOW:
                 outputInfo("Элементы коллекции:\n"+response.getAdditionalInfo());
-        }
+        }*/
     }
 }

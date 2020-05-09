@@ -6,12 +6,16 @@ import Client.Exceptions.WrongCommandArgumentsException;
 import Storable.Coordinates;
 import Storable.Location;
 import Storable.Route;
+import javafx.scene.control.TextArea;
 
 import java.io.Console;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class CommandFactory {
     private String username;
-    public ICommand getCommand(String[] type, Console reader, String user){
+    public ICommand getCommand(String[] type, TextArea reader, String user){
         ICommand returning = null;
         username=user;
         try {
@@ -41,8 +45,8 @@ public class CommandFactory {
                         try {
                             returning = new CountGreaterThanDistance(Double.parseDouble(type[1]));
                         }catch (NumberFormatException e){
-                            System.out.println("Некорректный ввод числового значения. Необходим double");
-                            Main.dollar();
+                            outputInfo(reader,"console.incorrectIn","double");
+                            dollar(reader);
                         }
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Count_Greater_Than_Distance);
@@ -76,8 +80,8 @@ public class CommandFactory {
                         try {
                             returning = new RemoveAllByDistance(Double.parseDouble(type[1]),user);
                         }catch (NumberFormatException e){
-                            Main.outputInfo("Некорректный ввод числового значения. Необходим double");
-                            Main.dollar();
+                            outputInfo(reader,"console.incorrectIn","double");
+                            dollar(reader);
                         }
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Remove_All_By_Distance);
@@ -98,8 +102,8 @@ public class CommandFactory {
                         try {
                             returning = new RemoveById(Long.parseLong(type[1]),user);
                         }catch (NumberFormatException e){
-                            Main.outputInfo("Некорректный ввод числового значения. Необходим int");
-                            Main.dollar();
+                            outputInfo(reader,"console.incorrectIn","int");
+                            dollar(reader);
                         }
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Remove_By_Id);
@@ -110,222 +114,238 @@ public class CommandFactory {
                             Route adding = elementCreator(reader);
                             if (adding != null) returning = new UpdateId(Long.parseLong(type[1]), adding,user);
                         }catch (NumberFormatException e){
-                            Main.outputInfo("Некорректный ввод числового значения. Необходим long");
-                            Main.dollar();
+                            outputInfo(reader,"console.incorrectIn","long");
+                            dollar(reader);
                         }
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Update);
                     break;
                 default:
-                    Main.outputInfo("Неопознанная команда \"" + type[0] + "\". Для вывода справки введите help");
-                    Main.dollar();
+                    outputInfo(reader,"console.unknown","");
+                    dollar(reader);;
                     break;
             }
         }catch (WrongCommandArgumentsException e){
-            Main.outputInfo(e.getMessage());
-            Main.dollar();
+            outputInfo(reader,"console.incorrectFormat",e.getMessage());
+            dollar(reader);
             returning = null;
         }
         return returning;
     }
 
-    private Route elementCreator(Console reader){
+    private String readLine(TextArea reader){
+        int y = reader.getText().split("\n").length;
+        return Arrays.asList(reader.getText().split("\n")).get(y-1);
+    }
+    private void outputInfo(TextArea textArea, String key, String info){
+        textArea.setText(textArea.getText() + "\n"+ResourceBundle.getBundle("MessagesBundle").getString(key)+" "+info);
+        textArea.end();
+    }
+    private void outputEnterInfo(TextArea textArea, String key, String type){
+        textArea.setText(textArea.getText() + "\n"+ResourceBundle.getBundle("MessagesBundle").getString("console.enterField")+ResourceBundle.getBundle("MessagesBundle", Locale.getDefault()).getString(key)+" ("+type+")");
+        textArea.end();
+    }
+    private void dollar(TextArea textArea){
+        textArea.setText(textArea.getText() + "$");
+        textArea.end();
+    }
+    private Route elementCreator(TextArea reader){
         try {
             Route adding = new Route(username);
             Coordinates coord = new Coordinates();
             Location Lfrom = new Location();
             Location Lto = new Location();
 
-            Main.outputInfo("Введите значение поля name (String)");
-            Main.dollar();
-            String temp = reader.readLine();
+            outputEnterInfo(reader,"table.name","String");
+            dollar(reader);
+            String temp = readLine(reader);
             if(temp == null) throw new EOFElementCreationException();
 
             while (temp.isEmpty() || temp.matches("[\\s]*")) {
-                Main.outputInfo("Данное поле не может быть пустым");
-                Main.dollar();
-                temp = reader.readLine();
+                outputInfo(reader,"console.notEmpty","");
+                dollar(reader);
+                temp = readLine(reader);
                 if(temp == null) throw new EOFElementCreationException();
             }
 
             adding.setName(temp);
 
-            Main.outputInfo("Введите значение  coordinates: x (double)");
-            Main.dollar();
+            outputEnterInfo(reader,"console.coordX","double");
+            dollar(reader);
             while (true) {
                 try {
-                    temp = reader.readLine();
+                    temp = readLine(reader);
                     if(temp == null) throw new EOFElementCreationException();
                     while (temp.isEmpty()) {
-                        Main.outputInfo("Данное поле не может быть пустым");
-                        Main.dollar();
-                        temp = reader.readLine();
+                        outputInfo(reader,"console.notEmpty","");
+                        dollar(reader);
+                        temp = readLine(reader);
                         if(temp == null) throw new EOFElementCreationException();
                     }
                     coord.setx(Double.parseDouble(temp));
                     break;
                 } catch (NumberFormatException e) {
-                    Main.outputInfo("Некорректный ввод. Введите double");
-                    Main.dollar();
+                    outputInfo(reader,"console.incorrectIn","double");
+                    dollar(reader);
                 }
             }
 
-            Main.outputInfo("Введите значение поля coordinates: y (Double)");
-            Main.dollar();
+            outputEnterInfo(reader,"console.coordY","Double");
+            dollar(reader);
             while (true) {
                 try {
-                    temp = reader.readLine();
+                    temp = readLine(reader);
                     if(temp == null) throw new EOFElementCreationException();
                     while (temp.isEmpty()) {
-                        Main.outputInfo("Данное поле не может быть пустым");
-                        Main.dollar();
-                        temp = reader.readLine();
+                        outputInfo(reader,"console.notEmpty","");
+                        dollar(reader);
+                        temp = readLine(reader);;
                         if(temp == null) throw new EOFElementCreationException();
                     }
                     while (Double.parseDouble(temp) <= -462) {
-                        Main.outputInfo("Значение поля должно быть больше -462");
-                        Main.dollar();
-                        temp = reader.readLine();
+                        outputInfo(reader,"console.higher","-462");
+                        dollar(reader);
+                        temp = readLine(reader);
                         if(temp == null) throw new EOFElementCreationException();
                     }
                     coord.sety(Double.parseDouble(temp));
                     adding.setCoordinates(coord);
                     break;
                 } catch (NumberFormatException e) {
-                    Main.outputInfo("Некорректный ввод. Введите Double");
-                    Main.dollar();
+                    outputInfo(reader,"console.incorrectIn","Double");
+                    dollar(reader);
                 }
             }
 
-            Main.outputInfo("Введите значение поля from: x (Integer)");
-            Main.dollar();
+            outputEnterInfo(reader,"console.fromX","Integer");
+            dollar(reader);
             while (true) {
                 try {
-                    temp = reader.readLine();
+                    temp = readLine(reader);
                     if(temp == null) throw new EOFElementCreationException();
                     while (temp.isEmpty()) {
-                        Main.outputInfo("Данное поле не может быть пустым");
-                        Main.dollar();
-                        temp = reader.readLine();
+                        outputInfo(reader,"console.notEmpty","");
+                        dollar(reader);
+                        temp = readLine(reader);
                         if(temp == null) throw new EOFElementCreationException();
                     }
                     Lfrom.setX(Integer.parseInt(temp));
                     break;
                 } catch (NumberFormatException e) {
-                    Main.outputInfo("Некорректный ввод. Введите Integer");
-                    Main.dollar();
+                    outputInfo(reader,"console.incorrectIn","Integer");
+                    dollar(reader);
                 }
             }
 
-            Main.outputInfo("Введите значение поля from: y (Long)");
-            Main.dollar();
+            outputEnterInfo(reader,"console.fromY","Long");
+            dollar(reader);
             while (true) {
                 try {
-                    temp = reader.readLine();
+                    temp = readLine(reader);
                     if(temp == null) throw new EOFElementCreationException();
                     while (temp.isEmpty()) {
-                        Main.outputInfo("Данное поле не может быть пустым");
-                        Main.dollar();
-                        temp = reader.readLine();
+                        outputInfo(reader,"console.notEmpty","");
+                        dollar(reader);
+                        temp = readLine(reader);
                         if(temp == null) throw new EOFElementCreationException();
                     }
                     Lfrom.setY(Long.parseLong(temp));
                     break;
                 } catch (NumberFormatException e) {
-                    Main.outputInfo("Некорректный ввод. Введите Long");
-                    Main.dollar();
+                    outputInfo(reader,"console.incorrectIn","Long");
+                    dollar(reader);
                 }
             }
 
-            Main.outputInfo("Введите значение поля from: name (String)");
-            Main.dollar();
-            temp = reader.readLine();
+            outputEnterInfo(reader,"console.fromName","String");
+            dollar(reader);
+            temp = readLine(reader);
             if(temp == null) throw new EOFElementCreationException();
             while (temp.isEmpty() || temp.matches("[\\s]*")) {
-                Main.outputInfo("Данное поле не может быть пустым");
-                Main.dollar();
-                temp = reader.readLine();
+                outputInfo(reader,"console.notEmpty","");
+                dollar(reader);
+                temp = readLine(reader);
                 if(temp == null) throw new EOFElementCreationException();
             }
             Lfrom.setName(temp);
             adding.setFrom(Lfrom);
 
-            Main.outputInfo("Введите значение поля to: x (Integer)");
-            Main.dollar();
+            outputEnterInfo(reader,"console.toX","Integer");
+            dollar(reader);
             while (true) {
                 try {
-                    temp = reader.readLine();
+                    temp = readLine(reader);
                     if(temp == null) throw new EOFElementCreationException();
                     while (temp.isEmpty()) {
-                        Main.outputInfo("Данное поле не может быть пустым");
-                        Main.dollar();
-                        temp = reader.readLine();
+                        outputInfo(reader,"console.notEmpty","");
+                        dollar(reader);
+                        temp = readLine(reader);
                         if(temp == null) throw new EOFElementCreationException();
                     }
                     Lto.setX(Integer.parseInt(temp));
                     break;
                 } catch (NumberFormatException e) {
-                    Main.outputInfo("Некорректный ввод. Введите Integer");
-                    Main.dollar();
+                    outputInfo(reader,"console.incorrectIn","Integer");
+                    dollar(reader);
                 }
             }
 
-            Main.outputInfo("Введите значение поля to: y (Long)");
-            Main.dollar();
+            outputEnterInfo(reader,"console.toY","Long");
+            dollar(reader);
             while (true) {
                 try {
-                    temp = reader.readLine();
+                    temp = readLine(reader);
                     if(temp == null) throw new EOFElementCreationException();
                     while (temp.isEmpty()) {
-                        Main.outputInfo("Данное поле не может быть пустым");
-                        Main.dollar();
-                        temp = reader.readLine();
+                        outputInfo(reader,"console.notEmpty","");
+                        dollar(reader);
+                        temp = readLine(reader);
                         if(temp == null) throw new EOFElementCreationException();
                     }
                     Lto.setY(Long.parseLong(temp));
                     break;
                 } catch (NumberFormatException e) {
-                    Main.outputInfo("Некорректный ввод. Введите Long");
-                    Main.dollar();
+                    outputInfo(reader,"console.incorrectIn","Long");
+                    dollar(reader);
                 }
             }
 
-            Main.outputInfo("Введите значение поля to: name (String)");
-            Main.dollar();
-            temp = reader.readLine();
+            outputEnterInfo(reader,"console.toName","String");
+            dollar(reader);
+            temp = readLine(reader);
             if(temp == null) throw new EOFElementCreationException();
             while (temp.isEmpty() || temp.matches("[\\s]*")) {
-                Main.outputInfo("Данное поле не может быть пустым");
-                Main.dollar();
-                temp = reader.readLine();
+                outputInfo(reader,"console.notEmpty","");
+                dollar(reader);
+                temp = readLine(reader);
                 if(temp == null) throw new EOFElementCreationException();
             }
             Lto.setName(temp);
             adding.setTo(Lto);
 
-            Main.outputInfo("Введите значение поля distance (double)");
-            Main.dollar();
+            outputEnterInfo(reader,"table.distance","double");
+            dollar(reader);
             while (true) {
                 try {
-                    temp = reader.readLine();
+                    temp = readLine(reader);
                     if(temp == null) throw new EOFElementCreationException();
                     while (Double.parseDouble(temp) <= 1) {
-                        Main.outputInfo("Данное поле должно быть больше 1");
-                        Main.dollar();
-                        temp = reader.readLine();
+                        outputInfo(reader,"console.higher","1");
+                        dollar(reader);
+                        temp = readLine(reader);
                         if(temp == null) throw new EOFElementCreationException();
                     }
                     adding.setDistance(Double.parseDouble(temp));
                     break;
                 } catch (NumberFormatException e) {
-                    Main.outputInfo("Некорректный ввод. Введите double");
-                    Main.dollar();
+                    outputInfo(reader,"console.incorrectIn","double");
+                    dollar(reader);
                 }
             }
             return adding;
         } catch (EOFElementCreationException e) {
-            Main.outputInfo(e.getMessage());
-            Main.dollar();
+/*            outputInfo(reader,e.getMessage());
+            Main.dollar();*/
             return null;
         }
     }
