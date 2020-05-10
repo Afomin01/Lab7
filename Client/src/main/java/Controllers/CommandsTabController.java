@@ -500,16 +500,15 @@ public class CommandsTabController {
     }
     public void displayServerResponse(ServerResponse serverResponse){
         if(consoleRequest) {
-            console.setText(console.getText() + UniversalServerResponseDecoder.decodeResponse(serverResponse) + "\n");
-            console.end();
+            Platform.runLater(() -> {
+                console.setText(console.getText() + UniversalServerResponseDecoder.decodeResponse(serverResponse) + "\n");
+                console.end();
+            });
         }else {
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    Text text = new Text(UniversalServerResponseDecoder.decodeResponse(serverResponse));
-                    text.setFont(Font.font (text.getFont().getFamily(), 14));
-                    pane.setContent(text);
-                }
+            Platform.runLater(() -> {
+                Text text = new Text(UniversalServerResponseDecoder.decodeResponse(serverResponse));
+                text.setFont(Font.font (text.getFont().getFamily(), 14));
+                pane.setContent(text);
             });
         }
     }

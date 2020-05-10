@@ -7,12 +7,15 @@ import Instruments.SerializeManager;
 import Instruments.ServerResponseCodes;
 import Instruments.ServerResponse;
 import Storable.Route;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.ResourceBundle;
 
 public class SocketChannelHandler implements Runnable{
     private ByteBuffer buf = ByteBuffer.allocate(1000000);
@@ -38,38 +41,48 @@ public class SocketChannelHandler implements Runnable{
             sendRequest(new ClientRequest(new GetTableItems(),login,password));
 
             while (true){
-                int read = socketChannel.read(buf);
-                if(read>3){
-                    if(read>15000) {
-                        Thread.sleep(200);
-                        socketChannel.read(buf);
+                try {
+                    if (Thread.interrupted() || socketChannel.isBlocking()) break;
+                    int read = socketChannel.read(buf);
+                    if(read==-1){
+                        Platform.runLater(() -> {
+                            Alert alert1 = new Alert(Alert.AlertType.ERROR);
+                            alert1.setTitle(ResourceBundle.getBundle("MessagesBundle").getString("alerts.exit"));
+                            alert1.setResizable(false);
+                            alert1.setHeaderText(ResourceBundle.getBundle("MessagesBundle").getString("alerts.exit"));
+                            alert1.setContentText(ResourceBundle.getBundle("MessagesBundle").getString("alerts.serverDisconnect"));
+                            alert1.showAndWait();
+                            Main.exitUser();
+                        });
+                        break;
                     }
-                    serverResponse = (ServerResponse) SerializeManager.fromByte(buf.array());
-                    if(serverResponse.getCode().equals(ServerResponseCodes.SET_ONLY)){
-                        controller.updateTableView(FXCollections.observableList(serverResponse.getSet()));
-                    }else if (serverResponse.getCode().equals(ServerResponseCodes.NEW_ITEM_OR_UPDATE)){
-                        controller.addTableViewItem(serverResponse.getRoute());
-                    }else if (serverResponse.getCode().equals(ServerResponseCodes.REMOVE_ITEMS_UPDATE)){
-                        controller.removeItems(FXCollections.observableList(serverResponse.getSet()));
-                    }else{
-                        ServerResponse sr = serverResponse;
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                controller.getCommandsTabController().displayServerResponse(sr);
-                            }
-                        }).start();
+                    if (read > 3) {
+                        if (read > 15000) {
+                            Thread.sleep(200);
+                            socketChannel.read(buf);
+                        }
+                        serverResponse = (ServerResponse) SerializeManager.fromByte(buf.array());
+                        if (serverResponse.getCode().equals(ServerResponseCodes.SET_ONLY)) {
+                            controller.updateTableView(FXCollections.observableList(serverResponse.getSet()));
+                        } else if (serverResponse.getCode().equals(ServerResponseCodes.NEW_ITEM_OR_UPDATE)) {
+                            controller.addTableViewItem(serverResponse.getRoute());
+                        } else if (serverResponse.getCode().equals(ServerResponseCodes.REMOVE_ITEMS_UPDATE)) {
+                            controller.removeItems(FXCollections.observableList(serverResponse.getSet()));
+                        } else {
+                            ServerResponse sr = serverResponse;
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    controller.getCommandsTabController().displayServerResponse(sr);
+                                }
+                            }).start();
+                        }
                     }
+                    buf.clear();
+                }catch (IOException | NullPointerException e ){
                 }
-                buf.clear();
             }
         } catch (IOException | NullPointerException | InterruptedException e) {
-            e.printStackTrace();
-            try {
-                int read = socketChannel.read(buf);
-            } catch (IOException ioException) {
-
-            }
         }
     }
     public void sendRequest(ClientRequest request){
@@ -83,7 +96,6 @@ public class SocketChannelHandler implements Runnable{
             }
             byteBuffer.clear();
         }catch (IOException e){
-            e.printStackTrace();
         }
     }
 }
