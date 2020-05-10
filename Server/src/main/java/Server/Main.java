@@ -64,7 +64,6 @@ public class Main {
             statement = DBconnection.createStatement();
             log.info("Connected to database: "+property.getProperty("db.URL")+ " with login "+property.getProperty("db.login")+".");
         } catch (SQLException e) {
-            e.printStackTrace();
             log.severe("Error connecting to database: "+property.getProperty("db.URL")+ " with login "+property.getProperty("db.login")+". Shutting down ...");
             for(Handler h : log.getHandlers())  h.close();
             System.exit(1);

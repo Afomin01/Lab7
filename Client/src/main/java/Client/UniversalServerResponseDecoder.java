@@ -1,6 +1,7 @@
 package Client;
 
 import Instruments.ServerResponse;
+import javafx.scene.control.Alert;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -40,20 +41,30 @@ public abstract class UniversalServerResponseDecoder {
                 out=resourceBundle.getString("response.update");
                 break;
             case SCRIPT_RESULT:
-                System.out.println("sdgajkgksgljkakg");
                 for (ServerResponse r : response.getScriptReport()){
                     out=out+decodeResponse(r);
-                    System.out.println(out);
                 }
                 break;
             case SERVER_FATAL_ERROR:
-                out=resourceBundle.getString("response.serverFatal");//TODO exit
+                Alert alert1 = new Alert(Alert.AlertType.ERROR);
+                alert1.setTitle(resourceBundle.getString("alerts.exit"));
+                alert1.setResizable(false);
+                alert1.setHeaderText(resourceBundle.getString("alerts.exit"));
+                alert1.setContentText(resourceBundle.getString("response.serverFatal"));
+                alert1.showAndWait();
+                Main.exitUser();
                 break;
             case HISTORY:
                 out=resourceBundle.getString("response.history")+"\n"+response.getAdditionalInfo();
                 break;
             case EXIT:
-                out=resourceBundle.getString("response.exit");//TODO exit
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle(resourceBundle.getString("alerts.exit"));
+                alert.setResizable(false);
+                alert.setHeaderText(resourceBundle.getString("alerts.exit"));
+                alert.setContentText(resourceBundle.getString("response.exit"));
+                alert.showAndWait();
+                Main.exitUser();
                 break;
             case SURPRISE_NOT_CORRECT_LOGIN_OR_PASSWORD:
                 out=resourceBundle.getString("response.surprise");

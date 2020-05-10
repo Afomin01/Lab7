@@ -29,15 +29,10 @@ public class Main extends Application {
     public static String login="", password="";
     public static Stage stage;
     public static MainWindowController controller;
-    private static boolean loggedIn = false;
     private static boolean connected = false;
     private static boolean inMainWindow = false;
     private static SocketChannel socketChannel;
-    public static SocketChannelHandler handler;//MAKE METHODS
-
-    public static boolean isLoggedIn() {
-        return loggedIn;
-    }
+    public static SocketChannelHandler handler;
 
     public static boolean isConnected() {
         return connected;
@@ -52,9 +47,10 @@ public class Main extends Application {
             try {
                 SocketAddress a = new InetSocketAddress("localhost", 4004);
                 socketChannel = SocketChannel.open(a);
+                connected=true;
                 return true;
             } catch (IOException e) {
-                e.printStackTrace();
+                connected=false;
                 return false;
             }
         } else return true;
@@ -84,8 +80,36 @@ public class Main extends Application {
         }
     }
 
+    public static void exitUser(){
+        try {
+            connected=false;
+            login="";
+            password="";
+            inMainWindow = false;
+            connected = connectServer();
+            socketChannel.configureBlocking(true);
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setResources(ResourceBundle.getBundle("MessagesBundle", Locale.getDefault()));
+
+            Parent root = fxmlLoader.load(Main.class.getResource("/AuthWindow.fxml").openStream());
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+
+            stage.setTitle("Authorization");
+            stage.setWidth(600);
+            stage.setHeight(400);
+            stage.setMaxHeight(400);
+            stage.setMaxWidth(600);
+
+            stage.show();
+        } catch (IOException e) {
+            System.exit(1);
+        }
+    }
+
     public static void openMainWindow() {
-        if (loggedIn && !inMainWindow) {
+        if (!inMainWindow) {
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader();
                 fxmlLoader.setResources(ResourceBundle.getBundle("MessagesBundle", Locale.getDefault()));
@@ -109,7 +133,7 @@ public class Main extends Application {
                 thread.start();
 
             } catch (IOException ignored) {
-                ignored.printStackTrace();
+                System.exit(1);
             }
         }
     }
@@ -139,17 +163,13 @@ public class Main extends Application {
                     sr = (ServerResponse) SerializeManager.fromByte(b);
                 }
                 if (sr.getCode() != ServerResponseCodes.AUTHORISED) {
-                    loggedIn = false;
                 } else{
-                    loggedIn = true;
                 }
                 return sr.getCode();
             } catch (NullPointerException | IOException | NoSuchAlgorithmException e) {
-                loggedIn = false;
                 return ServerResponseCodes.ERROR;
             }
         } else {
-            loggedIn = false;
             return ServerResponseCodes.ERROR;
         }
     }
@@ -183,15 +203,13 @@ public class Main extends Application {
                     fromServer.read(b);
                     sr = (ServerResponse) SerializeManager.fromByte(b);
                 }
-                if(sr.getCode()== ServerResponseCodes.AUTHORISED) loggedIn=true;
-                else loggedIn=false;
+                if(sr.getCode()== ServerResponseCodes.AUTHORISED) {
+                }
                 return sr.getCode();
             } catch (IOException | NoSuchAlgorithmException e) {
-                loggedIn = false;
                 return ServerResponseCodes.ERROR;
             }
         }else {
-            loggedIn = false;
             return ServerResponseCodes.ERROR;
         }
     }

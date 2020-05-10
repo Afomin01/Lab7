@@ -9,7 +9,6 @@ public class SerializeManager {
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteOutputStream)) {
             objectOutputStream.writeObject(object);
         } catch (IOException e) {
-            e.printStackTrace();
         }
 
         return byteOutputStream.toByteArray();

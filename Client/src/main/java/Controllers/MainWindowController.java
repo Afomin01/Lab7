@@ -49,7 +49,7 @@ public class MainWindowController {
             commandTab.setContent(commandsTabView);
 
         }catch (Exception e){
-            e.printStackTrace();
+            System.exit(1);
         }
 
     }
