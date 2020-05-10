@@ -10,6 +10,7 @@ import javafx.scene.control.TextArea;
 
 import java.io.Console;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -23,15 +24,15 @@ public class CommandFactory {
                 case "":
                     return null;
                 case "add":
-                    if (type.length == 1){
-                        Route adding = elementCreator(reader);
+                    if (type.length == 11){
+                        Route adding = new Route(0,type[1],new Coordinates(Double.parseDouble(type[2]),Double.parseDouble(type[3])),new Date(),new Location(Integer.parseInt(type[4]),Long.parseLong(type[5]),type[6]),new Location(Integer.parseInt(type[7]),Long.parseLong(type[8]),type[9]),Double.parseDouble(type[10]),Main.login);
                         if (adding != null) returning = new Add(adding,user);
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Add);
                     break;
                 case "add_if_max":
-                    if (type.length == 1){
-                        Route adding = elementCreator(reader);
+                    if (type.length == 11){
+                        Route adding = new Route(0,type[1],new Coordinates(Double.parseDouble(type[2]),Double.parseDouble(type[3])),new Date(),new Location(Integer.parseInt(type[4]),Long.parseLong(type[5]),type[6]),new Location(Integer.parseInt(type[7]),Long.parseLong(type[8]),type[9]),Double.parseDouble(type[10]),Main.login);
                         if (adding != null) returning = new AddIfMax(adding,user);
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Add_If_Max);
@@ -45,7 +46,7 @@ public class CommandFactory {
                         try {
                             returning = new CountGreaterThanDistance(Double.parseDouble(type[1]));
                         }catch (NumberFormatException e){
-                            outputInfo(reader,"console.incorrectIn","double");
+                            outputInfo(reader,"console.incorrectIn","types.Double");
                             dollar(reader);
                         }
                     }
@@ -80,15 +81,15 @@ public class CommandFactory {
                         try {
                             returning = new RemoveAllByDistance(Double.parseDouble(type[1]),user);
                         }catch (NumberFormatException e){
-                            outputInfo(reader,"console.incorrectIn","double");
+                            outputInfo(reader,"console.incorrectIn","types.Double");
                             dollar(reader);
                         }
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Remove_All_By_Distance);
                     break;
                 case "remove_greater":
-                    if (type.length == 1){
-                        Route adding = elementCreator(reader);
+                    if (type.length == 11){
+                        Route adding = new Route(0,type[1],new Coordinates(Double.parseDouble(type[2]),Double.parseDouble(type[3])),new Date(),new Location(Integer.parseInt(type[4]),Long.parseLong(type[5]),type[6]),new Location(Integer.parseInt(type[7]),Long.parseLong(type[8]),type[9]),Double.parseDouble(type[10]),Main.login);
                         if (adding != null) returning = new RemoveGreater(adding,user);
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Remove_Greater);
@@ -102,27 +103,28 @@ public class CommandFactory {
                         try {
                             returning = new RemoveById(Long.parseLong(type[1]),user);
                         }catch (NumberFormatException e){
-                            outputInfo(reader,"console.incorrectIn","int");
+                            outputInfo(reader,"console.incorrectIn","types.Integer");
                             dollar(reader);
                         }
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Remove_By_Id);
                     break;
                 case "update":
-                    if (type.length == 2){
+                    if (type.length == 12){
                         try {
-                            Route adding = elementCreator(reader);
+                            Route adding = new Route(0,type[2],new Coordinates(Double.parseDouble(type[3]),Double.parseDouble(type[4])),new Date(),new Location(Integer.parseInt(type[5]),Long.parseLong(type[6]),type[7]),new Location(Integer.parseInt(type[8]),Long.parseLong(type[9]),type[10]),Double.parseDouble(type[11]),Main.login);
                             if (adding != null) returning = new UpdateId(Long.parseLong(type[1]), adding,user);
                         }catch (NumberFormatException e){
-                            outputInfo(reader,"console.incorrectIn","long");
+                            outputInfo(reader,"console.incorrectIn","types.Long");
                             dollar(reader);
                         }
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Update);
                     break;
                 default:
-                    outputInfo(reader,"console.unknown","");
-                    dollar(reader);;
+                    reader.setText(reader.getText() + "\n"+ResourceBundle.getBundle("MessagesBundle").getString("console.unknown"));
+                    dollar(reader);
+                    reader.end();
                     break;
             }
         }catch (WrongCommandArgumentsException e){
@@ -133,221 +135,10 @@ public class CommandFactory {
         return returning;
     }
 
-    private String readLine(TextArea reader){
-        int y = reader.getText().split("\n").length;
-        return Arrays.asList(reader.getText().split("\n")).get(y-1);
-    }
     private void outputInfo(TextArea textArea, String key, String info){
-        textArea.setText(textArea.getText() + "\n"+ResourceBundle.getBundle("MessagesBundle").getString(key)+" "+info);
-        textArea.end();
-    }
-    private void outputEnterInfo(TextArea textArea, String key, String type){
-        textArea.setText(textArea.getText() + "\n"+ResourceBundle.getBundle("MessagesBundle").getString("console.enterField")+ResourceBundle.getBundle("MessagesBundle", Locale.getDefault()).getString(key)+" ("+type+")");
+        textArea.setText(textArea.getText() + "\n"+ResourceBundle.getBundle("MessagesBundle").getString(key)+" "+ResourceBundle.getBundle("MessagesBundle").getString(info));
         textArea.end();
     }
     private void dollar(TextArea textArea){
-        textArea.setText(textArea.getText() + "\n");
-        textArea.end();
-    }
-    private Route elementCreator(TextArea reader){//TODO fix app stack in while true
-        try {
-            Route adding = new Route(username);
-            Coordinates coord = new Coordinates();
-            Location Lfrom = new Location();
-            Location Lto = new Location();
-
-            outputEnterInfo(reader,"table.name","String");
-            dollar(reader);
-            String temp = readLine(reader);
-            if(temp == null) throw new EOFElementCreationException();
-
-            while (temp.isEmpty() || temp.matches("[\\s]*")) {
-                outputInfo(reader,"console.notEmpty","");
-                dollar(reader);
-                temp = readLine(reader);
-                if(temp == null) throw new EOFElementCreationException();
-            }
-
-            adding.setName(temp);
-
-            outputEnterInfo(reader,"console.coordX","double");
-            dollar(reader);
-            while (true) {
-                try {
-                    temp = readLine(reader);
-                    if(temp == null) throw new EOFElementCreationException();
-                    while (temp.isEmpty()) {
-                        outputInfo(reader,"console.notEmpty","");
-                        dollar(reader);
-                        temp = readLine(reader);
-                        if(temp == null) throw new EOFElementCreationException();
-                    }
-                    coord.setx(Double.parseDouble(temp));
-                    break;
-                } catch (NumberFormatException e) {
-                    outputInfo(reader,"console.incorrectIn","double");
-                    dollar(reader);
-                }
-            }
-
-            outputEnterInfo(reader,"console.coordY","Double");
-            dollar(reader);
-            while (true) {
-                try {
-                    temp = readLine(reader);
-                    if(temp == null) throw new EOFElementCreationException();
-                    while (temp.isEmpty()) {
-                        outputInfo(reader,"console.notEmpty","");
-                        dollar(reader);
-                        temp = readLine(reader);;
-                        if(temp == null) throw new EOFElementCreationException();
-                    }
-                    while (Double.parseDouble(temp) <= -462) {
-                        outputInfo(reader,"console.higher","-462");
-                        dollar(reader);
-                        temp = readLine(reader);
-                        if(temp == null) throw new EOFElementCreationException();
-                    }
-                    coord.sety(Double.parseDouble(temp));
-                    adding.setCoordinates(coord);
-                    break;
-                } catch (NumberFormatException e) {
-                    outputInfo(reader,"console.incorrectIn","Double");
-                    dollar(reader);
-                }
-            }
-
-            outputEnterInfo(reader,"console.fromX","Integer");
-            dollar(reader);
-            while (true) {
-                try {
-                    temp = readLine(reader);
-                    if(temp == null) throw new EOFElementCreationException();
-                    while (temp.isEmpty()) {
-                        outputInfo(reader,"console.notEmpty","");
-                        dollar(reader);
-                        temp = readLine(reader);
-                        if(temp == null) throw new EOFElementCreationException();
-                    }
-                    Lfrom.setX(Integer.parseInt(temp));
-                    break;
-                } catch (NumberFormatException e) {
-                    outputInfo(reader,"console.incorrectIn","Integer");
-                    dollar(reader);
-                }
-            }
-
-            outputEnterInfo(reader,"console.fromY","Long");
-            dollar(reader);
-            while (true) {
-                try {
-                    temp = readLine(reader);
-                    if(temp == null) throw new EOFElementCreationException();
-                    while (temp.isEmpty()) {
-                        outputInfo(reader,"console.notEmpty","");
-                        dollar(reader);
-                        temp = readLine(reader);
-                        if(temp == null) throw new EOFElementCreationException();
-                    }
-                    Lfrom.setY(Long.parseLong(temp));
-                    break;
-                } catch (NumberFormatException e) {
-                    outputInfo(reader,"console.incorrectIn","Long");
-                    dollar(reader);
-                }
-            }
-
-            outputEnterInfo(reader,"console.fromName","String");
-            dollar(reader);
-            temp = readLine(reader);
-            if(temp == null) throw new EOFElementCreationException();
-            while (temp.isEmpty() || temp.matches("[\\s]*")) {
-                outputInfo(reader,"console.notEmpty","");
-                dollar(reader);
-                temp = readLine(reader);
-                if(temp == null) throw new EOFElementCreationException();
-            }
-            Lfrom.setName(temp);
-            adding.setFrom(Lfrom);
-
-            outputEnterInfo(reader,"console.toX","Integer");
-            dollar(reader);
-            while (true) {
-                try {
-                    temp = readLine(reader);
-                    if(temp == null) throw new EOFElementCreationException();
-                    while (temp.isEmpty()) {
-                        outputInfo(reader,"console.notEmpty","");
-                        dollar(reader);
-                        temp = readLine(reader);
-                        if(temp == null) throw new EOFElementCreationException();
-                    }
-                    Lto.setX(Integer.parseInt(temp));
-                    break;
-                } catch (NumberFormatException e) {
-                    outputInfo(reader,"console.incorrectIn","Integer");
-                    dollar(reader);
-                }
-            }
-
-            outputEnterInfo(reader,"console.toY","Long");
-            dollar(reader);
-            while (true) {
-                try {
-                    temp = readLine(reader);
-                    if(temp == null) throw new EOFElementCreationException();
-                    while (temp.isEmpty()) {
-                        outputInfo(reader,"console.notEmpty","");
-                        dollar(reader);
-                        temp = readLine(reader);
-                        if(temp == null) throw new EOFElementCreationException();
-                    }
-                    Lto.setY(Long.parseLong(temp));
-                    break;
-                } catch (NumberFormatException e) {
-                    outputInfo(reader,"console.incorrectIn","Long");
-                    dollar(reader);
-                }
-            }
-
-            outputEnterInfo(reader,"console.toName","String");
-            dollar(reader);
-            temp = readLine(reader);
-            if(temp == null) throw new EOFElementCreationException();
-            while (temp.isEmpty() || temp.matches("[\\s]*")) {
-                outputInfo(reader,"console.notEmpty","");
-                dollar(reader);
-                temp = readLine(reader);
-                if(temp == null) throw new EOFElementCreationException();
-            }
-            Lto.setName(temp);
-            adding.setTo(Lto);
-
-            outputEnterInfo(reader,"table.distance","double");
-            dollar(reader);
-            while (true) {
-                try {
-                    temp = readLine(reader);
-                    if(temp == null) throw new EOFElementCreationException();
-                    while (Double.parseDouble(temp) <= 1) {
-                        outputInfo(reader,"console.higher","1");
-                        dollar(reader);
-                        temp = readLine(reader);
-                        if(temp == null) throw new EOFElementCreationException();
-                    }
-                    adding.setDistance(Double.parseDouble(temp));
-                    break;
-                } catch (NumberFormatException e) {
-                    outputInfo(reader,"console.incorrectIn","double");
-                    dollar(reader);
-                }
-            }
-            return adding;
-        } catch (EOFElementCreationException e) {
-            e.printStackTrace();
-/*            outputInfo(reader,e.getMessage());
-            Main.dollar();*/
-            return null;
-        }
     }
 }
