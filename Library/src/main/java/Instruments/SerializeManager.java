@@ -2,7 +2,7 @@ package Instruments;
 
 import java.io.*;
 
-public class SerializeManager {
+public abstract class SerializeManager {
 
     public static byte[] toByte(Object object) {
         ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
