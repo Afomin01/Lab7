@@ -84,7 +84,6 @@ public class AuthWindowController {
         spFlag.setOnMouseClicked(event -> changeLocale(new Locale("es","EC")));
         trFlag.setOnMouseClicked(event -> changeLocale(new Locale("tr","TR")));
         usFlag.setOnMouseClicked(event -> changeLocale(new Locale("en","US")));
-
         logInBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -92,7 +91,7 @@ public class AuthWindowController {
                     loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.empty"));
                     passwordField.clear();
                 }else {
-                    switch (Main.logIn(loginField.getText(), passwordField.getText())){
+                    switch (Main.logIn(loginField.getText(), passwordField.getText(),false)){
                         case ERROR:
                         case SQL_ERROR:
                             loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.error"));

@@ -7,6 +7,4 @@ public enum ManagerResponseCodes implements Serializable {
     SQL_ERROR,
     UNKNOWN_ERROR,
     NO_CHANGES;
-
-
 }

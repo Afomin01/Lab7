@@ -1,6 +1,7 @@
 package Controllers;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.*;
@@ -188,9 +189,13 @@ public class CommandsTabController {
                             case 3:
                                 try {
                                     Double d = Double.parseDouble(s);
-                                    currentCommand += " " + s;
-                                    routeArgumentCount++;
-                                    consolePrint(enterFormat.format(new Object[]{resources.getString("console.fromX"), resources.getString("types.Integer")}));
+                                    if (d > -462.0) {
+                                        currentCommand += " " + s;
+                                        routeArgumentCount++;
+                                        consolePrint(enterFormat.format(new Object[]{resources.getString("console.fromX"), resources.getString("types.Integer")}));
+                                    } else {
+                                        consolePrint(resources.getString("console.higher") + " -462");
+                                    }
                                 } catch (NumberFormatException e) {
                                     consolePrint(incorrectNum.format(new Object[]{resources.getString("types.Double")}));
                                 }
@@ -256,11 +261,15 @@ public class CommandsTabController {
                             case 10:
                                 try {
                                     Double d = Double.parseDouble(s);
-                                    currentCommand += " " + s;
-                                    routeArgumentCount++;
-                                    command = new CommandFactory().getCommand(currentCommand.trim().split(" "), console, Main.login);
-                                    makingElement = false;
-                                    Main.handler.sendRequest(new ClientRequest(command, Main.login, Main.password));
+                                    if(d>1.0) {
+                                        currentCommand += " " + s;
+                                        routeArgumentCount++;
+                                        command = new CommandFactory().getCommand(currentCommand.trim().split(" "), console, Main.login);
+                                        makingElement = false;
+                                        Main.handler.sendRequest(new ClientRequest(command, Main.login, Main.password));
+                                    }else {
+                                        consolePrint(resources.getString("console.higher")+" 1");
+                                    }
                                 } catch (NumberFormatException e) {
                                     consolePrint(incorrectNum.format(new Object[]{resources.getString("types.Double")}));
                                 }
@@ -330,6 +339,7 @@ public class CommandsTabController {
             }
         });
         scriptChooser.setOnAction(new EventHandler<ActionEvent>() {
+
             @Override
             public void handle(ActionEvent event) {
                 FileChooser fileChooser = new FileChooser();
@@ -342,7 +352,7 @@ public class CommandsTabController {
                 if (!file.canRead() || !file.canWrite()) file=null;
             }
         });
-        executeBtn.setOnAction(new EventHandler<ActionEvent>() {
+        executeBtn.setOnAction(new EventHandler<ActionEvent>() {//TODO clear textFields when exe
             MessageFormat fieldEmpty = new MessageFormat(resources.getString("console.notEmpty"));
             MessageFormat fieldIncorrect = new MessageFormat(resources.getString("console.enterField"));
             MessageFormat incorrectIn = new MessageFormat(resources.getString("console.incorrectIn"));
@@ -395,7 +405,11 @@ public class CommandsTabController {
                         temp = false;
                     }
                     try {
-                        Double.parseDouble(coordsYField.getText());
+                        Double d = Double.parseDouble(coordsYField.getText());
+                        if(d<1){
+                            temp=false;
+                            errorComboBoxPrint(resources.getString("console.higher")+" -462");
+                        }
                     } catch (NumberFormatException e) {
                         coordsYField.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                         errorComboBoxPrint(fieldIncorrect.format(new Object[]{resources.getString("console.coordY"), resources.getString("types.Double")}));
@@ -430,7 +444,11 @@ public class CommandsTabController {
                         temp = false;
                     }
                     try {
-                        Double.parseDouble(distanceField.getText());
+                        Double d = Double.parseDouble(distanceField.getText());
+                        if(d<1){
+                            temp=false;
+                            errorComboBoxPrint(resources.getString("console.higher")+" 1");
+                        }
                     } catch (NumberFormatException e) {
                         distanceField.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                         errorComboBoxPrint(fieldIncorrect.format(new Object[]{resources.getString("table.distance"), resources.getString("types.Double")}));

@@ -1,20 +1,27 @@
 package Controllers;
 
+import Client.Main;
 import Storable.Coordinates;
 import Storable.Location;
 import Storable.Route;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.scene.Cursor;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -31,9 +38,6 @@ public class TableTabController {
 
     @FXML
     private TableView<Route> tableView;
-
-    @FXML
-    private Button visializeBtn;
 
     @FXML
     void initialize() {
@@ -58,10 +62,11 @@ public class TableTabController {
         TableColumn<Route, Double> distanceCol = new TableColumn<>(resources.getString("table.distance"));
         TableColumn<Route, String> ownerCol = new TableColumn<>(resources.getString("table.owner"));
         ownerCol.setMaxWidth(3000);
-        ImageView imageView = new ImageView("/filter-icon.png");
-        imageView.setScaleX(0.35);
-        imageView.setScaleY(0.35);
-        ownerCol.setGraphic(imageView);
+        Button button = new Button();
+        button.setPadding(new Insets(12));
+        button.setStyle("-fx-background-image: url('/filter-icon.png'); -fx-background-size: 15px; -fx-background-repeat: no-repeat; -fx-background-position: 50%; -fx-background-color: transparent;");
+        button.setCursor(Cursor.HAND);
+        ownerCol.setGraphic(button);
 
         creationDateCol.setCellValueFactory(new PropertyValueFactory<>("creationDate"));
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -174,7 +179,6 @@ public class TableTabController {
             return cell;
         });
 
-
         creationDateCol.setCellFactory(column -> {
             TableCell<Route, Date> cell = new TableCell<Route, Date>() {
                 private DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.getDefault());
@@ -201,10 +205,38 @@ public class TableTabController {
             return cell;
         });
 
+        tableView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
+                    if(mouseEvent.getClickCount() == 2){
+                        try {
+                            if(Main.login.equals(tableView.getSelectionModel().getSelectedItem().getOwner())) {
+                                FXMLLoader fxmlLoader = new FXMLLoader();
+                                fxmlLoader.setResources(ResourceBundle.getBundle("MessagesBundle"));
+
+                                Parent root = fxmlLoader.load(Main.class.getResource("/EditWindow.fxml").openStream());
+                                EditWindowController controller = fxmlLoader.getController();
+                                Stage stage = new Stage();
+                                stage.setTitle(resources.getString("alerts.change"));
+                                stage.setScene(new Scene(root));
+                                controller.setFields(tableView.getSelectionModel().getSelectedItem());
+                                stage.show();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+
+
         fromCol.getColumns().addAll(fromXCol,fromYCol,fromNameCol);
         toCol.getColumns().addAll(toXCol,toYCol,toNameCol);
         coordinatesCol.getColumns().addAll(coordinatesXCol,coordinatesYCol);
         tableView.getColumns().addAll(idCol,nameCol,coordinatesCol,creationDateCol,fromCol,toCol,distanceCol,ownerCol);
+        tableView.setEditable(true);
     }
     public void setupTable(ObservableList<Route> list){
         tableView.setItems(list);

@@ -11,10 +11,13 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class SocketChannelHandler implements Runnable{
@@ -44,15 +47,18 @@ public class SocketChannelHandler implements Runnable{
                 try {
                     if (Thread.interrupted() || socketChannel.isBlocking()) break;
                     int read = socketChannel.read(buf);
-                    if(read==-1){
+                    if(read==-1) {
                         Platform.runLater(() -> {
-                            Alert alert1 = new Alert(Alert.AlertType.ERROR);
-                            alert1.setTitle(ResourceBundle.getBundle("MessagesBundle").getString("alerts.exit"));
+                            ButtonType ok = new ButtonType(ResourceBundle.getBundle("MessagesBundle").getString("alerts.reconnect"), ButtonBar.ButtonData.OK_DONE);
+                            ButtonType exit = new ButtonType(ResourceBundle.getBundle("MessagesBundle").getString("alerts.exit"), ButtonBar.ButtonData.CANCEL_CLOSE);
+                            Alert alert1 = new Alert(Alert.AlertType.ERROR, ResourceBundle.getBundle("MessagesBundle").getString("alerts.serverDisconnect"), ok, exit);
+                            alert1.setTitle(ResourceBundle.getBundle("MessagesBundle").getString("alerts.connectionError"));
                             alert1.setResizable(false);
-                            alert1.setHeaderText(ResourceBundle.getBundle("MessagesBundle").getString("alerts.exit"));
-                            alert1.setContentText(ResourceBundle.getBundle("MessagesBundle").getString("alerts.serverDisconnect"));
-                            alert1.showAndWait();
-                            Main.exitUser();
+                            alert1.setHeaderText(ResourceBundle.getBundle("MessagesBundle").getString("alerts.connectionError"));
+                            Optional<ButtonType> result = alert1.showAndWait();
+                            if (result.orElse(exit) == ok) {
+                                Main.reconnect();
+                            }else System.exit(0);
                         });
                         break;
                     }
@@ -68,6 +74,18 @@ public class SocketChannelHandler implements Runnable{
                             controller.addTableViewItem(serverResponse.getRoute());
                         } else if (serverResponse.getCode().equals(ServerResponseCodes.REMOVE_ITEMS_UPDATE)) {
                             controller.removeItems(FXCollections.observableList(serverResponse.getSet()));
+                        } else if(serverResponse.getCode().equals(ServerResponseCodes.CHANGE_FIELDS_NO_RIGHTS)||serverResponse.getCode().equals(ServerResponseCodes.CHANGE_FIELDS_ERROR)||serverResponse.getCode().equals(ServerResponseCodes.CHANGE_FIELDS_OK)){
+                            ServerResponse tmpresp = new ServerResponse(serverResponse.getCode());
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                                    alert.setResizable(false);
+                                    alert.setHeaderText(UniversalServerResponseDecoder.decodeResponse(tmpresp));
+                                    alert.setTitle(UniversalServerResponseDecoder.decodeResponse(tmpresp));
+                                    alert.showAndWait();
+                                }
+                            });
                         } else {
                             ServerResponse sr = serverResponse;
                             new Thread(new Runnable() {

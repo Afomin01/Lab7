@@ -90,6 +90,15 @@ public abstract class UniversalServerResponseDecoder {
             case HELP:
                 //TODO
                 break;
+            case CHANGE_FIELDS_OK:
+                out=resourceBundle.getString("response.update");
+                break;
+            case CHANGE_FIELDS_ERROR:
+                out=resourceBundle.getString("response.error");
+                break;
+            case CHANGE_FIELDS_NO_RIGHTS:
+                out=resourceBundle.getString("response.noChange");
+                break;
         }
         return out+"\n";
     }
