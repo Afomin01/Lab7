@@ -1,6 +1,7 @@
 package Controllers;
 
 import Client.Main;
+import CustomFilter.FilteredColumn;
 import Storable.Coordinates;
 import Storable.Location;
 import Storable.Route;
@@ -19,6 +20,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -39,34 +41,48 @@ public class TableTabController {
     @FXML
     private TableView<Route> tableView;
 
+    private ObservableList<Route> initialItems;
+    private TableColumn<Route, Long> idCol;
+    private TableColumn<Route, String> nameCol;
+    private TableColumn<Route, Coordinates> coordinatesCol;
+    private TableColumn<Route, Coordinates> coordinatesXCol;
+    private TableColumn<Route, Coordinates> coordinatesYCol;
+    private TableColumn<Route, Date> creationDateCol;
+    private TableColumn<Route, Location> fromCol;
+    private TableColumn<Route, Location> fromXCol;
+    private TableColumn<Route, Location> fromYCol;
+    private TableColumn<Route, Location> fromNameCol;
+    private TableColumn<Route, Location> toCol;
+    private TableColumn<Route, Location> toXCol;
+    private TableColumn<Route, Location> toYCol;
+    private TableColumn<Route, Location> toNameCol;
+    private TableColumn<Route, Double> distanceCol;
+    private TableColumn<Route, String> ownerCol;
+
     @FXML
     void initialize() {
-        TableColumn<Route, Long> idCol = new TableColumn<>(resources.getString("table.id"));
+        idCol = new TableColumn<>(resources.getString("table.id"));
+        nameCol = new TableColumn<>(resources.getString("table.name"));
+        coordinatesCol = new TableColumn<>(resources.getString("table.coordinates"));
+        coordinatesXCol = new TableColumn<>("x");
+        coordinatesYCol = new TableColumn<>("y");
+        creationDateCol = new TableColumn<>(resources.getString("table.creationDate"));
+        fromCol = new TableColumn<>(resources.getString("table.from"));
+        fromXCol = new TableColumn<>("x");
+        fromYCol = new TableColumn<>("y");
+        fromNameCol = new TableColumn<>(resources.getString("table.name"));
+        toCol = new TableColumn<>(resources.getString("table.to"));
+         toXCol = new TableColumn<>("x");
+        toYCol = new TableColumn<>("y");
+        toNameCol = new TableColumn<>(resources.getString("table.name"));
+        distanceCol = new TableColumn<>(resources.getString("table.distance"));
+        ownerCol = new TableColumn<>(resources.getString("table.owner"));
+
         idCol.setMaxWidth(1500);
-        TableColumn<Route, String> nameCol = new TableColumn<>(resources.getString("table.name"));
-        TableColumn<Route, Coordinates> coordinatesCol = new TableColumn<>(resources.getString("table.coordinates"));
-        TableColumn<Route, Coordinates> coordinatesXCol = new TableColumn<>("x");
-        TableColumn<Route, Coordinates> coordinatesYCol = new TableColumn<>("y");
-        TableColumn<Route, Date> creationDateCol = new TableColumn<>(resources.getString("table.creationDate"));
         creationDateCol.setMaxWidth(3000);
-        TableColumn<Route, Location> fromCol = new TableColumn<>(resources.getString("table.from"));
-        TableColumn<Route, Location> fromXCol = new TableColumn<>("x");
         fromXCol.setMaxWidth(3000);
-        TableColumn<Route, Location> fromYCol = new TableColumn<>("y");
-        TableColumn<Route, Location> fromNameCol = new TableColumn<>(resources.getString("table.name"));
-        TableColumn<Route, Location> toCol = new TableColumn<>(resources.getString("table.to"));
-        TableColumn<Route, Location> toXCol = new TableColumn<>("x");
         toXCol.setMaxWidth(3000);
-        TableColumn<Route, Location> toYCol = new TableColumn<>("y");
-        TableColumn<Route, Location> toNameCol = new TableColumn<>(resources.getString("table.name"));
-        TableColumn<Route, Double> distanceCol = new TableColumn<>(resources.getString("table.distance"));
-        TableColumn<Route, String> ownerCol = new TableColumn<>(resources.getString("table.owner"));
         ownerCol.setMaxWidth(3000);
-        Button button = new Button();
-        button.setPadding(new Insets(12));
-        button.setStyle("-fx-background-image: url('/filter-icon.png'); -fx-background-size: 15px; -fx-background-repeat: no-repeat; -fx-background-position: 50%; -fx-background-color: transparent;");
-        button.setCursor(Cursor.HAND);
-        ownerCol.setGraphic(button);
 
         creationDateCol.setCellValueFactory(new PropertyValueFactory<>("creationDate"));
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -82,6 +98,86 @@ public class TableTabController {
         coordinatesXCol.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
         coordinatesYCol.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
 
+        tableView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
+                    if(mouseEvent.getClickCount() == 2){
+                        try {
+                            if(Main.login.equals(tableView.getSelectionModel().getSelectedItem().getOwner())) {
+                                FXMLLoader fxmlLoader = new FXMLLoader();
+                                fxmlLoader.setResources(ResourceBundle.getBundle("MessagesBundle"));
+
+                                Parent root = fxmlLoader.load(Main.class.getResource("/EditWindow.fxml").openStream());
+                                EditWindowController controller = fxmlLoader.getController();
+                                Stage stage = new Stage();
+                                stage.initModality(Modality.WINDOW_MODAL);
+                                stage.initOwner(Main.stage.getScene().getWindow());
+                                stage.setTitle(resources.getString("alerts.change"));
+                                stage.setScene(new Scene(root));
+                                controller.setFields(tableView.getSelectionModel().getSelectedItem());
+                                stage.show();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+
+        formatColumnsData();
+
+
+        fromCol.getColumns().addAll(fromXCol,fromYCol,fromNameCol);
+        toCol.getColumns().addAll(toXCol,toYCol,toNameCol);
+        coordinatesCol.getColumns().addAll(coordinatesXCol,coordinatesYCol);
+        tableView.getColumns().addAll(idCol,nameCol,coordinatesCol,creationDateCol,fromCol,toCol,distanceCol,ownerCol);
+        tableView.setEditable(true);
+    }
+    public void setupTable(ObservableList<Route> list){
+        tableView.setItems(list);
+        initialItems=list;
+    }
+    public void removeItems(ObservableList<Route> list){
+        list.forEach(t->tableView.getItems().removeIf(r->r.getId()==t.getId()));
+        list.forEach(t->initialItems.removeIf(r->r.getId()==t.getId()));
+    }
+    public void updateTable(Route route){
+        List<Route> list = initialItems.stream().filter(r->r.getId()==route.getId()).collect(Collectors.toList());
+        if(list.size()==0){
+            tableView.getItems().add(route);
+            initialItems.add(route);
+        }else{
+            int i = 0;
+            for(Route r : initialItems){
+                if(r.getId()==route.getId()){
+                    tableView.getItems().set(i,route);
+                    initialItems.set(i,route);
+                }
+                i++;
+            }
+        }
+    }
+    public void changeLanguage(Locale locale){
+        resources = ResourceBundle.getBundle("MessagesBundle",locale);
+        idCol.setText(resources.getString("table.id"));
+        nameCol.setText(resources.getString("table.name"));
+        coordinatesCol.setText(resources.getString("table.coordinates"));
+        fromCol.setText(resources.getString("table.from"));
+        toCol.setText(resources.getString("table.to"));
+        distanceCol.setText(resources.getString("table.distance"));
+        fromNameCol.setText(resources.getString("table.name"));
+        toNameCol.setText(resources.getString("table.name"));
+        ownerCol.setText(resources.getString("table.owner"));
+        creationDateCol.setText(resources.getString("table.creationDate"));
+        formatColumnsData();
+    }
+    public void changeTheme(){
+
+    }
+
+    private void formatColumnsData(){
         coordinatesXCol.setCellFactory(column -> {
             TableCell<Route, Coordinates> cell = new TableCell<Route, Coordinates>() {
                 private DecimalFormat format = (DecimalFormat) NumberFormat.getNumberInstance(Locale.getDefault());
@@ -204,58 +300,5 @@ public class TableTabController {
             };
             return cell;
         });
-
-        tableView.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
-                    if(mouseEvent.getClickCount() == 2){
-                        try {
-                            if(Main.login.equals(tableView.getSelectionModel().getSelectedItem().getOwner())) {
-                                FXMLLoader fxmlLoader = new FXMLLoader();
-                                fxmlLoader.setResources(ResourceBundle.getBundle("MessagesBundle"));
-
-                                Parent root = fxmlLoader.load(Main.class.getResource("/EditWindow.fxml").openStream());
-                                EditWindowController controller = fxmlLoader.getController();
-                                Stage stage = new Stage();
-                                stage.setTitle(resources.getString("alerts.change"));
-                                stage.setScene(new Scene(root));
-                                controller.setFields(tableView.getSelectionModel().getSelectedItem());
-                                stage.show();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-        });
-
-
-        fromCol.getColumns().addAll(fromXCol,fromYCol,fromNameCol);
-        toCol.getColumns().addAll(toXCol,toYCol,toNameCol);
-        coordinatesCol.getColumns().addAll(coordinatesXCol,coordinatesYCol);
-        tableView.getColumns().addAll(idCol,nameCol,coordinatesCol,creationDateCol,fromCol,toCol,distanceCol,ownerCol);
-        tableView.setEditable(true);
-    }
-    public void setupTable(ObservableList<Route> list){
-        tableView.setItems(list);
-    }
-    public void removeItems(ObservableList<Route> list){
-        list.forEach(t->tableView.getItems().removeIf(r->r.getId()==t.getId()));
-    }
-    public void updateTable(Route route){
-        List<Route> list = tableView.getItems().stream().filter(r->r.getId()==route.getId()).collect(Collectors.toList());
-        if(list.size()==0){
-            tableView.getItems().add(route);
-        }else{
-            int i = 0;
-            for(Route r : tableView.getItems()){
-                if(r.getId()==route.getId()){
-                    tableView.getItems().set(i,route);
-                }
-                i++;
-            }
-        }
     }
 }

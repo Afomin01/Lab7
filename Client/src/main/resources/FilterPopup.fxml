@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="400.0" prefWidth="284.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="CustomFilter.FilterPopupController">
+   <children>
+      <VBox alignment="CENTER" layoutY="71.0" prefHeight="319.0" prefWidth="264.0" spacing="10.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="71.0">
+         <children>
+            <ScrollPane hbarPolicy="NEVER" prefHeight="401.0" prefWidth="284.0">
+               <content>
+                  <VBox fx:id="dataVbox" prefHeight="378.0" prefWidth="254.0" spacing="5.0" />
+               </content>
+            </ScrollPane>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <Button fx:id="applyBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="107.0" text="%alerts.apply" />
+                  <Button fx:id="removeFiltersBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="114.0" text="%alerts.removeFilter" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

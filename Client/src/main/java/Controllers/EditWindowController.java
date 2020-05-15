@@ -111,7 +111,7 @@ public class EditWindowController {
     private long id;
 
     @FXML
-    void initialize() {
+    void initialize() {//TODO visualize?
         nameTip.getChildren().add(new Text(resources.getString("table.name")));
         coordXTip.getChildren().add(new Text(resources.getString("console.coordX")));
         coordYTip.getChildren().add(new Text(resources.getString("console.coordY")));
@@ -262,20 +262,18 @@ public class EditWindowController {
     }
 
     public void setFields(Route route){
-        DecimalFormat decimalFormat = (DecimalFormat) NumberFormat.getNumberInstance(Locale.getDefault());
-        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
 
         id=route.getId();
         nameField.setText(route.getName());
-        coordXField.setText(decimalFormat.format(route.getCoordinates().getx()));
-        coordYField.setText(decimalFormat.format(route.getCoordinates().gety()));
-        fromXField.setText(numberFormat.format(route.getFrom().getX()));
-        fromYField.setText(numberFormat.format(route.getFrom().getY()));
+        coordXField.setText(String.valueOf(route.getCoordinates().getx()));
+        coordYField.setText(String.valueOf(route.getCoordinates().gety()));
+        fromXField.setText(String.valueOf(route.getFrom().getX()));
+        fromYField.setText(String.valueOf(route.getFrom().getY()));
         fromNameField.setText(route.getFrom().getName());
-        toXField.setText(numberFormat.format(route.getTo().getX()));
-        toYField.setText(numberFormat.format(route.getTo().getY()));
+        toXField.setText(String.valueOf(route.getTo().getX()));
+        toYField.setText(String.valueOf(route.getTo().getY()));
         toNameField.setText(route.getTo().getName());
-        distanceField.setText(decimalFormat.format(route.getDistance()));
+        distanceField.setText(String.valueOf(route.getDistance()));
     }
 }
 

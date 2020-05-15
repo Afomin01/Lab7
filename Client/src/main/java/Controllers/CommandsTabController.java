@@ -539,4 +539,36 @@ public class CommandsTabController {
         text.setFill(Color.RED);
         argsErrorText.getChildren().add(text);
     }
+    public void changeLanguage(Locale locale){
+        resources = ResourceBundle.getBundle("MessagesBundle",locale);
+        enterFieldsTip.getChildren().add(new Text(resources.getString("console.elementTip")));
+        commandsComboBox.setItems(FXCollections.observableArrayList(Arrays.asList(resources.getString("commands.name.add"),
+                resources.getString("commands.name.update"),
+                resources.getString("commands.name.removegreater"),
+                resources.getString("commands.name.addifmax"),
+                resources.getString("commands.name.clear"),
+                resources.getString("commands.name.countgreaterthandistacne"),
+                resources.getString("commands.name.executescript"),
+                resources.getString("commands.name.exit"),
+                resources.getString("commands.name.help"),
+                resources.getString("commands.name.history"),
+                resources.getString("commands.name.info"),
+                resources.getString("commands.name.printuniquedistance"),
+                resources.getString("commands.name.removeid"),
+                resources.getString("commands.name.allbydistance"),
+                resources.getString("commands.name.show"))));
+        nameField.setPromptText(resources.getString("table.name"));
+        coordsYField.setPromptText(resources.getString("console.coordY"));
+        coordsXField.setPromptText(resources.getString("console.coordX"));
+        fromNameField.setPromptText(resources.getString("console.fromName"));
+        fromXField.setPromptText(resources.getString("console.fromX"));
+        fromYField.setPromptText(resources.getString("console.fromY"));
+        toXField.setPromptText(resources.getString("console.toX"));
+        toYField.setPromptText(resources.getString("console.toY"));
+        toNameField.setPromptText(resources.getString("console.toName"));
+        distanceField.setPromptText(resources.getString("table.distance"));
+        console.setPromptText(resources.getString("console.consoleTip"));
+        executeBtn.setText(resources.getString("console.execute"));
+        clearBtn.setText(resources.getString("console.clear"));
+    }
 }

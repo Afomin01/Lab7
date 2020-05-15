@@ -19,24 +19,20 @@
                <menus>
                   <Menu mnemonicParsing="false" text="File">
                      <items>
-                        <MenuItem mnemonicParsing="false" text="Close" />
-                     </items>
-                  </Menu>
-                  <Menu mnemonicParsing="false" text="Settings">
-                     <items>
-                        <MenuItem mnemonicParsing="false" text="Delete" />
+                        <MenuItem fx:id="menuSettings" mnemonicParsing="false" text="%menu.settings" />
+                        <MenuItem fx:id="menuExit" mnemonicParsing="false" text="%alerts.exit" />
                      </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Help">
                      <items>
-                        <MenuItem mnemonicParsing="false" text="About" />
+                        <MenuItem fx:id="menuHelp" mnemonicParsing="false" text="%menu.help" />
                      </items>
                   </Menu>
                </menus>
             </MenuBar>
             <HBox alignment="CENTER_LEFT" prefHeight="25.0" prefWidth="76.0">
                <children>
-                  <Text rotate="0.3" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="64.21468544006348" HBox.hgrow="ALWAYS" />
+                  <Text fx:id="userNameText" rotate="0.3" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="64.21468544006348" HBox.hgrow="ALWAYS" />
                   <ImageView fitHeight="24.0" fitWidth="94.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@Avatar.png" />
