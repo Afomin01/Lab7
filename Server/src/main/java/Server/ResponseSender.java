@@ -28,7 +28,7 @@ public class ResponseSender implements Runnable {
                 client.write(buf);
             }
             buf.clear();
-            if(serverResponse.getCode()== ServerResponseCodes.SERVER_FATAL_ERROR || serverResponse.getCode()== ServerResponseCodes.EXIT){
+            if(serverResponse.getCode()== ServerResponseCodes.SERVER_FATAL_ERROR){
                 try {
                     client.close();
                 } catch (IOException ignored) {
