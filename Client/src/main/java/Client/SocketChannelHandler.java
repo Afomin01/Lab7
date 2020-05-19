@@ -1,15 +1,14 @@
 package Client;
 
+import Client.Utils.UniversalServerResponseDecoder;
 import Commands.GetTableItems;
 import Controllers.MainWindowController;
 import Instruments.ClientRequest;
 import Instruments.SerializeManager;
 import Instruments.ServerResponseCodes;
 import Instruments.ServerResponse;
-import Storable.Route;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;

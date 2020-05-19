@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
@@ -14,64 +15,64 @@
          <children>
             <VBox prefHeight="462.0" prefWidth="356.0" spacing="10.0">
                <children>
-                  <TextFlow fx:id="enterTip" prefHeight="24.0" prefWidth="590.0" textAlignment="CENTER" />
+                  <Label fx:id="enterTip" prefHeight="17.0" prefWidth="356.0" text="%alerts.change" textAlignment="CENTER" textOverrun="CLIP" />
                   <HBox prefHeight="14.0" prefWidth="590.0" spacing="10.0">
                      <children>
-                        <TextFlow fx:id="nameTip" prefHeight="25.0" prefWidth="180.0" />
+                        <Label fx:id="nameTip" prefHeight="17.0" prefWidth="105.0" text="%table.name" />
                         <TextField fx:id="nameField" prefHeight="25.0" prefWidth="202.0" />
                      </children>
                   </HBox>
                   <HBox prefHeight="14.0" prefWidth="590.0" spacing="10.0">
                      <children>
-                        <TextFlow fx:id="coordXTip" prefHeight="25.0" prefWidth="180.0" />
+                        <Label fx:id="coordXTip" prefHeight="17.0" prefWidth="105.0" text="%console.coordX" />
                         <TextField fx:id="coordXField" prefHeight="25.0" prefWidth="202.0" />
                      </children>
                   </HBox>
                   <HBox prefHeight="14.0" prefWidth="590.0" spacing="10.0">
                      <children>
-                        <TextFlow fx:id="coordYTip" prefHeight="25.0" prefWidth="180.0" />
+                        <Label fx:id="coordYTip" prefHeight="17.0" prefWidth="105.0" text="%console.coordY" />
                         <TextField fx:id="coordYField" prefHeight="25.0" prefWidth="202.0" />
                      </children>
                   </HBox>
                   <HBox prefHeight="14.0" prefWidth="590.0" spacing="10.0">
                      <children>
-                        <TextFlow fx:id="fromXTip" prefHeight="25.0" prefWidth="180.0" />
+                        <Label fx:id="fromXTip" prefHeight="17.0" prefWidth="105.0" text="%console.fromX" />
                         <TextField fx:id="fromXField" prefHeight="25.0" prefWidth="202.0" />
                      </children>
                   </HBox>
                   <HBox prefHeight="14.0" prefWidth="590.0" spacing="10.0">
                      <children>
-                        <TextFlow fx:id="fromYTip" prefHeight="25.0" prefWidth="180.0" />
+                        <Label fx:id="fromYTip" prefHeight="17.0" prefWidth="105.0" text="%console.fromY" />
                         <TextField fx:id="fromYField" prefHeight="25.0" prefWidth="202.0" />
                      </children>
                   </HBox>
                   <HBox prefHeight="14.0" prefWidth="590.0" spacing="10.0">
                      <children>
-                        <TextFlow fx:id="fromNameTip" prefHeight="25.0" prefWidth="180.0" />
+                        <Label fx:id="fromNameTip" prefHeight="17.0" prefWidth="105.0" text="%console.fromName" />
                         <TextField fx:id="fromNameField" prefHeight="25.0" prefWidth="202.0" />
                      </children>
                   </HBox>
                   <HBox prefHeight="14.0" prefWidth="590.0" spacing="10.0">
                      <children>
-                        <TextFlow fx:id="toXTip" prefHeight="25.0" prefWidth="180.0" />
+                        <Label fx:id="toXTip" prefHeight="17.0" prefWidth="105.0" text="%console.toX" />
                         <TextField fx:id="toXField" prefHeight="25.0" prefWidth="202.0" />
                      </children>
                   </HBox>
                   <HBox prefHeight="14.0" prefWidth="590.0" spacing="10.0">
                      <children>
-                        <TextFlow fx:id="toYTip" prefHeight="25.0" prefWidth="180.0" />
+                        <Label fx:id="toYTip" prefWidth="105.0" text="%console.toY" />
                         <TextField fx:id="toYField" prefHeight="25.0" prefWidth="202.0" />
                      </children>
                   </HBox>
                   <HBox prefHeight="14.0" prefWidth="590.0" spacing="10.0">
                      <children>
-                        <TextFlow fx:id="toNameTip" prefHeight="25.0" prefWidth="180.0" />
+                        <Label fx:id="toNameTip" prefWidth="105.0" text="%console.toName" />
                         <TextField fx:id="toNameField" prefHeight="25.0" prefWidth="202.0" />
                      </children>
                   </HBox>
                   <HBox prefHeight="14.0" prefWidth="590.0" spacing="10.0">
                      <children>
-                        <TextFlow fx:id="distanceTip" prefHeight="25.0" prefWidth="180.0" />
+                        <Label fx:id="distanceTip" prefWidth="105.0" text="%table.distance" />
                         <TextField fx:id="distanceField" prefHeight="25.0" prefWidth="202.0" />
                      </children>
                   </HBox>

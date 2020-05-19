@@ -34,64 +34,64 @@ public class EditWindowController {
     private URL location;
 
     @FXML
-    private TextFlow enterTip;
+    private Label enterTip;
 
     @FXML
-    private TextFlow nameTip;
+    private Label nameTip;
 
     @FXML
     private TextField nameField;
 
     @FXML
-    private TextFlow coordXTip;
+    private Label coordXTip;
 
     @FXML
     private TextField coordXField;
 
     @FXML
-    private TextFlow coordYTip;
+    private Label coordYTip;
 
     @FXML
     private TextField coordYField;
 
     @FXML
-    private TextFlow fromXTip;
+    private Label fromXTip;
 
     @FXML
     private TextField fromXField;
 
     @FXML
-    private TextFlow fromYTip;
+    private Label fromYTip;
 
     @FXML
     private TextField fromYField;
 
     @FXML
-    private TextFlow fromNameTip;
+    private Label fromNameTip;
 
     @FXML
     private TextField fromNameField;
 
     @FXML
-    private TextFlow toXTip;
+    private Label toXTip;
 
     @FXML
     private TextField toXField;
 
     @FXML
-    private TextFlow toYTip;
+    private Label toYTip;
 
     @FXML
     private TextField toYField;
 
     @FXML
-    private TextFlow toNameTip;
+    private Label toNameTip;
 
     @FXML
     private TextField toNameField;
 
     @FXML
-    private TextFlow distanceTip;
+    private Label distanceTip;
 
     @FXML
     private TextField distanceField;
@@ -112,18 +112,6 @@ public class EditWindowController {
 
     @FXML
     void initialize() {//TODO visualize?
-        nameTip.getChildren().add(new Text(resources.getString("table.name")));
-        coordXTip.getChildren().add(new Text(resources.getString("console.coordX")));
-        coordYTip.getChildren().add(new Text(resources.getString("console.coordY")));
-        fromXTip.getChildren().add(new Text(resources.getString("console.fromX")));
-        fromYTip.getChildren().add(new Text(resources.getString("console.fromY")));
-        fromNameTip.getChildren().add(new Text(resources.getString("console.fromName")));
-        toXTip.getChildren().add(new Text(resources.getString("console.toX")));
-        toYTip.getChildren().add(new Text(resources.getString("console.toY")));
-        toNameTip.getChildren().add(new Text(resources.getString("console.toName")));
-        distanceTip.getChildren().add(new Text(resources.getString("table.distance")));
-        enterTip.getChildren().add(new Text(resources.getString("alerts.change")));
-
 
         appleBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -262,7 +250,6 @@ public class EditWindowController {
     }
 
     public void setFields(Route route){
-
         id=route.getId();
         nameField.setText(route.getName());
         coordXField.setText(String.valueOf(route.getCoordinates().getx()));

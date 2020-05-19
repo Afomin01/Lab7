@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -9,13 +10,12 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.text.Text?>
 
 <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.MainWindowController">
    <children>
       <HBox alignment="CENTER_LEFT" layoutY="2.0" prefHeight="25.0" prefWidth="1196.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <MenuBar maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="1280.0" HBox.hgrow="ALWAYS">
+            <MenuBar maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="1334.0" HBox.hgrow="ALWAYS">
                <menus>
                   <Menu mnemonicParsing="false" text="File">
                      <items>
@@ -30,10 +30,10 @@
                   </Menu>
                </menus>
             </MenuBar>
-            <HBox alignment="CENTER_LEFT" prefHeight="25.0" prefWidth="76.0">
+            <HBox alignment="CENTER_RIGHT" maxWidth="90.0" minWidth="90.0" prefHeight="25.0" prefWidth="90.0">
                <children>
-                  <Text fx:id="userNameText" rotate="0.3" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="64.21468544006348" HBox.hgrow="ALWAYS" />
-                  <ImageView fitHeight="24.0" fitWidth="94.0" pickOnBounds="true" preserveRatio="true">
+                  <Label fx:id="userNameText" alignment="TOP_LEFT" prefHeight="17.0" prefWidth="61.0" text="Label" HBox.hgrow="ALWAYS" />
+                  <ImageView fitHeight="24.0" fitWidth="94.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS">
                      <image>
                         <Image url="@Avatar.png" />
                      </image>

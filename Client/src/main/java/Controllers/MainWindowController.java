@@ -1,6 +1,9 @@
 package Controllers;
 
 import Client.Main;
+import Client.Utils.EThemes;
+import Commands.Exit;
+import Instruments.ClientRequest;
 import Storable.Route;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -9,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.text.Text;
@@ -18,6 +22,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
 public class MainWindowController {
     private TableTabController tableTabController;
@@ -50,12 +55,11 @@ public class MainWindowController {
     private MenuItem menuHelp;
 
     @FXML
-    private Text userNameText;
+    private Label userNameText;
 
     @FXML
     void initialize() {
         try {
-            //tableTab.styleProperty().set("-fx-background-color: #CE2B2B;");
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setResources(ResourceBundle.getBundle("MessagesBundle", Locale.getDefault()));
 
@@ -91,15 +95,25 @@ public class MainWindowController {
                         controller.setMainWindowController(MainWindowController.this);
 
                         Scene scene = new Scene(settings);
+                        EThemes themes = EThemes.valueOf(Preferences.userRoot().get("theme","default"));
+                        if(themes.file!=null) scene.getStylesheets().add(themes.file);
+
                         stage.initModality(Modality.WINDOW_MODAL);
                         stage.initOwner(Main.stage.getScene().getWindow());
                         stage.setScene(scene);
                         stage.setTitle(resources.getString("menu.settings"));
                         stage.show();
-                    }catch (IOException e){}
+                    }catch (IOException e){
+                        e.printStackTrace();
+                    }
                 }
             });
-
+            menuExit.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    Main.handler.sendRequest(new ClientRequest(new Exit(Main.login), Main.login,Main.password));
+                }
+            });
         }catch (Exception e){
             System.exit(1);
         }
@@ -130,7 +144,10 @@ public class MainWindowController {
         visualizeWindowController.changeLanguage(locale);
         commandsTabController.changeLanguage(locale);
     }
-    public void changeTheme(){
-
+    public void changeTheme(EThemes themes){
+        Preferences preferences = Preferences.userRoot();
+        preferences.put("theme",themes.toString());
+        userNameText.getScene().getStylesheets().clear();
+        if(themes.file!=null) userNameText.getScene().getStylesheets().add(themes.file);
     }
 }

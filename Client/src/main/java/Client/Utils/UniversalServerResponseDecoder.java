@@ -1,5 +1,6 @@
-package Client;
+package Client.Utils;
 
+import Client.Main;
 import Instruments.ServerResponse;
 import javafx.scene.control.Alert;
 

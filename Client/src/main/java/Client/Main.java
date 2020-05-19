@@ -1,12 +1,13 @@
 package Client;
 
+import Client.Utils.EThemes;
 import Commands.LogIn;
 import Commands.SignUp;
 import Controllers.MainWindowController;
 import Instruments.ClientRequest;
 import Instruments.SerializeManager;
-import Instruments.ServerResponseCodes;
 import Instruments.ServerResponse;
+import Instruments.ServerResponseCodes;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -29,6 +30,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
 public class Main extends Application {
     public static String login="", password="";
@@ -44,6 +46,14 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+        Preferences preferences = Preferences.userRoot();
+        if(preferences.get("language",null)!=null){
+            Locale.setDefault(new Locale(preferences.get("language","en"), preferences.get("country","US")));
+        }else {
+            preferences.put("language",Locale.getDefault().getLanguage());
+            preferences.put("country",Locale.getDefault().getCountry());
+            preferences.put("theme", EThemes.DEFAULT.toString());
+        }
         launch(args);
     }
 
@@ -158,6 +168,8 @@ public class Main extends Application {
                 controller = fxmlLoader.getController();
 
                 Scene scene = new Scene(root);
+                EThemes themes = EThemes.valueOf(Preferences.userRoot().get("theme","default"));
+                controller.changeTheme(themes);
                 stage.setScene(scene);
 
                 stage.setTitle("Divoc");

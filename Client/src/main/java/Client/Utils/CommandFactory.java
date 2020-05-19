@@ -1,5 +1,6 @@
-package Client;
+package Client.Utils;
 
+import Client.Main;
 import Commands.*;
 import Client.Exceptions.EOFElementCreationException;
 import Client.Exceptions.WrongCommandArgumentsException;
@@ -25,7 +26,7 @@ public class CommandFactory {
                     return null;
                 case "add":
                     if (type.length == 11){
-                        Route adding = new Route(0,type[1],new Coordinates(Double.parseDouble(type[2]),Double.parseDouble(type[3])),new Date(),new Location(Integer.parseInt(type[4]),Long.parseLong(type[5]),type[6]),new Location(Integer.parseInt(type[7]),Long.parseLong(type[8]),type[9]),Double.parseDouble(type[10]),Main.login);
+                        Route adding = new Route(0,type[1],new Coordinates(Double.parseDouble(type[2]),Double.parseDouble(type[3])),new Date(),new Location(Integer.parseInt(type[4]),Long.parseLong(type[5]),type[6]),new Location(Integer.parseInt(type[7]),Long.parseLong(type[8]),type[9]),Double.parseDouble(type[10]), Main.login);
                         if (adding != null) returning = new Add(adding,user);
                     }
                     else throw new WrongCommandArgumentsException(EAvailableCommands.Add);

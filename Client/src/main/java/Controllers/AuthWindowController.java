@@ -1,6 +1,7 @@
 package Controllers;
 
 import Client.Main;
+import Client.Utils.EThemes;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -12,13 +13,15 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 
-import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
 public class AuthWindowController {
     @FXML
@@ -49,9 +52,33 @@ public class AuthWindowController {
     private PasswordField repeatPasswordField;
     @FXML
     private TextField mailField;
+    @FXML
+    private Text serverLabel;
+    @FXML
+    private AnchorPane mainAnchor;
+    @FXML
+    private Text authLabel;
+    @FXML
+    private AnchorPane backAnchor;
 
     @FXML
     void initialize() {
+/*        Preferences preferences = Preferences.userRoot();
+        if(!preferences.get("theme", EThemes.DEFAULT.toString()).equals(EThemes.DEFAULT.toString())){
+            String textColor = EThemes.valueOf(preferences.get("theme", "default")).textColor;
+            String secondaryColour = EThemes.valueOf(preferences.get("theme", "default")).secondaryColour;
+            String additionalColour = EThemes.valueOf(preferences.get("theme", "default")).additionalColour;
+            String mainColor = EThemes.valueOf(preferences.get("theme", "default")).mainColor;
+            serverLabel.setFill(Paint.valueOf(textColor));
+            authLabel.setFill(Paint.valueOf(textColor));
+            mailField.setStyle("-fx-background-color: "+secondaryColour + "; -fx-text-inner-color: "+textColor);
+            passwordField.setStyle("-fx-background-color: "+secondaryColour+ "; -fx-text-inner-color: "+textColor);
+            loginField.setStyle("-fx-background-color: "+secondaryColour+ "; -fx-text-inner-color: "+textColor);
+            repeatPasswordField.setStyle("-fx-background-color: "+secondaryColour+ "; -fx-text-inner-color: "+textColor);
+            mainAnchor.setStyle("-fx-background-color: "+mainColor);
+            backAnchor.setStyle("-fx-background-color: "+additionalColour);
+            loginFail.setFill(Paint.valueOf(textColor));
+        }*/
         if(Main.isConnected()){
             serverPoint.setFill(Color.GREEN);
             logInBtn.setDisable(false);
@@ -79,11 +106,27 @@ public class AuthWindowController {
             }
         });
 
-        ruFlag.setOnMouseClicked(event -> changeLocale(new Locale("ru","RU")));
-        horFlag.setOnMouseClicked(event -> changeLocale(new Locale("hr","HR")));
-        spFlag.setOnMouseClicked(event -> changeLocale(new Locale("es","EC")));
-        trFlag.setOnMouseClicked(event -> changeLocale(new Locale("tr","TR")));
-        usFlag.setOnMouseClicked(event -> changeLocale(new Locale("en","US")));
+        ruFlag.setOnMouseClicked(event -> {
+            changeLocale(new Locale("ru","RU"));
+            changeLanguage();
+        });
+        horFlag.setOnMouseClicked(event -> {
+            changeLocale(new Locale("hr","HR"));
+            changeLanguage();
+        });
+        spFlag.setOnMouseClicked(event -> {
+            changeLocale(new Locale("es","EC"));
+            changeLanguage();
+        });
+        trFlag.setOnMouseClicked(event -> {
+            changeLocale(new Locale("tr","TR"));
+            changeLanguage();
+        });
+        usFlag.setOnMouseClicked(event -> {
+            changeLocale(new Locale("en","US"));
+            changeLanguage();
+        });
+
         logInBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -164,6 +207,13 @@ public class AuthWindowController {
 
         }catch (Exception ignored){
         }
+    }
+
+    private void changeLanguage(){
+        Preferences preferences = Preferences.userRoot();
+        preferences.put("language", Locale.getDefault().getLanguage());
+        preferences.put("country", Locale.getDefault().getCountry());
+        preferences.put("theme", "default");
     }
 }
 

@@ -1,6 +1,7 @@
 package Controllers;
 
 import Client.Main;
+import Client.Utils.EThemes;
 import CustomFilter.FilteredColumn;
 import Storable.Coordinates;
 import Storable.Location;
@@ -31,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 public class TableTabController {
@@ -61,6 +63,7 @@ public class TableTabController {
 
     @FXML
     void initialize() {
+
         idCol = new TableColumn<>(resources.getString("table.id"));
         nameCol = new TableColumn<>(resources.getString("table.name"));
         coordinatesCol = new TableColumn<>(resources.getString("table.coordinates"));
@@ -72,7 +75,7 @@ public class TableTabController {
         fromYCol = new TableColumn<>("y");
         fromNameCol = new TableColumn<>(resources.getString("table.name"));
         toCol = new TableColumn<>(resources.getString("table.to"));
-         toXCol = new TableColumn<>("x");
+        toXCol = new TableColumn<>("x");
         toYCol = new TableColumn<>("y");
         toNameCol = new TableColumn<>(resources.getString("table.name"));
         distanceCol = new TableColumn<>(resources.getString("table.distance"));
@@ -83,6 +86,7 @@ public class TableTabController {
         fromXCol.setMaxWidth(3000);
         toXCol.setMaxWidth(3000);
         ownerCol.setMaxWidth(3000);
+
 
         creationDateCol.setCellValueFactory(new PropertyValueFactory<>("creationDate"));
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -114,7 +118,12 @@ public class TableTabController {
                                 stage.initModality(Modality.WINDOW_MODAL);
                                 stage.initOwner(Main.stage.getScene().getWindow());
                                 stage.setTitle(resources.getString("alerts.change"));
-                                stage.setScene(new Scene(root));
+                                Scene scene = new Scene(root);
+                                scene.getStylesheets().clear();
+                                EThemes themes = EThemes.valueOf(Preferences.userRoot().get("theme","default"));
+                                if(themes.file!=null) scene.getStylesheets().add(themes.file);
+
+                                stage.setScene(scene);
                                 controller.setFields(tableView.getSelectionModel().getSelectedItem());
                                 stage.show();
                             }
@@ -146,7 +155,6 @@ public class TableTabController {
     public void updateTable(Route route){
         List<Route> list = initialItems.stream().filter(r->r.getId()==route.getId()).collect(Collectors.toList());
         if(list.size()==0){
-            tableView.getItems().add(route);
             initialItems.add(route);
         }else{
             int i = 0;

@@ -1,0 +1,100 @@
+.root{
+    -fx-background-color: #C10000;
+    -mainColor: #F40000;
+    -additionalColor1: #FF2828;
+    -additionalCOlor2: #840000;
+    -text: #00148e;
+}
+.table-view .table-cell{
+    -fx-text-fill: -text;
+}
+
+.table-view .column-header-background .label{
+    -fx-text-fill: -text;
+}
+
+.table-view .column-header {
+    -fx-background-color: linear-gradient(-additionalCOlor2 0%, -mainColor 100%);
+    -fx-text-fill: -text;
+    -fx-border-color: -additionalColor1;
+}
+
+.table-row-cell:even{
+    -fx-background-color: -fx-table-cell-border-color, -additionalColor1;
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-padding: 0.0em; /* 0 */
+}
+
+.table-row-cell:odd{
+    -fx-background-color: -fx-table-cell-border-color, -mainColor;
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-padding: 0.0em; /* 0 */
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #979400;
+    -fx-background-insets: 0;
+    -fx-background-radius: 1;
+}
+
+.text-area{
+    -fx-text-fill: -text;
+}
+
+.text-field{
+    -fx-prompt-text-fill: -text;
+    -fx-text-fill: -text;
+    -fx-background-color: -additionalColor1;
+}
+.tab-pane   .tab{
+    -fx-background-color: -additionalColor1;
+}
+.tab .tab-label {
+    -fx-text-fill: -text;
+}
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: -mainColor;
+}
+
+.button{
+    -fx-text-fill: -text;
+    -fx-background-color: -additionalColor1;
+    -fx-border-color: -text;
+}
+.combo-box{
+    -fx-background-color: -additionalColor1;
+    -fx-text-fill: -text;
+}
+
+.combo-box-popup .list-view
+{
+    -fx-background-color: -additionalColor1;
+    -fx-background-insets: 0, 1;
+}
+.combo-box .cell{
+    -fx-background-color: -additionalColor1;
+    -fx-text-fill: -text;
+}
+
+
+.label{
+    -fx-text-fill: -text;
+}
+.menu-bar{
+    -fx-background-color: -additionalColor1;
+}
+.menu, .menu-item, .context-menu {
+    -fx-background-color: -additionalColor1;
+}
+.scroll-pane{
+    -fx-background:-additionalColor1;
+}
+.stack-pane{
+    -fx-background: -additionalColor1;
+    -fx-background-color: -additionalColor1 ;
+    -fx-text-fill: -text;
+}
+.text-area .content{
+    -fx-background-color: -additionalColor1;
+    -fx-text-fill: -text;
+}

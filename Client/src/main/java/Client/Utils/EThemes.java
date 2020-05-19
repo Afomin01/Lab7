@@ -1,18 +1,20 @@
 package Client.Utils;
 
-import javafx.scene.paint.Color;
-
 public enum EThemes {
-    DEFAULT(null,null),
-    DARK(Color.DARKSLATEGREY, Color.WHITE),
-    RED(Color.DARKRED, Color.ORANGERED),
-    CUSTOM(Color.WHITE, Color.WHITE);
+    DEFAULT(null),
+    DARK("dark.css"),
+    RED("red.css"),
+    BLUE("blue.css");
 
-    public Color backgroundColor;
-    public Color textColor;
+    public final String file;
 
-    EThemes(Color backgroundColor, Color textColor) {
-        this.backgroundColor = backgroundColor;
-        this.textColor = textColor;
+    EThemes(String file) {
+        this.file = file;
+    }
+
+
+    @Override
+    public String toString() {
+        return name();
     }
 }

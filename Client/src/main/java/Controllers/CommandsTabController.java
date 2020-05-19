@@ -1,14 +1,13 @@
 package Controllers;
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.*;
 
-import Client.CommandFactory;
+import Client.Utils.CommandFactory;
 import Client.Main;
-import Client.UniversalServerResponseDecoder;
+import Client.Utils.UniversalServerResponseDecoder;
 import Commands.*;
 import Instruments.ClientRequest;
 import Instruments.ServerResponse;
@@ -53,7 +52,7 @@ public class CommandsTabController {
     private TextField firstArgField;
 
     @FXML
-    private TextFlow enterFieldsTip;
+    private Label enterFieldsTip;
 
     @FXML
     private VBox elementHideVbox;
@@ -108,8 +107,8 @@ public class CommandsTabController {
 
     @FXML
     void initialize() {//TODO add listeners for fields
-        enterFieldsTip.getChildren().add(new Text(resources.getString("console.elementTip")));
         enterFieldsTip.setVisible(false);
+        enterFieldsTip.setContentDisplay(ContentDisplay.CENTER);
         commandsComboBox.setItems(FXCollections.observableArrayList(Arrays.asList(resources.getString("commands.name.add"),
                 resources.getString("commands.name.update"),
                 resources.getString("commands.name.removegreater"),
@@ -353,9 +352,9 @@ public class CommandsTabController {
             }
         });
         executeBtn.setOnAction(new EventHandler<ActionEvent>() {//TODO clear textFields when exe
-            MessageFormat fieldEmpty = new MessageFormat(resources.getString("console.notEmpty"));
-            MessageFormat fieldIncorrect = new MessageFormat(resources.getString("console.enterField"));
-            MessageFormat incorrectIn = new MessageFormat(resources.getString("console.incorrectIn"));
+            final MessageFormat fieldEmpty = new MessageFormat(resources.getString("console.notEmpty"));
+            final MessageFormat fieldIncorrect = new MessageFormat(resources.getString("console.enterField"));
+            final MessageFormat incorrectIn = new MessageFormat(resources.getString("console.incorrectIn"));
             @Override
             public void handle(ActionEvent event) {
                 boolean temp = true;
@@ -406,7 +405,7 @@ public class CommandsTabController {
                     }
                     try {
                         Double d = Double.parseDouble(coordsYField.getText());
-                        if(d<1){
+                        if(d<=-462){
                             temp=false;
                             errorComboBoxPrint(resources.getString("console.higher")+" -462");
                         }
@@ -445,7 +444,7 @@ public class CommandsTabController {
                     }
                     try {
                         Double d = Double.parseDouble(distanceField.getText());
-                        if(d<1){
+                        if(d<=1){
                             temp=false;
                             errorComboBoxPrint(resources.getString("console.higher")+" 1");
                         }
@@ -541,7 +540,7 @@ public class CommandsTabController {
     }
     public void changeLanguage(Locale locale){
         resources = ResourceBundle.getBundle("MessagesBundle",locale);
-        enterFieldsTip.getChildren().add(new Text(resources.getString("console.elementTip")));
+        enterFieldsTip.setText(resources.getString("console.elementTip"));
         commandsComboBox.setItems(FXCollections.observableArrayList(Arrays.asList(resources.getString("commands.name.add"),
                 resources.getString("commands.name.update"),
                 resources.getString("commands.name.removegreater"),

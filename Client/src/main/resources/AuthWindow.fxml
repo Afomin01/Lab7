@@ -14,9 +14,9 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="400.0" maxWidth="600.0" prefHeight="361.0" prefWidth="426.0" style="-fx-background-color: #000A4C;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.AuthWindowController">
+<AnchorPane fx:id="backAnchor" maxHeight="400.0" maxWidth="600.0" prefHeight="361.0" prefWidth="426.0" style="-fx-background-color: #000A4C;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.AuthWindowController">
    <children>
-      <AnchorPane layoutY="80.0" maxHeight="281.0" maxWidth="600.0" prefHeight="281.0" prefWidth="600.0" style="-fx-background-color: #FFFFFF;">
+      <AnchorPane fx:id="mainAnchor" layoutY="80.0" maxHeight="281.0" maxWidth="600.0" prefHeight="281.0" prefWidth="600.0" style="-fx-background-color: #FFFFFF;">
          <children>
             <HBox alignment="CENTER_LEFT" layoutY="249.0" prefHeight="32.0" prefWidth="600.0" spacing="10.0" style="-fx-background-color: #AFAFAF;">
                <children>
@@ -108,7 +108,7 @@
             </VBox>
             <HBox alignment="CENTER_LEFT" layoutX="480.0" layoutY="227.0" prefHeight="20.0" prefWidth="98.0" spacing="5.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%server.status" wrappingWidth="52.13671875">
+                  <Text fx:id="serverLabel" strokeType="OUTSIDE" strokeWidth="0.0" text="%server.status" wrappingWidth="52.13671875">
                      <font>
                         <Font name="Segoe Script" size="12.0" />
                      </font>
