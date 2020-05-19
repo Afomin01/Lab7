@@ -26,7 +26,7 @@ public class RemoveObject implements ICommand {
 
         switch (manager.removeIf(r->r.getId()==id,user)){
             case OK:
-                serverResponse = new ServerResponse(ServerResponseCodes.CHANGE_FIELDS_OK);
+                serverResponse = new ServerResponse(ServerResponseCodes.REMOVE_ITEM_BY_ID);
                 break;
             case NO_CHANGES:
                 serverResponse = new ServerResponse(ServerResponseCodes.CHANGE_FIELDS_NO_RIGHTS);

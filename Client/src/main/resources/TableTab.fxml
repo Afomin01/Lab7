@@ -18,8 +18,8 @@
             </TableView>
             <HBox prefHeight="25.0" prefWidth="386.0" spacing="10.0">
                <children>
-                  <TextField prefHeight="25.0" prefWidth="99.0" promptText="%table.enterId" />
-                  <Button mnemonicParsing="false" text="%table.remove" />
+                  <TextField fx:id="removeIDFDield" prefHeight="25.0" prefWidth="99.0" promptText="%table.enterId" />
+                  <Button fx:id="removeBtn" mnemonicParsing="false" text="%table.remove" />
                </children>
             </HBox>
          </children>

@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -33,6 +34,11 @@
                   <ComboBox fx:id="themeComboBox" prefWidth="150.0" />
                </children>
             </HBox>
+            <CheckBox fx:id="alertsCheckBox" mnemonicParsing="false" prefHeight="17.0" prefWidth="213.0" text="%settings.enableAlerts">
+               <VBox.margin>
+                  <Insets left="10.0" />
+               </VBox.margin>
+            </CheckBox>
             <HBox alignment="CENTER" prefHeight="17.0" prefWidth="560.0" spacing="10.0">
                <children>
                   <Button fx:id="applyBtn" disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="85.0" text="%alerts.apply" />

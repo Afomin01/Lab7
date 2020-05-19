@@ -6,6 +6,7 @@ public enum ServerResponseCodes {
     SEARCH_OK,
     NEW_ITEM_OR_UPDATE,
     REMOVE_ITEMS_UPDATE,
+    REMOVE_ITEM_BY_ID,
     COUNT,
     SHOW,
     SEARCH_NOT_FOUND,

@@ -2,11 +2,14 @@ package Controllers;
 
 import Client.Main;
 import Client.Utils.EThemes;
+import Commands.RemoveObject;
 import CustomFilter.FilteredColumn;
+import Instruments.ClientRequest;
 import Storable.Coordinates;
 import Storable.Location;
 import Storable.Route;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,10 +17,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -27,6 +27,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.util.Date;
 import java.util.List;
@@ -42,6 +43,12 @@ public class TableTabController {
 
     @FXML
     private TableView<Route> tableView;
+
+    @FXML
+    private TextField removeIDFDield;
+
+    @FXML
+    private Button removeBtn;
 
     private ObservableList<Route> initialItems;
     private TableColumn<Route, Long> idCol;
@@ -101,6 +108,22 @@ public class TableTabController {
         ownerCol.setCellValueFactory(new PropertyValueFactory<>("owner"));
         coordinatesXCol.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
         coordinatesYCol.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
+
+        removeBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try{
+                    Long id = Long.parseLong(removeIDFDield.getText());
+                    Main.handler.sendRequest(new ClientRequest(new RemoveObject(id,Main.login),Main.login,Main.password));
+                }catch (NumberFormatException e){
+                    MessageFormat incorrectNum = new MessageFormat(resources.getString("console.incorrectIn"));
+                    Alert alert1 = new Alert(Alert.AlertType.ERROR);
+                    alert1.setResizable(false);
+                    alert1.setContentText(incorrectNum.format(new Object[]{resources.getString("types.Long")}));
+                    alert1.showAndWait();
+                }
+            }
+        });
 
         tableView.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override

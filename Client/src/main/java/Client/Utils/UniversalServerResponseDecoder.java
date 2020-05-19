@@ -100,6 +100,9 @@ public abstract class UniversalServerResponseDecoder {
             case CHANGE_FIELDS_NO_RIGHTS:
                 out=resourceBundle.getString("response.noChange");
                 break;
+            case REMOVE_ITEM_BY_ID:
+                out=resourceBundle.getString("alerts.deleted");
+                break;
         }
         return out+"\n";
     }

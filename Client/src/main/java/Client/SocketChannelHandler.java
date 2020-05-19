@@ -71,8 +71,20 @@ public class SocketChannelHandler implements Runnable{
                             controller.updateTableView(FXCollections.observableList(serverResponse.getSet()));
                         } else if (serverResponse.getCode().equals(ServerResponseCodes.NEW_ITEM_OR_UPDATE)) {
                             controller.addTableViewItem(serverResponse.getRoute());
-                        } else if (serverResponse.getCode().equals(ServerResponseCodes.REMOVE_ITEMS_UPDATE)) {
+                        } else if(serverResponse.getCode().equals(ServerResponseCodes.REMOVE_ITEMS_UPDATE)){
                             controller.removeItems(FXCollections.observableList(serverResponse.getSet()));
+                        } else if (serverResponse.getCode().equals(ServerResponseCodes.REMOVE_ITEM_BY_ID)) {
+                            ServerResponse tmpresp = new ServerResponse(serverResponse.getCode());
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                                    alert.setResizable(false);
+                                    alert.setHeaderText(UniversalServerResponseDecoder.decodeResponse(tmpresp));
+                                    alert.setTitle(UniversalServerResponseDecoder.decodeResponse(tmpresp));
+                                    alert.showAndWait();
+                                }
+                            });
                         } else if(serverResponse.getCode().equals(ServerResponseCodes.CHANGE_FIELDS_NO_RIGHTS)||serverResponse.getCode().equals(ServerResponseCodes.CHANGE_FIELDS_ERROR)||serverResponse.getCode().equals(ServerResponseCodes.CHANGE_FIELDS_OK)){
                             ServerResponse tmpresp = new ServerResponse(serverResponse.getCode());
                             Platform.runLater(new Runnable() {
