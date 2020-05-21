@@ -1,17 +1,22 @@
 package Client.Utils;
 
 import Client.Main;
+import Commands.EAvailableCommands;
 import Instruments.ServerResponse;
 import javafx.scene.control.Alert;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 
 public abstract class UniversalServerResponseDecoder {
     public static String decodeResponse(ServerResponse response){
         String out="";
         ResourceBundle resourceBundle = ResourceBundle.getBundle("MessagesBundle", Locale.getDefault());
+        Preferences preferences = Preferences.userRoot();
         switch (response.getCode()){
             case SEARCH_OK:
                 out=resourceBundle.getString("response.search")+"\n"+response.getAdditionalInfo();
@@ -50,7 +55,7 @@ public abstract class UniversalServerResponseDecoder {
                 Alert alert1 = new Alert(Alert.AlertType.ERROR);
                 alert1.setTitle(resourceBundle.getString("alerts.exit"));
                 alert1.setResizable(false);
-                alert1.setHeaderText(resourceBundle.getString("alerts.exit"));
+                alert1.setHeaderText("");
                 alert1.setContentText(resourceBundle.getString("response.serverFatal"));
                 alert1.showAndWait();
                 Main.exitUser();
@@ -59,13 +64,15 @@ public abstract class UniversalServerResponseDecoder {
                 out=resourceBundle.getString("response.history")+"\n"+response.getAdditionalInfo();
                 break;
             case EXIT:
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle(resourceBundle.getString("alerts.exit"));
-                alert.setResizable(false);
-                alert.setHeaderText(resourceBundle.getString("alerts.exit"));
-                alert.setContentText(resourceBundle.getString("response.exit"));
-                alert.showAndWait();
-                Main.exitUser();
+                if(preferences.getBoolean("alerts",true)) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle(resourceBundle.getString("alerts.exit"));
+                    alert.setResizable(false);
+                    alert.setHeaderText("");
+                    alert.setContentText(resourceBundle.getString("response.exit"));
+                    alert.showAndWait();
+                    Main.exitUser();
+                }
                 break;
             case SURPRISE_NOT_CORRECT_LOGIN_OR_PASSWORD:
                 out=resourceBundle.getString("response.surprise");
@@ -89,7 +96,17 @@ public abstract class UniversalServerResponseDecoder {
                         +"\n"+ resourceBundle.getString("response.info.storable") +" "+ Arrays.asList(response.getAdditionalInfo().trim().split(" ")).get(2);
                 break;
             case HELP:
-                //TODO
+                MessageFormat messageFormat = new MessageFormat(resourceBundle.getString("commands.pattern"));
+                out+=resourceBundle.getString("commands.help.tip")+"\n\n";
+                for(EAvailableCommands e : EAvailableCommands.values()){
+                    if(!e.equals(EAvailableCommands.Not_A_Command)){
+                        out+=messageFormat.format(
+                        new Object[]{resourceBundle.getString(e.localizedResourceBundleName),
+                        e.toString(),
+                        String.join(", ", Arrays.stream(e.args.split(",")).map(resourceBundle::getString).collect(Collectors.toList())),
+                        resourceBundle.getString(e.localizedResourceBundleDiscription)})+"\n";
+                    }
+                }
                 break;
             case CHANGE_FIELDS_OK:
                 out=resourceBundle.getString("response.update");

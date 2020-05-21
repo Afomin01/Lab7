@@ -112,7 +112,6 @@ public class EditWindowController {
 
     @FXML
     void initialize() {//TODO visualize?
-
         appleBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -261,6 +260,84 @@ public class EditWindowController {
         toYField.setText(String.valueOf(route.getTo().getY()));
         toNameField.setText(route.getTo().getName());
         distanceField.setText(String.valueOf(route.getDistance()));
+
+        coordXField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*(\\.\\d*)?")) {
+                coordXField.setText(oldValue);
+            }
+            try {
+                Double.parseDouble(coordXField.getText());
+            }catch (NumberFormatException e){
+                if(Double.parseDouble(oldValue)<0)coordXField.setText(String.valueOf(Double.MIN_VALUE));
+                else coordXField.setText(String.valueOf(Double.MAX_VALUE));
+            }
+        });
+        coordYField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*(\\.\\d*)?")) {
+                coordYField.setText(oldValue);
+            }
+            try {
+                Double.parseDouble(coordYField.getText());
+            }catch (NumberFormatException e){
+                if(Double.parseDouble(oldValue)<0)coordYField.setText(String.valueOf(Double.MIN_VALUE));
+                else coordYField.setText(String.valueOf(Double.MAX_VALUE));
+            }
+        });
+        fromXField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                fromXField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            try {
+                if(Double.parseDouble(fromXField.getText())>Integer.MAX_VALUE) fromXField.setText(String.valueOf(Integer.MAX_VALUE));
+                if(Double.parseDouble(fromXField.getText())<Integer.MIN_VALUE) fromXField.setText(String.valueOf(Integer.MIN_VALUE));
+            }catch (NumberFormatException e){
+                fromXField.setText(oldValue);
+            }
+        });
+        fromYField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                fromYField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            try {
+                if(Double.parseDouble(fromYField.getText())>Long.MAX_VALUE) fromYField.setText(String.valueOf(Long.MAX_VALUE));
+                if(Double.parseDouble(toXField.getText())<Long.MIN_VALUE) fromYField.setText(String.valueOf(Long.MIN_VALUE));
+            }catch (NumberFormatException e){
+                fromYField.setText(oldValue);
+            }
+        });
+        toXField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                toXField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            try {
+                if(Double.parseDouble(toXField.getText())>Integer.MAX_VALUE) toXField.setText(String.valueOf(Integer.MAX_VALUE));
+                if(Double.parseDouble(toXField.getText())<Integer.MIN_VALUE) toXField.setText(String.valueOf(Integer.MIN_VALUE));
+            }catch (NumberFormatException e){
+                toXField.setText(oldValue);
+            }
+        });
+        toYField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                toYField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            try {
+                if(Double.parseDouble(toYField.getText())>Long.MAX_VALUE) toYField.setText(String.valueOf(Long.MAX_VALUE));
+                if(Double.parseDouble(toYField.getText())<Long.MIN_VALUE) toYField.setText(String.valueOf(Long.MIN_VALUE));
+            }catch (NumberFormatException e){
+                toYField.setText(oldValue);
+            }
+        });
+        distanceField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*(\\.\\d*)?")) {
+                distanceField.setText(oldValue);
+            }
+            try {
+                Double.parseDouble(distanceField.getText());
+            }catch (NumberFormatException e){
+                if(Double.parseDouble(oldValue)<0) distanceField.setText(String.valueOf(Double.MIN_VALUE));
+                else distanceField.setText(String.valueOf(Double.MAX_VALUE));
+            }
+        });
     }
 }
 

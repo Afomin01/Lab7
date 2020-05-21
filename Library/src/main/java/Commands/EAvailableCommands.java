@@ -3,38 +3,41 @@ package Commands;
 import java.io.Serializable;
 
 public enum EAvailableCommands implements Serializable {
-    Add("element","Add"),
-    Add_If_Max("element","Add_If_Max"),
-    Clear("","удалить из коллекции все элементы, пренадлежащие Вам"),
-    Count_Greater_Than_Distance("distance","вывести количество элементов, значение поля distance которых больше заданного"),
-    Execute_Script("file_name","считать и исполнить скрипт из указанного файла."),
-    Exit("","завершить рыботу"),
-    Help("","вывести справку по доступным командам"),
-    History("","вывести последние 7 команд (без их аргументов)"),
-    Info("","вывести в стандартный поток вывода информацию о коллекции"),
-    Print_Unique_Distance("","вывести уникальные значения поля distance"),
-    Remove_All_By_Distance("distance","удалить из коллекции все элементы, значение поля distance которого эквивалентно заданному. Удалить можно только свои элементы."),
-    Remove_By_Id("id","удалить элемент из коллекции по его id. Удалить можно только свои элементы."),
-    Remove_Greater("element","удалить из коллекции все элементы, превышающие заданный. Удалить можно только свои элементы."),
-    Show("","вывести в стандартный поток вывода все элементы коллекции в строковом представлении"),
-    Update("id, {element}","обновить значение элемента коллекции, id которого равен заданному. Обновлять можно только свои элементы."),
-    Get_Table_Items("","");
+    //provide command in format: disc bundle, name bundle, elements bundle separated with ','.
+    Add("commands.disc.add","commands.name.add", "commands.args.element"),
+    Add_If_Max("commands.disc.addIfMax","commands.name.addifmax","commands.args.element"),
+    Clear("commands.disc.clear","commands.name.clear","commands.args.empty"),
+    Count_Greater_Than_Distance("commands.disc.countGreaterThanDistance","commands.name.countgreaterthandistacne","commands.args.distance"),
+    Execute_Script("commands.disc.executeScript","commands.name.executescript","commands.args.file_name"),
+    Exit("commands.disc.exit","commands.name.exit","commands.args.empty"),
+    Help("commands.disc.help","commands.name.help","commands.args.empty"),
+    History("commands.disc.history","commands.name.history","commands.args.empty"),
+    Info("commands.disc.info","commands.name.info","commands.args.empty"),
+    Print_Unique_Distance("commands.disc.printUniqueDistance","commands.name.printuniquedistance", "commands.args.distance"),
+    Remove_All_By_Distance("commands.disc.removeAllByDistance","commands.name.removeid", "commands.args.distance"),
+    Remove_By_Id("commands.disc.removeById","commands.name.allbydistance","commands.args.id"),
+    Remove_Greater("commands.disc.removeGreater","commands.name.removegreater", "commands.args.element"),
+    Show("commands.disc.show","commands.name.show","commands.args.empty"),
+    Update("commands.disc.update","commands.name.update","commands.args.id,commands.args.element"),
+    Not_A_Command("","","");
 
-    public final String arguments;
-    public final String info;
+    public final String args;
+    public final String localizedResourceBundleDiscription;
+    public final String localizedResourceBundleName;
 
-    EAvailableCommands(String arguments, String label) {
-        this.arguments = arguments;
-        this.info = label;
+    EAvailableCommands(String Discription, String Name, String args) {
+        this.localizedResourceBundleDiscription = Discription;
+        this.localizedResourceBundleName = Name;
+        this.args=args;
     }
 
     public String getCommandInfo(){
-        return name().toLowerCase()+":   "+arguments+"    "+info;
+        return name().toLowerCase()+":   "+ localizedResourceBundleDiscription +"    "+ localizedResourceBundleName;
     }
 
-    public String getArguments(){
-        if(arguments==null) return "";
-        else return "Аргументы: "+ arguments;
+    public String getLocalizedResourceBundleDiscription(){
+        if(localizedResourceBundleDiscription ==null) return "";
+        else return "Аргументы: "+ localizedResourceBundleDiscription;
     }
 
     @Override

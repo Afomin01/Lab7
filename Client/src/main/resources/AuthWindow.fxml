@@ -16,9 +16,9 @@
 
 <AnchorPane fx:id="backAnchor" maxHeight="400.0" maxWidth="600.0" prefHeight="361.0" prefWidth="426.0" style="-fx-background-color: #000A4C;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.AuthWindowController">
    <children>
-      <AnchorPane fx:id="mainAnchor" layoutY="80.0" maxHeight="281.0" maxWidth="600.0" prefHeight="281.0" prefWidth="600.0" style="-fx-background-color: #FFFFFF;">
+      <AnchorPane fx:id="mainAnchor" layoutY="80.0" maxHeight="281.0" maxWidth="600.0" prefHeight="281.0" prefWidth="600.0" style="-fx-background-color: #FFFFFF;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="80.0">
          <children>
-            <HBox alignment="CENTER_LEFT" layoutY="249.0" prefHeight="32.0" prefWidth="600.0" spacing="10.0" style="-fx-background-color: #AFAFAF;">
+            <HBox alignment="CENTER_LEFT" layoutY="249.0" prefHeight="32.0" prefWidth="600.0" spacing="10.0" style="-fx-background-color: #AFAFAF;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                <children>
                   <ImageView fx:id="ruFlag" fitHeight="26.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -114,13 +114,18 @@
                      </font>
                   </Text>
                   <Circle fx:id="serverPoint" fill="#ff1f1f" radius="6.0" stroke="TRANSPARENT" strokeType="INSIDE" />
-                  <ImageView fx:id="refreshStatus" fitHeight="19.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="refreshStatus" fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@Refresh_icon.png" />
                      </image>
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor>
+                  </ImageView>
+                  <ImageView fx:id="serverSettings" fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@settings_icon.png" />
+                     </image>
                   </ImageView>
                </children>
             </HBox>

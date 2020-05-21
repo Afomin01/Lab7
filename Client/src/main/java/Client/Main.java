@@ -17,6 +17,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
@@ -40,35 +41,36 @@ public class Main extends Application {
     private static boolean inMainWindow = false;
     private static SocketChannel socketChannel;
     public static SocketChannelHandler handler;
+    private static Preferences preferences = Preferences.userRoot();
 
     public static boolean isConnected() {
         return connected;
     }
 
     public static void main(String[] args) {
-        Preferences preferences = Preferences.userRoot();
         if(preferences.get("language",null)!=null){
             Locale.setDefault(new Locale(preferences.get("language","en"), preferences.get("country","US")));
         }else {
             preferences.put("language",Locale.getDefault().getLanguage());
             preferences.put("country",Locale.getDefault().getCountry());
             preferences.put("theme", EThemes.DEFAULT.toString());
+            preferences.put("host","localhost");
+            preferences.putInt("port",4004);
+            preferences.putBoolean("alerts",true);
         }
         launch(args);
     }
 
     public static boolean connectServer() {
-        if (!connected) {
-            try {
-                SocketAddress a = new InetSocketAddress("localhost", 4004);
-                socketChannel = SocketChannel.open(a);
-                connected=true;
-                return true;
-            } catch (IOException e) {
-                connected=false;
-                return false;
-            }
-        } else return true;
+        try {
+            SocketAddress a = new InetSocketAddress(preferences.get("host", "localhost"), preferences.getInt("port", 4004));
+            socketChannel = SocketChannel.open(a);
+            connected = true;
+            return true;
+        } catch (IOException e) {
+            connected = false;
+            return false;
+        }
     }
 
     @Override
@@ -83,12 +85,15 @@ public class Main extends Application {
             Scene scene = new Scene(root);
 
             primaryStage.setScene(scene);
+            //primaryStage.initStyle(StageStyle.UNDECORATED);
 
             primaryStage.setTitle("Authorization");
-            primaryStage.setWidth(600);
+            primaryStage.setWidth(625);
             primaryStage.setHeight(400);
             primaryStage.setMaxHeight(400);
-            primaryStage.setMaxWidth(600);
+            primaryStage.setMaxWidth(625);
+            primaryStage.setMinHeight(400);
+            primaryStage.setMinWidth(625);
 
             primaryStage.show();
         } catch (IOException ignored) {
@@ -168,7 +173,7 @@ public class Main extends Application {
                 controller = fxmlLoader.getController();
 
                 Scene scene = new Scene(root);
-                EThemes themes = EThemes.valueOf(Preferences.userRoot().get("theme","default"));
+                EThemes themes = EThemes.valueOf(Preferences.userRoot().get("theme","DEFAULT"));
                 controller.changeTheme(themes);
                 stage.setScene(scene);
 

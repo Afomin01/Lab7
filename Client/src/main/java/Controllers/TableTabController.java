@@ -23,6 +23,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -138,6 +139,7 @@ public class TableTabController {
                                 Parent root = fxmlLoader.load(Main.class.getResource("/EditWindow.fxml").openStream());
                                 EditWindowController controller = fxmlLoader.getController();
                                 Stage stage = new Stage();
+                                stage.initStyle(StageStyle.UNDECORATED);
                                 stage.initModality(Modality.WINDOW_MODAL);
                                 stage.initOwner(Main.stage.getScene().getWindow());
                                 stage.setTitle(resources.getString("alerts.change"));
@@ -176,18 +178,21 @@ public class TableTabController {
         list.forEach(t->initialItems.removeIf(r->r.getId()==t.getId()));
     }
     public void updateTable(Route route){
-        List<Route> list = initialItems.stream().filter(r->r.getId()==route.getId()).collect(Collectors.toList());
-        if(list.size()==0){
-            initialItems.add(route);
-        }else{
-            int i = 0;
-            for(Route r : initialItems){
-                if(r.getId()==route.getId()){
-                    tableView.getItems().set(i,route);
-                    initialItems.set(i,route);
+        try {
+            if (initialItems.stream().noneMatch(r -> r.getId() == route.getId())) {
+                initialItems.add(route);
+            } else {
+                int i = 0;
+                for (Route r : initialItems) {
+                    if (r.getId() == route.getId()) {
+                        tableView.getItems().set(i, route);
+                        initialItems.set(i, route);
+                    }
+                    i++;
                 }
-                i++;
             }
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
     public void changeLanguage(Locale locale){

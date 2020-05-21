@@ -11,7 +11,7 @@ public class GetTableItems implements ICommand {
 
     @Override
     public EAvailableCommands getCommandEnum() {
-        return EAvailableCommands.Get_Table_Items;
+        return EAvailableCommands.Not_A_Command;
     }
 
     @Override

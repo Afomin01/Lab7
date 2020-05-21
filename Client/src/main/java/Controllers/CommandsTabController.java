@@ -1,6 +1,7 @@
 package Controllers;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.*;
@@ -106,8 +107,8 @@ public class CommandsTabController {
     private int routeArgumentCount = 0;
 
     @FXML
-    void initialize() {//TODO add listeners for fields
-        enterFieldsTip.setVisible(false);
+    void initialize() {
+                enterFieldsTip.setVisible(false);
         enterFieldsTip.setContentDisplay(ContentDisplay.CENTER);
         commandsComboBox.setItems(FXCollections.observableArrayList(Arrays.asList(resources.getString("commands.name.add"),
                 resources.getString("commands.name.update"),
@@ -124,6 +125,85 @@ public class CommandsTabController {
                 resources.getString("commands.name.removeid"),
                 resources.getString("commands.name.allbydistance"),
                 resources.getString("commands.name.show"))));
+        coordsXField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*(\\.\\d*)?")) {
+                coordsXField.setText(oldValue);
+            }
+            try {
+                Double.parseDouble(coordsXField.getText());
+            }catch (NumberFormatException e){
+                if(Double.parseDouble(oldValue)<0)coordsXField.setText(String.valueOf(Double.MIN_VALUE));
+                else coordsXField.setText(String.valueOf(Double.MAX_VALUE));
+            }
+        });
+        coordsYField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*(\\.\\d*)?")) {
+                coordsYField.setText(oldValue);
+            }
+            try {
+                Double.parseDouble(coordsYField.getText());
+            }catch (NumberFormatException e){
+                if(Double.parseDouble(oldValue)<0)coordsYField.setText(String.valueOf(Double.MIN_VALUE));
+                else coordsYField.setText(String.valueOf(Double.MAX_VALUE));
+            }
+        });
+        fromXField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                fromXField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            try {
+                if(Double.parseDouble(fromXField.getText())>Integer.MAX_VALUE) fromXField.setText(String.valueOf(Integer.MAX_VALUE));
+                if(Double.parseDouble(fromXField.getText())<Integer.MIN_VALUE) fromXField.setText(String.valueOf(Integer.MIN_VALUE));
+            }catch (NumberFormatException e){
+                fromXField.setText(oldValue);
+            }
+        });
+        fromYField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                fromYField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            try {
+                if(Double.parseDouble(fromYField.getText())>Long.MAX_VALUE) fromYField.setText(String.valueOf(Long.MAX_VALUE));
+                if(Double.parseDouble(toXField.getText())<Long.MIN_VALUE) fromYField.setText(String.valueOf(Long.MIN_VALUE));
+            }catch (NumberFormatException e){
+                fromYField.setText(oldValue);
+            }
+        });
+        toXField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                toXField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            try {
+                if(Double.parseDouble(toXField.getText())>Integer.MAX_VALUE) toXField.setText(String.valueOf(Integer.MAX_VALUE));
+                if(Double.parseDouble(toXField.getText())<Integer.MIN_VALUE) toXField.setText(String.valueOf(Integer.MIN_VALUE));
+            }catch (NumberFormatException e){
+                toXField.setText(oldValue);
+            }
+        });
+        toYField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                toYField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            try {
+                if(Double.parseDouble(toYField.getText())>Long.MAX_VALUE) toYField.setText(String.valueOf(Long.MAX_VALUE));
+                if(Double.parseDouble(toYField.getText())<Long.MIN_VALUE) toYField.setText(String.valueOf(Long.MIN_VALUE));
+            }catch (NumberFormatException e){
+                toYField.setText(oldValue);
+            }
+        });
+        distanceField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*(\\.\\d*)?")) {
+                distanceField.setText(oldValue);
+            }
+            try {
+                Double.parseDouble(distanceField.getText());
+            }catch (NumberFormatException e){
+                if(Double.parseDouble(oldValue)<0) distanceField.setText(String.valueOf(Double.MIN_VALUE));
+                else distanceField.setText(String.valueOf(Double.MAX_VALUE));
+            }
+        });
+
+
         console.setOnKeyPressed(event -> {
             if(event.getCode()== KeyCode.ENTER){
                 ICommand command = null;
@@ -351,7 +431,7 @@ public class CommandsTabController {
                 if (!file.canRead() || !file.canWrite()) file=null;
             }
         });
-        executeBtn.setOnAction(new EventHandler<ActionEvent>() {//TODO clear textFields when exe
+        executeBtn.setOnAction(new EventHandler<ActionEvent>() {
             final MessageFormat fieldEmpty = new MessageFormat(resources.getString("console.notEmpty"));
             final MessageFormat fieldIncorrect = new MessageFormat(resources.getString("console.enterField"));
             final MessageFormat incorrectIn = new MessageFormat(resources.getString("console.incorrectIn"));
@@ -523,9 +603,20 @@ public class CommandsTabController {
             });
         }else {
             Platform.runLater(() -> {
-                Text text = new Text(UniversalServerResponseDecoder.decodeResponse(serverResponse));
+                Label text = new Label(UniversalServerResponseDecoder.decodeResponse(serverResponse));
                 text.setFont(Font.font (text.getFont().getFamily(), 14));
                 pane.setContent(text);
+                nameField.clear();
+                distanceField.clear();
+                coordsYField.clear();
+                coordsXField.clear();
+                toNameField.clear();
+                toYField.clear();
+                toXField.clear();
+                fromNameField.clear();
+                fromXField.clear();
+                fromYField.clear();
+                firstArgField.clear();
             });
         }
     }

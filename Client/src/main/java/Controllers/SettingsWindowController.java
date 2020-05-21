@@ -54,6 +54,7 @@ public class SettingsWindowController {
     private MainWindowController mainWindowController;
     private Locale newLocale = null;
     private String newTheme=null;
+    private boolean alerts;
 
     public void setMainWindowController(MainWindowController mainWindowController) {
         this.mainWindowController = mainWindowController;
@@ -62,6 +63,9 @@ public class SettingsWindowController {
     @FXML
     void initialize() {
         Preferences preferences = Preferences.userRoot();
+        alerts=preferences.getBoolean("alerts",true);
+        alertsCheckBox.setSelected(alerts);
+
         languageComboBox.setItems(FXCollections.observableArrayList(
                 new Locale("ru").getDisplayLanguage(new Locale("ru")),
                 new Locale("en").getDisplayLanguage(new Locale("en")),
@@ -76,10 +80,10 @@ public class SettingsWindowController {
 
         themeComboBox.setItems(FXCollections.observableArrayList(resources.getString("default"),resources.getString("dark"),resources.getString("red"),resources.getString("blue")));
 
-        if(preferences.get("theme","default").equals(EThemes.DEFAULT.toString())) themeComboBox.getSelectionModel().select(0);
-        else if(preferences.get("theme","default").equals(EThemes.DARK.toString())) themeComboBox.getSelectionModel().select(1);
-        else if(preferences.get("theme","default").equals(EThemes.RED.toString())) themeComboBox.getSelectionModel().select(2);
-        else if(preferences.get("theme","default").equals(EThemes.BLUE.toString())) themeComboBox.getSelectionModel().select(2);
+        if(preferences.get("theme","DEFAULT").equals(EThemes.DEFAULT.toString())) themeComboBox.getSelectionModel().select(0);
+        else if(preferences.get("theme","DEFAULT").equals(EThemes.DARK.toString())) themeComboBox.getSelectionModel().select(1);
+        else if(preferences.get("theme","DEFAULT").equals(EThemes.RED.toString())) themeComboBox.getSelectionModel().select(2);
+        else if(preferences.get("theme","DEFAULT").equals(EThemes.BLUE.toString())) themeComboBox.getSelectionModel().select(2);
 
 
         languageComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -114,6 +118,7 @@ public class SettingsWindowController {
                     else if(newTheme.equals(resources.getString("red"))) mainWindowController.changeTheme(EThemes.RED);
                     else if(newTheme.equals(resources.getString("blue"))) mainWindowController.changeTheme(EThemes.BLUE);
                 }
+                preferences.putBoolean("alerts", alerts);
                 Stage stage = (Stage) applyBtn.getScene().getWindow();
                 stage.close();
             }
@@ -124,6 +129,14 @@ public class SettingsWindowController {
             public void handle(ActionEvent event) {
                 Stage stage = (Stage) applyBtn.getScene().getWindow();
                 stage.close();
+            }
+        });
+
+        alertsCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                applyBtn.setDisable(false);
+                alerts=newValue;
             }
         });
     }

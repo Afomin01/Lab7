@@ -18,6 +18,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
 public class SocketChannelHandler implements Runnable{
     private ByteBuffer buf = ByteBuffer.allocate(1000000);
@@ -75,36 +76,38 @@ public class SocketChannelHandler implements Runnable{
                             controller.removeItems(FXCollections.observableList(serverResponse.getSet()));
                         } else if (serverResponse.getCode().equals(ServerResponseCodes.REMOVE_ITEM_BY_ID)) {
                             ServerResponse tmpresp = new ServerResponse(serverResponse.getCode());
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                                    alert.setResizable(false);
-                                    alert.setHeaderText(UniversalServerResponseDecoder.decodeResponse(tmpresp));
-                                    alert.setTitle(UniversalServerResponseDecoder.decodeResponse(tmpresp));
-                                    alert.showAndWait();
-                                }
-                            });
+                            if(Preferences.userRoot().getBoolean("alerts",true)) {
+                                Platform.runLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                                        alert.setResizable(false);
+                                        alert.setHeaderText("");
+                                        alert.setTitle(UniversalServerResponseDecoder.decodeResponse(tmpresp));
+                                        alert.setContentText(UniversalServerResponseDecoder.decodeResponse(tmpresp));
+                                        alert.showAndWait();
+                                    }
+                                });
+                            }
                         } else if(serverResponse.getCode().equals(ServerResponseCodes.CHANGE_FIELDS_NO_RIGHTS)||serverResponse.getCode().equals(ServerResponseCodes.CHANGE_FIELDS_ERROR)||serverResponse.getCode().equals(ServerResponseCodes.CHANGE_FIELDS_OK)){
                             ServerResponse tmpresp = new ServerResponse(serverResponse.getCode());
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                                    alert.setResizable(false);
-                                    alert.setHeaderText(UniversalServerResponseDecoder.decodeResponse(tmpresp));
-                                    alert.setTitle(UniversalServerResponseDecoder.decodeResponse(tmpresp));
-                                    alert.showAndWait();
-                                }
-                            });
+                            if(serverResponse.getCode().equals(ServerResponseCodes.CHANGE_FIELDS_OK)) controller.addTableViewItem(serverResponse.getRoute());
+                            if(Preferences.userRoot().getBoolean("alerts",true)) {
+                                Platform.runLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                                        alert.setResizable(false);
+                                        alert.setHeaderText("");
+                                        alert.setTitle(UniversalServerResponseDecoder.decodeResponse(tmpresp));
+                                        alert.setContentText(UniversalServerResponseDecoder.decodeResponse(tmpresp));
+                                        alert.showAndWait();
+                                    }
+                                });
+                            }
                         } else {
                             ServerResponse sr = serverResponse;
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    controller.getCommandsTabController().displayServerResponse(sr);
-                                }
-                            }).start();
+                            new Thread(() -> controller.getCommandsTabController().displayServerResponse(sr)).start();
                         }
                     }
                     buf.clear();

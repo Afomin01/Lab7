@@ -18,12 +18,17 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
 public class AuthWindowController {
+    @FXML
+    private ResourceBundle resources;
     @FXML
     private ImageView ruFlag;
     @FXML
@@ -47,6 +52,8 @@ public class AuthWindowController {
     @FXML
     private ImageView refreshStatus;
     @FXML
+    private ImageView serverSettings;
+    @FXML
     private Text loginFail;
     @FXML
     private PasswordField repeatPasswordField;
@@ -60,6 +67,7 @@ public class AuthWindowController {
     private Text authLabel;
     @FXML
     private AnchorPane backAnchor;
+
 
     @FXML
     void initialize() {
@@ -93,16 +101,28 @@ public class AuthWindowController {
         refreshStatus.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                if(Main.connectServer()) {
-                    serverPoint.setFill(Color.GREEN);
-                    logInBtn.setDisable(false);
-                    signUpBtn.setDisable(false);
-                }
-                else {
-                    serverPoint.setFill(Color.RED);
-                    logInBtn.setDisable(true);
-                    signUpBtn.setDisable(true);
-                }
+                reconnect();
+            }
+        });
+        serverSettings.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                try {
+                    FXMLLoader fxmlLoader = new FXMLLoader();
+                    fxmlLoader.setResources(ResourceBundle.getBundle("MessagesBundle"));
+
+                    Parent root = fxmlLoader.load(Main.class.getResource("/ServerSettingsPopup.fxml").openStream());
+                    ((ServerSettingsPopupController)fxmlLoader.getController()).setAuthWindowController(AuthWindowController.this);
+                    Stage stage = new Stage();
+                    stage.initStyle(StageStyle.UNDECORATED);
+                    stage.initModality(Modality.WINDOW_MODAL);
+                    stage.initOwner(Main.stage.getScene().getWindow());
+                    stage.setTitle(resources.getString("settings.serverSettingsTip"));
+                    Scene scene = new Scene(root);
+                    stage.setScene(scene);
+                    stage.show();
+
+                }catch (Exception e){}
             }
         });
 
@@ -192,6 +212,19 @@ public class AuthWindowController {
                 }
             }
         });
+    }
+
+    public void reconnect(){
+        if(Main.connectServer()) {
+            serverPoint.setFill(Color.GREEN);
+            logInBtn.setDisable(false);
+            signUpBtn.setDisable(false);
+        }
+        else {
+            serverPoint.setFill(Color.RED);
+            logInBtn.setDisable(true);
+            signUpBtn.setDisable(true);
+        }
     }
 
     private void changeLocale(Locale locale){

@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.SettingsWindowController">
+<AnchorPane prefHeight="200.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.SettingsWindowController">
    <children>
       <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
          <children>
@@ -39,7 +39,7 @@
                   <Insets left="10.0" />
                </VBox.margin>
             </CheckBox>
-            <HBox alignment="CENTER" prefHeight="17.0" prefWidth="560.0" spacing="10.0">
+            <HBox alignment="CENTER" prefHeight="10.0" prefWidth="260.0" spacing="10.0">
                <children>
                   <Button fx:id="applyBtn" disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="85.0" text="%alerts.apply" />
                   <Button fx:id="cancelBtn" mnemonicParsing="false" prefHeight="25.0" prefWidth="85.0" text="%alerts.cancel" />
@@ -47,9 +47,6 @@
                <VBox.margin>
                   <Insets />
                </VBox.margin>
-               <padding>
-                  <Insets top="100.0" />
-               </padding>
             </HBox>
          </children>
       </VBox>

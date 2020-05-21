@@ -68,7 +68,6 @@ public class VisualizeWindowController {
         int startY = (int) (route.getFrom().getY()*hl+((canvas.getHeight()-10.0)/2)+Math.random()*10.0);
         int endX = (int) (route.getTo().getX()*w+((canvas.getWidth()-10.0)/2)+Math.random()*10.0);
         int endY = (int) (route.getTo().getY()*hl+((canvas.getHeight()-10.0)/2)+Math.random()*10.0);
-        System.out.println(startX +" "+startY +" "+endX +" "+endY);
         if(Math.abs(startX*2)<canvas.getWidth()) startX*=2;
         if(Math.abs(startY*2)<canvas.getHeight()) startY*=2;
         if(Math.abs(endX*2)<canvas.getWidth()) endX*=2;

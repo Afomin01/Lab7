@@ -31,6 +31,7 @@ public class UpdateObject implements ICommand {
         switch (manager.update(id,elementToAdd,user)){
             case OK:
                 serverResponse = new ServerResponse(ServerResponseCodes.CHANGE_FIELDS_OK);
+                serverResponse.setRoute(elementToAdd);
                 break;
             case NO_CHANGES:
                 serverResponse = new ServerResponse(ServerResponseCodes.CHANGE_FIELDS_NO_RIGHTS);

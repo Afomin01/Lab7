@@ -49,7 +49,7 @@
                               <Insets left="10.0" right="10.0" />
                            </VBox.margin>
                         </TextField>
-                        <Label fx:id="enterFieldsTip" prefHeight="17.0" prefWidth="514.0" text="%console.elementTip" textAlignment="CENTER" VBox.vgrow="ALWAYS" />
+                        <Label fx:id="enterFieldsTip" alignment="CENTER" prefHeight="17.0" prefWidth="514.0" text="%console.elementTip" textAlignment="CENTER" VBox.vgrow="ALWAYS" />
                         <HBox prefHeight="163.0" prefWidth="522.0" spacing="20.0" VBox.vgrow="ALWAYS">
                            <children>
                               <VBox fx:id="elementHideVbox" prefHeight="200.0" spacing="5.0" visible="false" HBox.hgrow="ALWAYS">
@@ -89,7 +89,7 @@
                         <Insets top="10.0" />
                      </padding>
                   </VBox>
-                  <ScrollPane fx:id="pane" hbarPolicy="NEVER" prefHeight="274.0" prefWidth="774.0" style="-fx-border-color: #000000;" HBox.hgrow="ALWAYS" />
+                  <ScrollPane fx:id="pane" prefHeight="274.0" prefWidth="774.0" style="-fx-border-color: #000000;" HBox.hgrow="ALWAYS" />
                </children>
             </HBox>
             <TextArea fx:id="console" minHeight="250.0" prefHeight="318.0" prefWidth="10000.0" promptText="%console.consoleTip" VBox.vgrow="ALWAYS" />
