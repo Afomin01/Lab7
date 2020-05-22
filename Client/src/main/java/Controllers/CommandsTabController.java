@@ -125,81 +125,104 @@ public class CommandsTabController {
                 resources.getString("commands.name.removeid"),
                 resources.getString("commands.name.allbydistance"),
                 resources.getString("commands.name.show"))));
+
         coordsXField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*(\\.\\d*)?")) {
-                coordsXField.setText(oldValue);
+            if (!newValue.matches("-?\\d*(\\.?\\d*)")) {
+                coordsXField.setText(newValue.replaceAll("[^\\d\\.]", ""));
             }
-            try {
-                Double.parseDouble(coordsXField.getText());
-            }catch (NumberFormatException e){
-                if(Double.parseDouble(oldValue)<0)coordsXField.setText(String.valueOf(Double.MIN_VALUE));
-                else coordsXField.setText(String.valueOf(Double.MAX_VALUE));
+            if(!coordsXField.getText().equals("") && !coordsXField.getText().matches("-?")) {
+                try {
+                    Double.parseDouble(coordsXField.getText());
+                } catch (NumberFormatException e) {
+                    if (Double.parseDouble(oldValue) < 0) coordsXField.setText(String.valueOf(Double.MIN_VALUE));
+                    else coordsXField.setText(String.valueOf(Double.MAX_VALUE));
+                }
             }
         });
         coordsYField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*(\\.\\d*)?")) {
+            if (!newValue.matches("-?\\d*(\\.?\\d*)")) {
                 coordsYField.setText(oldValue);
             }
-            try {
-                Double.parseDouble(coordsYField.getText());
-            }catch (NumberFormatException e){
-                if(Double.parseDouble(oldValue)<0)coordsYField.setText(String.valueOf(Double.MIN_VALUE));
-                else coordsYField.setText(String.valueOf(Double.MAX_VALUE));
+            if(!coordsYField.getText().equals("") && !coordsYField.getText().matches("-?")) {
+                try {
+                    Double.parseDouble(coordsYField.getText());
+                } catch (NumberFormatException e) {
+                    if (Double.parseDouble(oldValue) < 0) coordsYField.setText(String.valueOf(Double.MIN_VALUE));
+                    else coordsYField.setText(String.valueOf(Double.MAX_VALUE));
+                }
             }
         });
         fromXField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*")) {
-                fromXField.setText(newValue.replaceAll("[^\\d]", ""));
+            if (!newValue.matches("-?\\d*")) {
+                fromXField.setText(newValue.replaceAll("[^\\-\\d]", ""));
             }
-            try {
-                if(Double.parseDouble(fromXField.getText())>Integer.MAX_VALUE) fromXField.setText(String.valueOf(Integer.MAX_VALUE));
-                if(Double.parseDouble(fromXField.getText())<Integer.MIN_VALUE) fromXField.setText(String.valueOf(Integer.MIN_VALUE));
-            }catch (NumberFormatException e){
-                fromXField.setText(oldValue);
+            if(!fromXField.getText().equals("") && !fromXField.getText().matches("-?")) {
+                try {
+                    if (Double.parseDouble(fromXField.getText()) > Integer.MAX_VALUE)
+                        fromXField.setText(String.valueOf(Integer.MAX_VALUE));
+                    if (Double.parseDouble(fromXField.getText()) < Integer.MIN_VALUE)
+                        fromXField.setText(String.valueOf(Integer.MIN_VALUE));
+                } catch (NumberFormatException e) {
+                    fromXField.setText(oldValue);
+                }
             }
         });
         fromYField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*")) {
-                fromYField.setText(newValue.replaceAll("[^\\d]", ""));
+            if (!newValue.matches("-?\\d*")) {
+                fromYField.setText(newValue.replaceAll("[^\\-\\d]", ""));
             }
-            try {
-                if(Double.parseDouble(fromYField.getText())>Long.MAX_VALUE) fromYField.setText(String.valueOf(Long.MAX_VALUE));
-                if(Double.parseDouble(toXField.getText())<Long.MIN_VALUE) fromYField.setText(String.valueOf(Long.MIN_VALUE));
-            }catch (NumberFormatException e){
-                fromYField.setText(oldValue);
+            if(!fromYField.getText().equals("") && !fromYField.getText().matches("-?")) {
+                try {
+                    if (Double.parseDouble(fromYField.getText()) > Long.MAX_VALUE)
+                        fromYField.setText(String.valueOf(Long.MAX_VALUE));
+                    if (Double.parseDouble(fromYField.getText()) < Long.MIN_VALUE)
+                        fromYField.setText(String.valueOf(Long.MIN_VALUE));
+                } catch (NumberFormatException e) {
+                    fromYField.setText(oldValue);
+                }
             }
         });
         toXField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*")) {
-                toXField.setText(newValue.replaceAll("[^\\d]", ""));
+            if (!newValue.matches("-?\\d*")) {
+                toXField.setText(newValue.replaceAll("[^\\-\\d]", ""));
             }
-            try {
-                if(Double.parseDouble(toXField.getText())>Integer.MAX_VALUE) toXField.setText(String.valueOf(Integer.MAX_VALUE));
-                if(Double.parseDouble(toXField.getText())<Integer.MIN_VALUE) toXField.setText(String.valueOf(Integer.MIN_VALUE));
-            }catch (NumberFormatException e){
-                toXField.setText(oldValue);
+            if(!toXField.getText().equals("") && !toXField.getText().matches("-?")) {
+                try {
+                    if (Double.parseDouble(toXField.getText()) > Integer.MAX_VALUE)
+                        toXField.setText(String.valueOf(Integer.MAX_VALUE));
+                    if (Double.parseDouble(toXField.getText()) < Integer.MIN_VALUE)
+                        toXField.setText(String.valueOf(Integer.MIN_VALUE));
+                } catch (NumberFormatException e) {
+                    toXField.setText(oldValue);
+                }
             }
         });
         toYField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*")) {
-                toYField.setText(newValue.replaceAll("[^\\d]", ""));
+            if (!newValue.matches("-?\\d*")) {
+                toYField.setText(newValue.replaceAll("[^\\-\\d]", ""));
             }
-            try {
-                if(Double.parseDouble(toYField.getText())>Long.MAX_VALUE) toYField.setText(String.valueOf(Long.MAX_VALUE));
-                if(Double.parseDouble(toYField.getText())<Long.MIN_VALUE) toYField.setText(String.valueOf(Long.MIN_VALUE));
-            }catch (NumberFormatException e){
-                toYField.setText(oldValue);
+            if(!toYField.getText().equals("") && !toYField.getText().matches("-?")) {
+                try {
+                    if (Double.parseDouble(toYField.getText()) > Long.MAX_VALUE)
+                        toYField.setText(String.valueOf(Long.MAX_VALUE));
+                    if (Double.parseDouble(toYField.getText()) < Long.MIN_VALUE)
+                        toYField.setText(String.valueOf(Long.MIN_VALUE));
+                } catch (NumberFormatException e) {
+                    toYField.setText(oldValue);
+                }
             }
         });
         distanceField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*(\\.\\d*)?")) {
+            if (!newValue.matches("\\d*(\\.?\\d*)")) {
                 distanceField.setText(oldValue);
             }
-            try {
-                Double.parseDouble(distanceField.getText());
-            }catch (NumberFormatException e){
-                if(Double.parseDouble(oldValue)<0) distanceField.setText(String.valueOf(Double.MIN_VALUE));
-                else distanceField.setText(String.valueOf(Double.MAX_VALUE));
+            if(!distanceField.getText().equals("")) {
+                try {
+                    Double.parseDouble(distanceField.getText());
+                } catch (NumberFormatException e) {
+                    if (Double.parseDouble(oldValue) < 0) distanceField.setText(String.valueOf(Double.MIN_VALUE));
+                    else distanceField.setText(String.valueOf(Double.MAX_VALUE));
+                }
             }
         });
 
@@ -377,17 +400,17 @@ public class CommandsTabController {
                 executeBtn.setDisable(false);
                 argsErrorText.getChildren().clear();
                 argsErrorText.getChildren().clear();
-                nameField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                distanceField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                coordsYField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                coordsXField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                toNameField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                toYField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                toXField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                fromNameField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                fromXField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                fromYField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                firstArgField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                nameField.setBorder(Border.EMPTY);
+                distanceField.setBorder(Border.EMPTY);
+                coordsYField.setBorder(Border.EMPTY);
+                coordsXField.setBorder(Border.EMPTY);
+                toNameField.setBorder(Border.EMPTY);
+                toYField.setBorder(Border.EMPTY);
+                toXField.setBorder(Border.EMPTY);
+                fromNameField.setBorder(Border.EMPTY);
+                fromXField.setBorder(Border.EMPTY);
+                fromYField.setBorder(Border.EMPTY);
+                firstArgField.setBorder(Border.EMPTY);
 
                 if(n.equals(commandsComboBox.getItems().get(0)) || n.equals(commandsComboBox.getItems().get(2)) || n.equals(commandsComboBox.getItems().get(3))){
                     elementHideVbox.setVisible(true);
@@ -488,6 +511,7 @@ public class CommandsTabController {
                         if(d<=-462){
                             temp=false;
                             errorComboBoxPrint(resources.getString("console.higher")+" -462");
+                            coordsYField.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                         }
                     } catch (NumberFormatException e) {
                         coordsYField.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -527,6 +551,7 @@ public class CommandsTabController {
                         if(d<=1){
                             temp=false;
                             errorComboBoxPrint(resources.getString("console.higher")+" 1");
+                            distanceField.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                         }
                     } catch (NumberFormatException e) {
                         distanceField.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));

@@ -22,6 +22,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -138,7 +139,8 @@ public class TableTabController {
 
                                 Parent root = fxmlLoader.load(Main.class.getResource("/EditWindow.fxml").openStream());
                                 EditWindowController controller = fxmlLoader.getController();
-                                Stage stage = new Stage();
+
+/*                                Stage stage = new Stage();
                                 stage.initStyle(StageStyle.UNDECORATED);
                                 stage.initModality(Modality.WINDOW_MODAL);
                                 stage.initOwner(Main.stage.getScene().getWindow());
@@ -150,7 +152,19 @@ public class TableTabController {
 
                                 stage.setScene(scene);
                                 controller.setFields(tableView.getSelectionModel().getSelectedItem());
-                                stage.show();
+                                stage.show();*/
+
+                                Popup popup = new Popup();
+                                popup.getScene().setRoot(root);
+                                popup.setAutoHide(true);
+                                popup.getScene().getStylesheets().clear();
+                                EThemes themes = EThemes.valueOf(Preferences.userRoot().get("theme","default"));
+                                if(themes.file!=null) popup.getScene().getStylesheets().add(themes.file);
+
+                                controller.setFields(tableView.getSelectionModel().getSelectedItem());
+
+                                popup.show(tableView.getScene().getWindow());
+
                             }
                         } catch (IOException e) {
                             e.printStackTrace();

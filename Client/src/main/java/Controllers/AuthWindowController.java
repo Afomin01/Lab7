@@ -2,6 +2,8 @@ package Controllers;
 
 import Client.Main;
 import Client.Utils.EThemes;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -13,7 +15,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
@@ -71,22 +73,14 @@ public class AuthWindowController {
 
     @FXML
     void initialize() {
-/*        Preferences preferences = Preferences.userRoot();
-        if(!preferences.get("theme", EThemes.DEFAULT.toString()).equals(EThemes.DEFAULT.toString())){
-            String textColor = EThemes.valueOf(preferences.get("theme", "default")).textColor;
-            String secondaryColour = EThemes.valueOf(preferences.get("theme", "default")).secondaryColour;
-            String additionalColour = EThemes.valueOf(preferences.get("theme", "default")).additionalColour;
-            String mainColor = EThemes.valueOf(preferences.get("theme", "default")).mainColor;
-            serverLabel.setFill(Paint.valueOf(textColor));
-            authLabel.setFill(Paint.valueOf(textColor));
-            mailField.setStyle("-fx-background-color: "+secondaryColour + "; -fx-text-inner-color: "+textColor);
-            passwordField.setStyle("-fx-background-color: "+secondaryColour+ "; -fx-text-inner-color: "+textColor);
-            loginField.setStyle("-fx-background-color: "+secondaryColour+ "; -fx-text-inner-color: "+textColor);
-            repeatPasswordField.setStyle("-fx-background-color: "+secondaryColour+ "; -fx-text-inner-color: "+textColor);
-            mainAnchor.setStyle("-fx-background-color: "+mainColor);
-            backAnchor.setStyle("-fx-background-color: "+additionalColour);
-            loginFail.setFill(Paint.valueOf(textColor));
-        }*/
+        loginField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if(newValue.matches(".* .*") || newValue.length() > 20) loginField.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                else loginField.setBorder(Border.EMPTY);
+            }
+        });
+
         if(Main.isConnected()){
             serverPoint.setFill(Color.GREEN);
             logInBtn.setDisable(false);
@@ -150,24 +144,28 @@ public class AuthWindowController {
         logInBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if(loginField.getText().isEmpty() || passwordField.getText().isEmpty()){
-                    loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.empty"));
-                    passwordField.clear();
-                }else {
-                    switch (Main.logIn(loginField.getText(), passwordField.getText(),false)){
-                        case ERROR:
-                        case SQL_ERROR:
-                            loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.error"));
-                            passwordField.clear();
-                            break;
-                        case INCORRECT_LOG_IN:
-                            loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.incorrect"));
-                            passwordField.clear();
-                            break;
-                        case AUTHORISED:
-                            Main.openMainWindow();
-                            break;
+                if (!(loginField.getText().matches(".* .*") || loginField.getText().length() > 20)) {
+                    if (loginField.getText().isEmpty() || passwordField.getText().isEmpty()) {
+                        loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.empty"));
+                        passwordField.clear();
+                    } else {
+                        switch (Main.logIn(loginField.getText(), passwordField.getText(), false)) {
+                            case ERROR:
+                            case SQL_ERROR:
+                                loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.error"));
+                                passwordField.clear();
+                                break;
+                            case INCORRECT_LOG_IN:
+                                loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.incorrect"));
+                                passwordField.clear();
+                                break;
+                            case AUTHORISED:
+                                Main.openMainWindow();
+                                break;
+                        }
                     }
+                }else{
+                    loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.incorrect"));
                 }
             }
         });
@@ -175,40 +173,44 @@ public class AuthWindowController {
         signUpBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if((loginField.getText().isEmpty() || passwordField.getText().isEmpty()) && !repeatPasswordField.isDisable()){
-                    loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.empty"));
-                    passwordField.clear();
-                }else if(repeatPasswordField.isDisable()){
-                    repeatPasswordField.setDisable(false);
-                    mailField.setDisable(false);
-                }else {
-                    if(passwordField.getText().length()<5 || !passwordField.getText().matches(".*\\d+.*") || !passwordField.getText().matches(".*[A-Z].*")){
-                        loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.passwordIncorrect"));
+                if(!(loginField.getText().matches(".* .*") || loginField.getText().length() > 20)) {
+                    if ((loginField.getText().isEmpty() || passwordField.getText().isEmpty()) && !repeatPasswordField.isDisable()) {
+                        loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.empty"));
                         passwordField.clear();
-                        repeatPasswordField.clear();
-                    }else if(!repeatPasswordField.getText().equals(passwordField.getText())){
-                        loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.passwordDismatch"));
-                        passwordField.clear();
-                        repeatPasswordField.clear();
+                    } else if (repeatPasswordField.isDisable()) {
+                        repeatPasswordField.setDisable(false);
+                        mailField.setDisable(false);
                     } else {
-                        switch (Main.signUp(loginField.getText(), passwordField.getText(), mailField.getText())) {
-                            case ERROR:
-                            case SQL_ERROR:
-                                loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.error"));
-                                passwordField.clear();
-                                repeatPasswordField.clear();
-                                break;
-                            case INCORRECT_LOG_IN:
-                                loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.exists"));
-                                loginField.clear();
-                                passwordField.clear();
-                                repeatPasswordField.clear();
-                                break;
-                            case AUTHORISED:
-                                Main.openMainWindow();
-                                break;
+                        if (passwordField.getText().length() < 5 || !passwordField.getText().matches(".*\\d+.*") || !passwordField.getText().matches(".*[A-Z].*")) {
+                            loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.passwordIncorrect"));
+                            passwordField.clear();
+                            repeatPasswordField.clear();
+                        } else if (!repeatPasswordField.getText().equals(passwordField.getText())) {
+                            loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.passwordDismatch"));
+                            passwordField.clear();
+                            repeatPasswordField.clear();
+                        } else {
+                            switch (Main.signUp(loginField.getText(), passwordField.getText(), mailField.getText())) {
+                                case ERROR:
+                                case SQL_ERROR:
+                                    loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.error"));
+                                    passwordField.clear();
+                                    repeatPasswordField.clear();
+                                    break;
+                                case INCORRECT_LOG_IN:
+                                    loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.exists"));
+                                    loginField.clear();
+                                    passwordField.clear();
+                                    repeatPasswordField.clear();
+                                    break;
+                                case AUTHORISED:
+                                    Main.openMainWindow();
+                                    break;
+                            }
                         }
                     }
+                }else {
+                    loginFail.setText(ResourceBundle.getBundle("MessagesBundle").getString("login.incorrect"));
                 }
             }
         });
@@ -246,7 +248,7 @@ public class AuthWindowController {
         Preferences preferences = Preferences.userRoot();
         preferences.put("language", Locale.getDefault().getLanguage());
         preferences.put("country", Locale.getDefault().getCountry());
-        preferences.put("theme", "default");
+        preferences.put("theme", EThemes.DEFAULT.toString());
     }
 }
 
