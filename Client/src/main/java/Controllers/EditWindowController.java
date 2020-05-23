@@ -157,6 +157,7 @@ public class EditWindowController {
                     if(d<1){
                         temp=false;
                         printError(resources.getString("console.higher")+" -462");
+                        coordYField.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                     }
                 } catch (NumberFormatException e) {
                     coordYField.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -196,6 +197,8 @@ public class EditWindowController {
                     if(d<1){
                         temp=false;
                         printError(resources.getString("console.higher")+" 1");
+                        distanceField.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+
                     }
                 } catch (NumberFormatException e) {
                     distanceField.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));

@@ -173,9 +173,8 @@ public class TableTabController {
                 }
             }
         });
-
         formatColumnsData();
-
+        
 
         fromCol.getColumns().addAll(fromXCol,fromYCol,fromNameCol);
         toCol.getColumns().addAll(toXCol,toYCol,toNameCol);
@@ -222,9 +221,6 @@ public class TableTabController {
         ownerCol.setText(resources.getString("table.owner"));
         creationDateCol.setText(resources.getString("table.creationDate"));
         formatColumnsData();
-    }
-    public void changeTheme(){
-
     }
 
     private void formatColumnsData(){

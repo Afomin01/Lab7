@@ -9,8 +9,11 @@ import java.util.stream.Collectors;
 import Storable.Route;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.StackPane;
+import javafx.scene.shape.CubicCurve;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -23,13 +26,26 @@ public class VisualizeWindowController {
     private TextFlow routeInfo;
 
     @FXML
-    private Canvas canvas;
+    private StackPane stackPane;
 
     private ObservableList<Route> items;
 
     @FXML
     void initialize() {
+        CubicCurve cubicCurve = new CubicCurve();
 
+        //Setting properties to cubic curve
+        cubicCurve.setStartX(100.0f);
+        cubicCurve.setStartY(150.0f);
+        cubicCurve.setControlX1(400.0f);
+        cubicCurve.setControlY1(40.0f);
+        cubicCurve.setControlX2(175.0f);
+        cubicCurve.setControlY2(250.0f);
+        cubicCurve.setEndX(500.0f);
+        cubicCurve.setEndY(150.0f);
+        StackPane.setAlignment(cubicCurve, Pos.BOTTOM_CENTER);
+
+        stackPane.getChildren().add(cubicCurve);
     }
 
     public void setUpVisual(ObservableList<Route> list){
@@ -52,31 +68,13 @@ public class VisualizeWindowController {
                 i++;
             }
         }
-        canvas.getGraphicsContext2D().clearRect(0,0,canvas.getWidth(),canvas.getHeight());
         for(Route r : items){
             drawObject(r);
         }
     }
 
     private void drawObject(Route route){
-        GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
-        double w = (canvas.getWidth()-10.0)/(Integer.MAX_VALUE*2.0);
-        double h = (canvas.getHeight()-10.0)/(Integer.MAX_VALUE*2.0);
-        double wl = (canvas.getWidth()-10.0)/(Long.MAX_VALUE*2.0);
-        double hl = (canvas.getHeight()-10.0)/(Long.MAX_VALUE*2.0);
-        int startX = (int) (route.getFrom().getX()*w+((canvas.getWidth()-10.0)/2)+Math.random()*10.0);
-        int startY = (int) (route.getFrom().getY()*hl+((canvas.getHeight()-10.0)/2)+Math.random()*10.0);
-        int endX = (int) (route.getTo().getX()*w+((canvas.getWidth()-10.0)/2)+Math.random()*10.0);
-        int endY = (int) (route.getTo().getY()*hl+((canvas.getHeight()-10.0)/2)+Math.random()*10.0);
-        if(Math.abs(startX*2)<canvas.getWidth()) startX*=2;
-        if(Math.abs(startY*2)<canvas.getHeight()) startY*=2;
-        if(Math.abs(endX*2)<canvas.getWidth()) endX*=2;
-        if(Math.abs(endY*2)<canvas.getHeight()) endY*=2;
 
-        graphicsContext.beginPath();
-        graphicsContext.moveTo(startX,startY);
-        graphicsContext.lineTo(endX,endY);
-        graphicsContext.stroke();
     }
 
     public void changeLanguage(Locale locale){

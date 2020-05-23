@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.TextFlow?>
 
@@ -10,7 +10,7 @@
    <children>
       <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Canvas fx:id="canvas" height="520.0" width="1120.0" />
+            <StackPane fx:id="stackPane" prefHeight="413.0" prefWidth="1240.0" VBox.vgrow="ALWAYS" />
             <TextFlow fx:id="routeInfo" prefHeight="149.0" prefWidth="640.0" style="-fx-border-color: #000000;">
                <VBox.margin>
                   <Insets bottom="20.0" left="300.0" right="300.0" />
