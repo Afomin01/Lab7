@@ -3,11 +3,13 @@ package Controllers;
 import Client.Main;
 import Client.Utils.EThemes;
 import Commands.RemoveObject;
-import CustomFilter.FilteredColumn;
+import CustomFilter.EColumnsID;
+import CustomFilter.FilterPopupController;
 import Instruments.ClientRequest;
 import Storable.Coordinates;
 import Storable.Location;
 import Storable.Route;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -22,7 +24,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -31,10 +32,8 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
@@ -69,6 +68,7 @@ public class TableTabController {
     private TableColumn<Route, Location> toNameCol;
     private TableColumn<Route, Double> distanceCol;
     private TableColumn<Route, String> ownerCol;
+    private HashMap<TableColumn, Predicate<String>> filtersMap = new HashMap<>();
 
     @FXML
     void initialize() {
@@ -140,7 +140,7 @@ public class TableTabController {
                                 Parent root = fxmlLoader.load(Main.class.getResource("/EditWindow.fxml").openStream());
                                 EditWindowController controller = fxmlLoader.getController();
 
-/*                                Stage stage = new Stage();
+                                Stage stage = new Stage();
                                 stage.initStyle(StageStyle.UNDECORATED);
                                 stage.initModality(Modality.WINDOW_MODAL);
                                 stage.initOwner(Main.stage.getScene().getWindow());
@@ -152,19 +152,7 @@ public class TableTabController {
 
                                 stage.setScene(scene);
                                 controller.setFields(tableView.getSelectionModel().getSelectedItem());
-                                stage.show();*/
-
-                                Popup popup = new Popup();
-                                popup.getScene().setRoot(root);
-                                popup.setAutoHide(true);
-                                popup.getScene().getStylesheets().clear();
-                                EThemes themes = EThemes.valueOf(Preferences.userRoot().get("theme","default"));
-                                if(themes.file!=null) popup.getScene().getStylesheets().add(themes.file);
-
-                                controller.setFields(tableView.getSelectionModel().getSelectedItem());
-
-                                popup.show(tableView.getScene().getWindow());
-
+                                stage.show();
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -174,13 +162,92 @@ public class TableTabController {
             }
         });
         formatColumnsData();
-        
+        addBtn(idCol);
+        addBtn(nameCol);
+        addBtn(coordinatesXCol);
+        addBtn(coordinatesYCol);
+        addBtn(creationDateCol);
+        addBtn(fromXCol);
+        addBtn(fromYCol);
+        addBtn(fromNameCol);
+        addBtn(toXCol);
+        addBtn(toYCol);
+        addBtn(toNameCol);
+        addBtn(distanceCol);
+        addBtn(ownerCol);
 
         fromCol.getColumns().addAll(fromXCol,fromYCol,fromNameCol);
         toCol.getColumns().addAll(toXCol,toYCol,toNameCol);
         coordinatesCol.getColumns().addAll(coordinatesXCol,coordinatesYCol);
         tableView.getColumns().addAll(idCol,nameCol,coordinatesCol,creationDateCol,fromCol,toCol,distanceCol,ownerCol);
         tableView.setEditable(true);
+    }
+
+    public void addFilter(TableColumn tableColumn, Predicate<String> predicate){
+        filtersMap.put(tableColumn,predicate);
+        reFiltrate();
+    }
+    public void deleteFilter(TableColumn tableColumn){
+        filtersMap.keySet().forEach(s-> System.out.println(s.getText()));
+        filtersMap.remove(tableColumn);
+        filtersMap.keySet().forEach(s-> System.out.println(s.getText()));
+        reFiltrate();
+    }
+    private void reFiltrate(){
+        tableView.setItems(FXCollections.observableArrayList(initialItems));
+
+        Iterator<Map.Entry<TableColumn, Predicate<String>>> it = filtersMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<TableColumn, Predicate<String>> pair = it.next();
+            ArrayList<String> data = new ArrayList<>();
+            for(long i=0; i< tableView.getItems().stream().count();i++) {
+                if(pair.getValue().test(pair.getKey().getCellData((int)i).toString())) data.add(pair.getKey().getCellData((int)i).toString());
+            }
+            ArrayList<Integer> idToDel = new ArrayList<>();
+            for(long i=0; i< tableView.getItems().stream().count();i++) {
+                long j =i;
+                if(data.stream().anyMatch(s->s.equals(pair.getKey().getCellData((int)j).toString()))) idToDel.add((int)j);
+            }
+            tableView.getItems().removeAll(idToDel.stream().map(i->tableView.getItems().get(i)).collect(Collectors.toList()));
+        }
+    }
+    private void addBtn(TableColumn tableColumn){//TODO give initial items to popup so that we can select non-visible items
+        Button button = new Button();
+        button.setPadding(new Insets(12));
+        button.setStyle("-fx-background-image: url('/filter-icon.png'); -fx-background-size: 15px; -fx-background-repeat: no-repeat; -fx-background-position: 50%; -fx-background-color: transparent; -fx-border-color: transparent;");
+        button.setCursor(Cursor.HAND);
+        tableColumn.setGraphic(button);
+        button.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    FXMLLoader fxmlLoader = new FXMLLoader();
+                    fxmlLoader.setResources(ResourceBundle.getBundle("MessagesBundle", Locale.getDefault()));
+
+                    Parent root = fxmlLoader.load(Main.class.getResource("/FilterPopup.fxml").openStream());
+                    FilterPopupController filterPopupController = fxmlLoader.getController();
+                    filterPopupController.setTableController(TableTabController.this);
+                    HashSet<String> values = new HashSet<>();
+                    for(long i=0; i< tableView.getItems().stream().count();i++){
+                        values.add(tableColumn.getCellData((int)i).toString());
+                    }
+                    filterPopupController.addCheckBoxes(values);
+                    filterPopupController.setTableColumn(tableColumn);
+
+                    Stage stage = new Stage();
+                    stage.initStyle(StageStyle.UNDECORATED);
+                    stage.initModality(Modality.WINDOW_MODAL);
+                    stage.initOwner(Main.stage.getScene().getWindow());
+                    Scene scene = new Scene(root);
+                    scene.getStylesheets().clear();
+                    EThemes themes = EThemes.valueOf(Preferences.userRoot().get("theme","default"));
+                    if(themes.file!=null) scene.getStylesheets().add(themes.file);
+
+                    stage.setScene(scene);
+                    stage.show();
+                }catch (IOException e){}
+            }
+        });
     }
     public void setupTable(ObservableList<Route> list){
         tableView.setItems(list);

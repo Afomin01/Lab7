@@ -1,21 +1,21 @@
 package Controllers;
 
-import java.net.URL;
+import Storable.Route;
+import javafx.animation.PathTransition;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.CubicCurveTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
+import javafx.scene.text.TextFlow;
+
+import java.awt.*;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
-
-import Storable.Route;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.geometry.Pos;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.StackPane;
-import javafx.scene.shape.CubicCurve;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 
 public class VisualizeWindowController {
 
@@ -23,29 +23,17 @@ public class VisualizeWindowController {
     private ResourceBundle resources;
 
     @FXML
-    private TextFlow routeInfo;
+    private AnchorPane anchor;
 
     @FXML
-    private StackPane stackPane;
+    private TextFlow routeInfo;
+
 
     private ObservableList<Route> items;
 
     @FXML
     void initialize() {
-        CubicCurve cubicCurve = new CubicCurve();
 
-        //Setting properties to cubic curve
-        cubicCurve.setStartX(100.0f);
-        cubicCurve.setStartY(150.0f);
-        cubicCurve.setControlX1(400.0f);
-        cubicCurve.setControlY1(40.0f);
-        cubicCurve.setControlX2(175.0f);
-        cubicCurve.setControlY2(250.0f);
-        cubicCurve.setEndX(500.0f);
-        cubicCurve.setEndY(150.0f);
-        StackPane.setAlignment(cubicCurve, Pos.BOTTOM_CENTER);
-
-        stackPane.getChildren().add(cubicCurve);
     }
 
     public void setUpVisual(ObservableList<Route> list){
@@ -74,7 +62,8 @@ public class VisualizeWindowController {
     }
 
     private void drawObject(Route route){
-
+        AnchorPane anchorPane = new AnchorPane();
+        Button button = new Button("sadglkj");
     }
 
     public void changeLanguage(Locale locale){

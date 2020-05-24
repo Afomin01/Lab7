@@ -19,7 +19,7 @@ import java.util.ResourceBundle;
 
 public class FilteredColumn<T> extends TableColumn<Route, T> {
 
-    ObservableList<Route> itemsBeforeFilter;
+/*    ObservableList<Route> itemsBeforeFilter;
     public FilteredColumn(){
         super();
         addBtn();
@@ -65,5 +65,5 @@ public class FilteredColumn<T> extends TableColumn<Route, T> {
             }
 
         });
-    }
+    }*/
 }

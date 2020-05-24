@@ -9,7 +9,7 @@
    <children>
       <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <AnchorPane fx:id="anchor" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+            <AnchorPane fx:id="anchor" prefHeight="500.0" prefWidth="1240.0" VBox.vgrow="ALWAYS" />
             <TextFlow fx:id="routeInfo" prefHeight="149.0" prefWidth="640.0" style="-fx-border-color: #000000;">
                <VBox.margin>
                   <Insets bottom="20.0" left="300.0" right="300.0" />

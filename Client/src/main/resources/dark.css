@@ -101,3 +101,6 @@
 .check-box{
     -fx-text-fill: -text;
 }
+.radio-button{
+    -fx-text-fill: -text;
+}
