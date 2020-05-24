@@ -9,6 +9,10 @@ import Instruments.ClientRequest;
 import Storable.Coordinates;
 import Storable.Location;
 import Storable.Route;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -26,6 +30,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import sun.java2d.pipe.SpanShapeRenderer;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -55,17 +60,17 @@ public class TableTabController {
     private TableColumn<Route, Long> idCol;
     private TableColumn<Route, String> nameCol;
     private TableColumn<Route, Coordinates> coordinatesCol;
-    private TableColumn<Route, Coordinates> coordinatesXCol;
-    private TableColumn<Route, Coordinates> coordinatesYCol;
+    private TableColumn<Route, Double> coordinatesXCol;
+    private TableColumn<Route, Double> coordinatesYCol;
     private TableColumn<Route, Date> creationDateCol;
     private TableColumn<Route, Location> fromCol;
-    private TableColumn<Route, Location> fromXCol;
-    private TableColumn<Route, Location> fromYCol;
-    private TableColumn<Route, Location> fromNameCol;
+    private TableColumn<Route, Integer> fromXCol;
+    private TableColumn<Route, Long> fromYCol;
+    private TableColumn<Route, String> fromNameCol;
     private TableColumn<Route, Location> toCol;
-    private TableColumn<Route, Location> toXCol;
-    private TableColumn<Route, Location> toYCol;
-    private TableColumn<Route, Location> toNameCol;
+    private TableColumn<Route, Integer> toXCol;
+    private TableColumn<Route, Long> toYCol;
+    private TableColumn<Route, String> toNameCol;
     private TableColumn<Route, Double> distanceCol;
     private TableColumn<Route, String> ownerCol;
     private HashMap<TableColumn, Predicate<String>> filtersMap = new HashMap<>();
@@ -96,20 +101,19 @@ public class TableTabController {
         toXCol.setMaxWidth(3000);
         ownerCol.setMaxWidth(3000);
 
-
-        creationDateCol.setCellValueFactory(new PropertyValueFactory<>("creationDate"));
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-        fromXCol.setCellValueFactory(new PropertyValueFactory<>("from"));
-        toXCol.setCellValueFactory(new PropertyValueFactory<>("to"));
-        fromYCol.setCellValueFactory(new PropertyValueFactory<>("from"));
-        toYCol.setCellValueFactory(new PropertyValueFactory<>("to"));
-        fromNameCol.setCellValueFactory(new PropertyValueFactory<>("from"));
-        toNameCol.setCellValueFactory(new PropertyValueFactory<>("to"));
-        distanceCol.setCellValueFactory(new PropertyValueFactory<>("distance"));
+        creationDateCol.setCellValueFactory(new PropertyValueFactory<>("creationDate"));
+        coordinatesXCol.setCellValueFactory(cell-> new SimpleDoubleProperty(cell.getValue().getCoordinates().getx()).asObject());
+        coordinatesYCol.setCellValueFactory(cell-> new SimpleDoubleProperty(cell.getValue().getCoordinates().gety()).asObject());
+        fromXCol.setCellValueFactory(cell-> new SimpleIntegerProperty(cell.getValue().getFrom().getX()).asObject());
+        fromYCol.setCellValueFactory(cell-> new SimpleLongProperty(cell.getValue().getFrom().getY()).asObject());
+        fromNameCol.setCellValueFactory(cell-> new SimpleStringProperty(cell.getValue().getFrom().getName()));
+        toNameCol.setCellValueFactory(cell-> new SimpleStringProperty(cell.getValue().getFrom().getName()));
+        toXCol.setCellValueFactory(cell-> new SimpleIntegerProperty(cell.getValue().getTo().getX()).asObject());
+        toYCol.setCellValueFactory(cell-> new SimpleLongProperty(cell.getValue().getTo().getY()).asObject());
+        distanceCol.setCellValueFactory(cell-> new SimpleDoubleProperty(cell.getValue().getDistance()).asObject());
         ownerCol.setCellValueFactory(new PropertyValueFactory<>("owner"));
-        coordinatesXCol.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
-        coordinatesYCol.setCellValueFactory(new PropertyValueFactory<>("coordinates"));
 
         removeBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -162,6 +166,7 @@ public class TableTabController {
             }
         });
         formatColumnsData();
+
         addBtn(idCol);
         addBtn(nameCol);
         addBtn(coordinatesXCol);
@@ -287,102 +292,79 @@ public class TableTabController {
         toNameCol.setText(resources.getString("table.name"));
         ownerCol.setText(resources.getString("table.owner"));
         creationDateCol.setText(resources.getString("table.creationDate"));
-        formatColumnsData();
+        tableView.refresh();
     }
-
     private void formatColumnsData(){
         coordinatesXCol.setCellFactory(column -> {
-            TableCell<Route, Coordinates> cell = new TableCell<Route, Coordinates>() {
+            TableCell<Route, Double> cell = new TableCell<Route, Double>() {
                 private DecimalFormat format = (DecimalFormat) NumberFormat.getNumberInstance(Locale.getDefault());
                 @Override
-                protected void updateItem(Coordinates item, boolean empty) {
+                protected void updateItem(Double item, boolean empty) {
                     super.updateItem(item, empty);
                     if(empty) setText(null);
-                    else setText(format.format(item.getx()));
+                    else setText(format.format(item));
                 }
             };
             return cell;
         });
         coordinatesYCol.setCellFactory(column -> {
-            TableCell<Route, Coordinates> cell = new TableCell<Route, Coordinates>() {
+            TableCell<Route, Double> cell = new TableCell<Route, Double>() {
                 private DecimalFormat format = (DecimalFormat) NumberFormat.getNumberInstance(Locale.getDefault());
                 @Override
-                protected void updateItem(Coordinates item, boolean empty) {
+                protected void updateItem(Double item, boolean empty) {
                     super.updateItem(item, empty);
                     if(empty) setText(null);
-                    else setText(format.format(item.gety()));
+                    else setText(format.format(item));
                 }
             };
             return cell;
         });
 
         fromXCol.setCellFactory(column -> {
-            TableCell<Route, Location> cell = new TableCell<Route, Location>() {
+            TableCell<Route, Integer> cell = new TableCell<Route, Integer>() {
                 private NumberFormat format = NumberFormat.getNumberInstance(Locale.getDefault());
                 @Override
-                protected void updateItem(Location item, boolean empty) {
+                protected void updateItem(Integer item, boolean empty) {
                     super.updateItem(item, empty);
                     if(empty) setText(null);
-                    else setText(format.format(item.getX()));
+                    else setText(format.format(item));
                 }
             };
             return cell;
         });
         fromYCol.setCellFactory(column -> {
-            TableCell<Route, Location> cell = new TableCell<Route, Location>() {
+            TableCell<Route, Long> cell = new TableCell<Route, Long>() {
                 private NumberFormat format = NumberFormat.getNumberInstance(Locale.getDefault());
                 @Override
-                protected void updateItem(Location item, boolean empty) {
+                protected void updateItem(Long item, boolean empty) {
                     super.updateItem(item, empty);
                     if(empty) setText(null);
-                    else setText(format.format(item.getY()));
-                }
-            };
-            return cell;
-        });
-        fromNameCol.setCellFactory(column -> {
-            TableCell<Route, Location> cell = new TableCell<Route, Location>() {
-                @Override
-                protected void updateItem(Location item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if(empty) setText(null);
-                    else setText(item.getName());
+                    else setText(format.format(item));
                 }
             };
             return cell;
         });
 
         toXCol.setCellFactory(column -> {
-            TableCell<Route, Location> cell = new TableCell<Route, Location>() {
+            TableCell<Route, Integer> cell = new TableCell<Route, Integer>() {
                 private NumberFormat format = NumberFormat.getNumberInstance(Locale.getDefault());
                 @Override
-                protected void updateItem(Location item, boolean empty) {
+                protected void updateItem(Integer item, boolean empty) {
                     super.updateItem(item, empty);
                     if(empty) setText(null);
-                    else setText(format.format(item.getX()));
+                    else setText(format.format(item));
                 }
             };
             return cell;
         });
         toYCol.setCellFactory(column -> {
-            TableCell<Route, Location> cell = new TableCell<Route, Location>() {
+            TableCell<Route, Long> cell = new TableCell<Route, Long>() {
                 private NumberFormat format = NumberFormat.getNumberInstance(Locale.getDefault());
                 @Override
-                protected void updateItem(Location item, boolean empty) {
+                protected void updateItem(Long item, boolean empty) {
                     super.updateItem(item, empty);
                     if(empty) setText(null);
-                    else setText(format.format(item.getY()));
-                }
-            };
-            return cell;
-        });
-        toNameCol.setCellFactory(column -> {
-            TableCell<Route, Location> cell = new TableCell<Route, Location>() {
-                @Override
-                protected void updateItem(Location item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if(empty) setText(null);
-                    else setText(item.getName());
+                    else setText(format.format(item));
                 }
             };
             return cell;
