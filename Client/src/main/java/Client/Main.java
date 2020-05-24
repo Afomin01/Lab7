@@ -247,7 +247,7 @@ public class Main extends Application {
                     SignUp signUp = new SignUp();
                     signUp.setEmail("no");
                     if (!email.equals("no")) signUp.setPassword(pass);
-                    String passwordc = pass;
+                    String password = pass;
 
                     MessageDigest messageDigest = MessageDigest.getInstance("MD2");
                     password = pass + sr.getAdditionalInfo();
