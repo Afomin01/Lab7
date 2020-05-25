@@ -18,7 +18,18 @@
    <children>
       <VBox alignment="CENTER" layoutY="9.0" prefHeight="381.0" prefWidth="264.0" spacing="10.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
          <children>
-            <Label text="%filter.userFilter">
+            <Label alignment="CENTER" prefHeight="20.0" prefWidth="168.0" text="%filter.sorting" textAlignment="CENTER">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <Button fx:id="sortAZ" mnemonicParsing="false" text="A-&gt;Z" />
+                  <Button fx:id="sortZA" mnemonicParsing="false" text="Z-&gt;A" />
+               </children>
+            </HBox>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="20.0" prefWidth="230.0" text="%filter.userFilter" textAlignment="CENTER">
                <font>
                   <Font size="14.0" />
                </font>

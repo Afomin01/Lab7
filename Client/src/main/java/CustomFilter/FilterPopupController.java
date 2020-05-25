@@ -74,6 +74,11 @@ public class FilterPopupController {
     @FXML
     private CheckBox allChecker;
 
+    @FXML
+    private Button sortAZ;
+
+    @FXML
+    private Button sortZA;
 
     private boolean useCustomFilters=false;
     private TableColumn<Route, ?> tableColumn;
@@ -104,28 +109,41 @@ public class FilterPopupController {
 
     @FXML
     void initialize() {
-        try {
-            options = new ArrayList<>(Arrays.asList(
-                    resources.getString("filter.lower"),
-                    resources.getString("filter.bigger"),
-                    resources.getString("filter.equal"),
-                    resources.getString("filter.notEqual"),
-                    resources.getString("filter.lowerEqual"),
-                    resources.getString("filter.biggerEqual"),
-                    resources.getString("filter.contains"),
-                    resources.getString("filter.notContains"),
-                    resources.getString("filter.starts"),
-                    resources.getString("filter.notStarts"),
-                    resources.getString("filter.ends"),
-                    resources.getString("filter.notEnds")));
-            filterTypeComboBox1.setItems(FXCollections.observableArrayList(options));
-            filterTypeComboBox2.setItems(FXCollections.observableArrayList(options));
+        sortAZ.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                tableController.addSort(tableColumn,true);
+            }
+        });
+
+        sortZA.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                tableController.addSort(tableColumn,false);
+            }
+        });
+
+        options = new ArrayList<>(Arrays.asList(
+                resources.getString("filter.lower"),
+                resources.getString("filter.bigger"),
+                resources.getString("filter.equal"),
+                resources.getString("filter.notEqual"),
+                resources.getString("filter.lowerEqual"),
+                resources.getString("filter.biggerEqual"),
+                resources.getString("filter.contains"),
+                resources.getString("filter.notContains"),
+                resources.getString("filter.starts"),
+                resources.getString("filter.notStarts"),
+                resources.getString("filter.ends"),
+                resources.getString("filter.notEnds")));
+        filterTypeComboBox1.setItems(FXCollections.observableArrayList(options));
+        filterTypeComboBox2.setItems(FXCollections.observableArrayList(options));
 
 
         useCustomCheck.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if(newValue){
+                if (newValue) {
                     useCustomFilters = true;
                     filterTypeComboBox1.setDisable(false);
                     filterTypeComboBox2.setDisable(false);
@@ -134,7 +152,7 @@ public class FilterPopupController {
                     orSecondV.setDisable(false);
                     andSecondV.setDisable(false);
                     notUseSecondV.setDisable(false);
-                }else{
+                } else {
                     useCustomFilters = false;
                     filterTypeComboBox1.setDisable(true);
                     filterTypeComboBox2.setDisable(true);
@@ -150,7 +168,7 @@ public class FilterPopupController {
         allChecker.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                for(CheckBox checkBox : checkBoxes){
+                for (CheckBox checkBox : checkBoxes) {
                     checkBox.setSelected(newValue);
                 }
             }
@@ -160,8 +178,8 @@ public class FilterPopupController {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 dataVbox.getChildren().clear();
-                for(CheckBox checkBox : checkBoxes){
-                    if(checkBox.getText().matches(".*"+newValue+".*")) dataVbox.getChildren().add(checkBox);
+                for (CheckBox checkBox : checkBoxes) {
+                    if (checkBox.getText().matches(".*" + newValue + ".*")) dataVbox.getChildren().add(checkBox);
                 }
             }
         });
@@ -169,9 +187,9 @@ public class FilterPopupController {
         applyBtn.setOnAction(new EventHandler<ActionEvent>() {//TODO replace in controller with new filter
             @Override
             public void handle(ActionEvent event) {
-                List<Object> filteredList = checkBoxHashMap.entrySet().stream().filter(entry->entry.getValue().isSelected()).map(Map.Entry::getKey).collect(Collectors.toList());
+                List<Object> filteredList = checkBoxHashMap.entrySet().stream().filter(entry -> entry.getValue().isSelected()).map(Map.Entry::getKey).collect(Collectors.toList());
                 Predicate predicate = null;
-                if(!useCustomFilters) {
+                if (!useCustomFilters) {
                     switch (filterType) {
                         case STRING:
                         case NUMBER:
@@ -191,7 +209,7 @@ public class FilterPopupController {
                             };
                             break;
                     }
-                }else {
+                } else {
                     filterTypeValue1.setBorder(Border.EMPTY);
                     filterTypeValue2.setBorder(Border.EMPTY);
                     if (filterType.equals(EFilterTypes.NUMBER)) {
@@ -213,21 +231,22 @@ public class FilterPopupController {
                     String value = new String(filterTypeValue1.getText());
                     int op = options.indexOf(filterTypeComboBox1.getSelectionModel().getSelectedItem());
                     Predicate predicate1 = getPredicate(op, value);
-                    if(!notUseSecondV.isSelected()) {
+                    if (!notUseSecondV.isSelected()) {
                         String value2 = new String(filterTypeValue2.getText());
                         int op2 = options.indexOf(filterTypeComboBox2.getSelectionModel().getSelectedItem());
                         Predicate predicate2 = getPredicate(op2, value2);
-                        if(orSecondV.isSelected()) {
+                        if (orSecondV.isSelected()) {
                             predicate = new Predicate() {
                                 @Override
                                 public boolean test(Object o) {
                                     return (!predicate1.test(o) && !predicate2.test(o)) || filteredList.stream().map(Object::toString).noneMatch(str -> str.equals(o.toString()));
                                 }
                             };
-                        }else if(andSecondV.isSelected()){
+                        } else if (andSecondV.isSelected()) {
                             predicate = o -> (!predicate1.test(o) || !predicate2.test(o)) || filteredList.stream().map(Object::toString).noneMatch(str -> str.equals(o.toString()));
                         }
-                    }else predicate = o -> !predicate1.test(o) || filteredList.stream().map(Object::toString).noneMatch(str -> str.equals(o.toString()));
+                    } else
+                        predicate = o -> !predicate1.test(o) || filteredList.stream().map(Object::toString).noneMatch(str -> str.equals(o.toString()));
 
                 }
                 tableController.addFilter(tableColumn, predicate);
@@ -253,9 +272,6 @@ public class FilterPopupController {
                 stage.close();
             }
         });
-    }catch (Exception e){
-        e.printStackTrace();
-    }
     }
 
     private Predicate getPredicate(int op, String value){
@@ -329,7 +345,7 @@ public class FilterPopupController {
         alert.showAndWait();
     }
 
-    public void addCheckBoxes(Set<Object> set) {
+    public void addCheckBoxes(Set<Object> set, Set<Object> selected) {
         if(set.size()>0) {
             Object o = set.iterator().next();
             if(o instanceof Number) filterType = EFilterTypes.NUMBER;
@@ -337,7 +353,7 @@ public class FilterPopupController {
             else filterType = EFilterTypes.STRING;
             for (Object s : set) {
                 CheckBox checkBox = new CheckBox();
-                checkBox.setSelected(true);
+                checkBox.setSelected(selected.stream().anyMatch(e->e.toString().equals(s.toString())));
                 switch (filterType){
                     case STRING:
                         checkBox.setText(s.toString());

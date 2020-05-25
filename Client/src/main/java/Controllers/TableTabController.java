@@ -13,7 +13,9 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -54,6 +56,12 @@ public class TableTabController {
     @FXML
     private Button removeBtn;
 
+    @FXML
+    private Button delFilters;
+
+    @FXML
+    private Button delSorts;
+
     private ObservableList<Route> initialItems;
     private TableColumn<Route, Long> idCol;
     private TableColumn<Route, String> nameCol;
@@ -71,7 +79,7 @@ public class TableTabController {
     private TableColumn<Route, String> toNameCol;
     private TableColumn<Route, Double> distanceCol;
     private TableColumn<Route, String> ownerCol;
-    private HashMap<TableColumn, Predicate> filtersMap = new HashMap<>();
+    private ObservableMap<TableColumn, Predicate> filtersMap = FXCollections.observableMap(new HashMap<>());
 
     @FXML
     void initialize() {
@@ -129,6 +137,19 @@ public class TableTabController {
             }
         });
 
+        delFilters.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                filtersMap.clear();
+                reFiltrate();
+            }
+        });
+        delSorts.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                tableView.getSortOrder().clear();
+            }
+        });
         tableView.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
@@ -185,7 +206,12 @@ public class TableTabController {
         tableView.getColumns().addAll(idCol,nameCol,coordinatesCol,creationDateCol,fromCol,toCol,distanceCol,ownerCol);
         tableView.setEditable(true);
     }
-
+    public void addSort(TableColumn tableColumn, boolean sortAZ){
+        if(sortAZ) tableColumn.setSortType(TableColumn.SortType.ASCENDING);
+        else tableColumn.setSortType(TableColumn.SortType.DESCENDING);
+        tableView.getSortOrder().remove(tableColumn);
+        tableView.getSortOrder().add(tableColumn);
+    }
     public void addFilter(TableColumn tableColumn, Predicate<String> predicate){
         filtersMap.put(tableColumn,predicate);
         reFiltrate();
@@ -200,12 +226,6 @@ public class TableTabController {
         Iterator<Map.Entry<TableColumn, Predicate>> it = filtersMap.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<TableColumn, Predicate> pair = it.next();
-/*            ArrayList<Integer> idToDel = new ArrayList<>();
-            for(long i=0; i< tableView.getItems().stream().count();i++) {
-                long j = i;
-                if(pair.getValue().test(pair.getKey().getCellData((int)i))) idToDel.add((int)j);
-            }
-            tableView.getItems().removeAll(idToDel.stream().map(i->tableView.getItems().get(i)).collect(Collectors.toList()));*/
             tableView.getItems().removeAll(tableView.getItems().stream().filter(r->pair.getValue().test(pair.getKey().getCellObservableValue(r).getValue())).collect(Collectors.toList()));
         }
     }
@@ -215,6 +235,12 @@ public class TableTabController {
         button.setStyle("-fx-background-image: url('/filter-icon.png'); -fx-background-size: 15px; -fx-background-repeat: no-repeat; -fx-background-position: 50%; -fx-background-color: transparent; -fx-border-color: transparent;");
         button.setCursor(Cursor.HAND);
         tableColumn.setGraphic(button);
+        filtersMap.addListener(new MapChangeListener<TableColumn, Predicate>() {
+            @Override
+            public void onChanged(Change<? extends TableColumn, ? extends Predicate> change) {
+                if(filtersMap.size()==0) button.setStyle("-fx-background-image: url('/filter-icon.png'); -fx-background-size: 15px; -fx-background-repeat: no-repeat; -fx-background-position: 50%; -fx-background-color: transparent; -fx-border-color: transparent;");
+            }
+        });
         button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -226,10 +252,14 @@ public class TableTabController {
                     FilterPopupController filterPopupController = fxmlLoader.getController();
                     filterPopupController.setTableController(TableTabController.this);
                     HashSet<Object> values = new HashSet<>();
-                    for(long i=0; i< tableView.getItems().stream().count();i++){
-                        values.add(tableColumn.getCellData((int)i));
+                    HashSet<Object> selectedValues = new HashSet<>();
+                    for(long i=0; i< initialItems.size();i++){
+                        values.add(tableColumn.getCellObservableValue(initialItems.get((int)i)).getValue());
                     }
-                    filterPopupController.addCheckBoxes(values);
+                    for(long i=0; i< tableColumn.getTableView().getItems().size();i++){
+                        selectedValues.add(tableColumn.getCellData((int)i));
+                    }
+                    filterPopupController.addCheckBoxes(values, selectedValues);
                     filterPopupController.setTableColumn(tableColumn);
                     filterPopupController.setButton(button);
 
