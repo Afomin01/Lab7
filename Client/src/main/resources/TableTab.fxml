@@ -20,6 +20,8 @@
                <children>
                   <TextField fx:id="removeIDFDield" prefHeight="25.0" prefWidth="99.0" promptText="%table.enterId" />
                   <Button fx:id="removeBtn" mnemonicParsing="false" text="%table.remove" />
+                  <Button fx:id="delFilters" mnemonicParsing="false" text="%filter.deleteAll" />
+                  <Button fx:id="delSorts" mnemonicParsing="false" text="%filter.deleteSort" />
                </children>
             </HBox>
          </children>

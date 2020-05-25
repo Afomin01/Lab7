@@ -5,6 +5,9 @@
     -additionalCOlor2: #02003e;
     -text: #fcff91;
 }
+.table-view{
+    -fx-background-color: -additionalColor1;
+}
 .table-view .table-cell{
     -fx-text-fill: -text;
 }
