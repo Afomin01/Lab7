@@ -163,7 +163,6 @@ public class VisualizeWindowController {
         AnchorPane.setRightAnchor(path, 15.0);
 
         anchor.getChildren().add(group);
-
     }
 
     public void changeLanguage(Locale locale){

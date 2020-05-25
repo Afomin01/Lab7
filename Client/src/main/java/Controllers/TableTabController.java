@@ -83,7 +83,6 @@ public class TableTabController {
 
     @FXML
     void initialize() {
-
         idCol = new TableColumn<>(resources.getString("table.id"));
         nameCol = new TableColumn<>(resources.getString("table.name"));
         coordinatesCol = new TableColumn<>(resources.getString("table.coordinates"));
@@ -229,7 +228,7 @@ public class TableTabController {
             tableView.getItems().removeAll(tableView.getItems().stream().filter(r->pair.getValue().test(pair.getKey().getCellObservableValue(r).getValue())).collect(Collectors.toList()));
         }
     }
-    private void addBtn(TableColumn tableColumn){//TODO give initial items to popup so that we can select non-visible items
+    private void addBtn(TableColumn tableColumn){
         Button button = new Button();
         button.setPadding(new Insets(12));
         button.setStyle("-fx-background-image: url('/filter-icon.png'); -fx-background-size: 15px; -fx-background-repeat: no-repeat; -fx-background-position: 50%; -fx-background-color: transparent; -fx-border-color: transparent;");
@@ -300,6 +299,7 @@ public class TableTabController {
                     i++;
                 }
             }
+            reFiltrate();
         }catch (Exception e){
             e.printStackTrace();
         }

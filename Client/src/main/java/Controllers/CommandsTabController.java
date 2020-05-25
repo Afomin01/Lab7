@@ -1,13 +1,7 @@
 package Controllers;
 
-import java.io.File;
-import java.math.BigDecimal;
-import java.net.URL;
-import java.text.MessageFormat;
-import java.util.*;
-
-import Client.Utils.CommandFactory;
 import Client.Main;
+import Client.Utils.CommandFactory;
 import Client.Utils.UniversalServerResponseDecoder;
 import Commands.*;
 import Instruments.ClientRequest;
@@ -30,6 +24,11 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
+
+import java.io.File;
+import java.net.URL;
+import java.text.MessageFormat;
+import java.util.*;
 
 public class CommandsTabController {
     private LinkedList<Integer> q = new LinkedList<>();
@@ -107,8 +106,8 @@ public class CommandsTabController {
     private int routeArgumentCount = 0;
 
     @FXML
-    void initialize() {
-                enterFieldsTip.setVisible(false);
+    void initialize(){
+        enterFieldsTip.setVisible(false);
         enterFieldsTip.setContentDisplay(ContentDisplay.CENTER);
         commandsComboBox.setItems(FXCollections.observableArrayList(Arrays.asList(resources.getString("commands.name.add"),
                 resources.getString("commands.name.update"),
@@ -462,17 +461,17 @@ public class CommandsTabController {
             public void handle(ActionEvent event) {
                 boolean temp = true;
                 argsErrorText.getChildren().clear();
-                nameField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                distanceField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                coordsYField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                coordsXField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                toNameField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                toYField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                toXField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                fromNameField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                fromXField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                fromYField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                firstArgField.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                nameField.setBorder(Border.EMPTY);
+                distanceField.setBorder(Border.EMPTY);
+                coordsYField.setBorder(Border.EMPTY);
+                coordsXField.setBorder(Border.EMPTY);
+                toNameField.setBorder(Border.EMPTY);
+                toYField.setBorder(Border.EMPTY);
+                toXField.setBorder(Border.EMPTY);
+                fromNameField.setBorder(Border.EMPTY);
+                fromXField.setBorder(Border.EMPTY);
+                fromYField.setBorder(Border.EMPTY);
+                firstArgField.setBorder(Border.EMPTY);
 
                 if (commandsComboBox.getSelectionModel().getSelectedItem().equals(commandsComboBox.getItems().get(0)) || commandsComboBox.getSelectionModel().getSelectedItem().equals(commandsComboBox.getItems().get(2)) || commandsComboBox.getSelectionModel().getSelectedItem().equals(commandsComboBox.getItems().get(3)) || commandsComboBox.getSelectionModel().getSelectedItem().equals(commandsComboBox.getItems().get(1))) {
                     if (nameField.getText().isEmpty()) {
