@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import Client.Main;
 import Storable.Location;
 import Storable.Route;
+import javafx.animation.FadeTransition;
 import javafx.animation.PathTransition;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -137,7 +138,20 @@ public class VisualizeWindowController {
 
         EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>() {
             public void handle(MouseEvent e) {
+                FadeTransition dt = new FadeTransition(Duration.millis(200), circle);
+                dt.setFromValue(0.0);
+                dt.setToValue(1.0);
+                dt.setCycleCount(1);
+                dt.setAutoReverse(false);
+                dt.play();
                 pathTransition.play();
+                FadeTransition ft = new FadeTransition(Duration.millis(1000), circle);
+                ft.setFromValue(1.0);
+                ft.setToValue(0.0);
+                ft.setCycleCount(1);
+                ft.setAutoReverse(false);
+                ft.setDelay(Duration.millis(200));
+                ft.play();
             }
         };
         path.addEventFilter(MouseEvent.MOUSE_CLICKED, eventHandler);
