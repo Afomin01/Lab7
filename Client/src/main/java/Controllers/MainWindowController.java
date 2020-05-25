@@ -56,6 +56,8 @@ public class MainWindowController {
 
     @FXML
     private Label userNameText;
+    @FXML
+    private MenuItem menuClose;
 
     @FXML
     void initialize() {
@@ -82,6 +84,13 @@ public class MainWindowController {
             Parent visualizeTabView = fxmlLoader.load(Main.class.getResource("/VisualizeWindow.fxml").openStream());
             visualizeWindowController = fxmlLoader.getController();
             visualizationTab.setContent(visualizeTabView);
+
+            menuClose.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    System.exit(0);
+                }
+            });
 
             menuSettings.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -137,6 +146,7 @@ public class MainWindowController {
         menuSettings.setText(resources.getString("menu.settings"));
         menuExit.setText(resources.getString("alerts.exit"));
         menuHelp.setText(resources.getString("menu.help"));
+        menuClose.setText(resources.getString("menu.close"));
         tableTab.setText(resources.getString("tab.table"));
         visualizationTab.setText(resources.getString("tab.visual"));
         commandTab.setText(resources.getString("tab.console"));

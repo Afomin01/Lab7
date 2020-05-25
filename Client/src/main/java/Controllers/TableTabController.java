@@ -3,7 +3,6 @@ package Controllers;
 import Client.Main;
 import Client.Utils.EThemes;
 import Commands.RemoveObject;
-import CustomFilter.EColumnsID;
 import CustomFilter.FilterPopupController;
 import Instruments.ClientRequest;
 import Storable.Coordinates;
@@ -30,7 +29,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import sun.java2d.pipe.SpanShapeRenderer;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -73,7 +71,7 @@ public class TableTabController {
     private TableColumn<Route, String> toNameCol;
     private TableColumn<Route, Double> distanceCol;
     private TableColumn<Route, String> ownerCol;
-    private HashMap<TableColumn, Predicate<String>> filtersMap = new HashMap<>();
+    private HashMap<TableColumn, Predicate> filtersMap = new HashMap<>();
 
     @FXML
     void initialize() {
@@ -96,7 +94,7 @@ public class TableTabController {
         ownerCol = new TableColumn<>(resources.getString("table.owner"));
 
         idCol.setMaxWidth(1500);
-        creationDateCol.setMaxWidth(3000);
+        creationDateCol.setMaxWidth(5000);
         fromXCol.setMaxWidth(3000);
         toXCol.setMaxWidth(3000);
         ownerCol.setMaxWidth(3000);
@@ -193,27 +191,22 @@ public class TableTabController {
         reFiltrate();
     }
     public void deleteFilter(TableColumn tableColumn){
-        filtersMap.keySet().forEach(s-> System.out.println(s.getText()));
         filtersMap.remove(tableColumn);
-        filtersMap.keySet().forEach(s-> System.out.println(s.getText()));
         reFiltrate();
     }
     private void reFiltrate(){
         tableView.setItems(FXCollections.observableArrayList(initialItems));
 
-        Iterator<Map.Entry<TableColumn, Predicate<String>>> it = filtersMap.entrySet().iterator();
+        Iterator<Map.Entry<TableColumn, Predicate>> it = filtersMap.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry<TableColumn, Predicate<String>> pair = it.next();
-            ArrayList<String> data = new ArrayList<>();
+            Map.Entry<TableColumn, Predicate> pair = it.next();
+/*            ArrayList<Integer> idToDel = new ArrayList<>();
             for(long i=0; i< tableView.getItems().stream().count();i++) {
-                if(pair.getValue().test(pair.getKey().getCellData((int)i).toString())) data.add(pair.getKey().getCellData((int)i).toString());
+                long j = i;
+                if(pair.getValue().test(pair.getKey().getCellData((int)i))) idToDel.add((int)j);
             }
-            ArrayList<Integer> idToDel = new ArrayList<>();
-            for(long i=0; i< tableView.getItems().stream().count();i++) {
-                long j =i;
-                if(data.stream().anyMatch(s->s.equals(pair.getKey().getCellData((int)j).toString()))) idToDel.add((int)j);
-            }
-            tableView.getItems().removeAll(idToDel.stream().map(i->tableView.getItems().get(i)).collect(Collectors.toList()));
+            tableView.getItems().removeAll(idToDel.stream().map(i->tableView.getItems().get(i)).collect(Collectors.toList()));*/
+            tableView.getItems().removeAll(tableView.getItems().stream().filter(r->pair.getValue().test(pair.getKey().getCellObservableValue(r).getValue())).collect(Collectors.toList()));
         }
     }
     private void addBtn(TableColumn tableColumn){//TODO give initial items to popup so that we can select non-visible items
@@ -232,12 +225,13 @@ public class TableTabController {
                     Parent root = fxmlLoader.load(Main.class.getResource("/FilterPopup.fxml").openStream());
                     FilterPopupController filterPopupController = fxmlLoader.getController();
                     filterPopupController.setTableController(TableTabController.this);
-                    HashSet<String> values = new HashSet<>();
+                    HashSet<Object> values = new HashSet<>();
                     for(long i=0; i< tableView.getItems().stream().count();i++){
-                        values.add(tableColumn.getCellData((int)i).toString());
+                        values.add(tableColumn.getCellData((int)i));
                     }
                     filterPopupController.addCheckBoxes(values);
                     filterPopupController.setTableColumn(tableColumn);
+                    filterPopupController.setButton(button);
 
                     Stage stage = new Stage();
                     stage.initStyle(StageStyle.UNDECORATED);

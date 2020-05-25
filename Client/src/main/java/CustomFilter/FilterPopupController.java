@@ -1,22 +1,24 @@
 package CustomFilter;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import Client.Main;
 import Controllers.TableTabController;
 import Storable.Route;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class FilterPopupController {
@@ -31,7 +33,7 @@ public class FilterPopupController {
     private CheckBox useCustomCheck;
 
     @FXML
-    private ComboBox<?> filterTypeComboBox1;
+    private ComboBox<String> filterTypeComboBox1;
 
     @FXML
     private TextField filterTypeValue1;
@@ -49,7 +51,7 @@ public class FilterPopupController {
     private RadioButton orSecondV;
 
     @FXML
-    private ComboBox<?> filterTypeComboBox2;
+    private ComboBox<String> filterTypeComboBox2;
 
     @FXML
     private TextField filterTypeValue2;
@@ -77,6 +79,17 @@ public class FilterPopupController {
     private TableColumn<Route, ?> tableColumn;
     private TableTabController tableController;
     private ArrayList<CheckBox> checkBoxes = new ArrayList<>();
+    private ArrayList<Object> values = new ArrayList<>();
+    private HashMap<Object, CheckBox> checkBoxHashMap = new HashMap<>();
+    private EFilterTypes filterType;
+    private Button button;
+    private int firstComboIndex = -1;
+    private int secondComboIndex = -1;
+    ArrayList<String> options;
+
+    public void setButton(Button button) {
+        this.button = button;
+    }
 
     public void setTableColumn(TableColumn<Route, ?> tableColumn) {
         this.tableColumn = tableColumn;
@@ -91,6 +104,24 @@ public class FilterPopupController {
 
     @FXML
     void initialize() {
+        try {
+            options = new ArrayList<>(Arrays.asList(
+                    resources.getString("filter.lower"),
+                    resources.getString("filter.bigger"),
+                    resources.getString("filter.equal"),
+                    resources.getString("filter.notEqual"),
+                    resources.getString("filter.lowerEqual"),
+                    resources.getString("filter.biggerEqual"),
+                    resources.getString("filter.contains"),
+                    resources.getString("filter.notContains"),
+                    resources.getString("filter.starts"),
+                    resources.getString("filter.notStarts"),
+                    resources.getString("filter.ends"),
+                    resources.getString("filter.notEnds")));
+            filterTypeComboBox1.setItems(FXCollections.observableArrayList(options));
+            filterTypeComboBox2.setItems(FXCollections.observableArrayList(options));
+
+
         useCustomCheck.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -135,19 +166,72 @@ public class FilterPopupController {
             }
         });
 
-        applyBtn.setOnAction(new EventHandler<ActionEvent>() {
+        applyBtn.setOnAction(new EventHandler<ActionEvent>() {//TODO replace in controller with new filter
             @Override
             public void handle(ActionEvent event) {
-                List<String> checked = checkBoxes.stream().filter(CheckBox::isSelected).map(Labeled::getText).collect(Collectors.toList());
-                Predicate<String> predicate = new Predicate() {
-                    @Override
-                    public boolean test(Object o) {
-                        String s = (String) o;
-                        if(checked.stream().anyMatch(str->str.equals(s))) return false;
-                        else return true;
+                List<Object> filteredList = checkBoxHashMap.entrySet().stream().filter(entry->entry.getValue().isSelected()).map(Map.Entry::getKey).collect(Collectors.toList());
+                Predicate predicate = null;
+                if(!useCustomFilters) {
+                    switch (filterType) {
+                        case STRING:
+                        case NUMBER:
+                            predicate = new Predicate() {
+                                @Override
+                                public boolean test(Object o) {
+                                    return filteredList.stream().map(Object::toString).noneMatch(str -> str.equals(o.toString()));
+                                }
+                            };
+                            break;
+                        case DATE:
+                            predicate = new Predicate() {
+                                @Override
+                                public boolean test(Object o) {
+                                    return filteredList.stream().noneMatch(str -> str.equals(o));
+                                }
+                            };
+                            break;
                     }
-                };
+                }else {
+                    filterTypeValue1.setBorder(Border.EMPTY);
+                    filterTypeValue2.setBorder(Border.EMPTY);
+                    if (filterType.equals(EFilterTypes.NUMBER)) {
+                        try {
+                            Double.parseDouble(filterTypeValue1.getText());
+                        } catch (NumberFormatException e) {
+                            addAlert(resources.getString("alerts.enterDec"));
+                            filterTypeValue1.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                        }
+                        if (!notUseSecondV.isSelected()) {
+                            try {
+                                Double.parseDouble(filterTypeValue2.getText());
+                            } catch (NumberFormatException e) {
+                                addAlert(resources.getString("alerts.enterDec"));
+                                filterTypeValue2.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                            }
+                        }
+                    }
+                    String value = new String(filterTypeValue1.getText());
+                    int op = options.indexOf(filterTypeComboBox1.getSelectionModel().getSelectedItem());
+                    Predicate predicate1 = getPredicate(op, value);
+                    if(!notUseSecondV.isSelected()) {
+                        String value2 = new String(filterTypeValue2.getText());
+                        int op2 = options.indexOf(filterTypeComboBox2.getSelectionModel().getSelectedItem());
+                        Predicate predicate2 = getPredicate(op2, value2);
+                        if(orSecondV.isSelected()) {
+                            predicate = new Predicate() {
+                                @Override
+                                public boolean test(Object o) {
+                                    return (!predicate1.test(o) && !predicate2.test(o)) || filteredList.stream().map(Object::toString).noneMatch(str -> str.equals(o.toString()));
+                                }
+                            };
+                        }else if(andSecondV.isSelected()){
+                            predicate = o -> (!predicate1.test(o) || !predicate2.test(o)) || filteredList.stream().map(Object::toString).noneMatch(str -> str.equals(o.toString()));
+                        }
+                    }else predicate = o -> !predicate1.test(o) || filteredList.stream().map(Object::toString).noneMatch(str -> str.equals(o.toString()));
+
+                }
                 tableController.addFilter(tableColumn, predicate);
+                button.setStyle("-fx-background-image: url('/filter-icon-active.png'); -fx-background-size: 15px; -fx-background-repeat: no-repeat; -fx-background-position: 50%; -fx-background-color: transparent; -fx-border-color: transparent;");
                 Stage stage = (Stage) applyBtn.getScene().getWindow();
                 stage.close();
             }
@@ -164,18 +248,112 @@ public class FilterPopupController {
             @Override
             public void handle(ActionEvent event) {
                 tableController.deleteFilter(tableColumn);
+                button.setStyle("-fx-background-image: url('/filter-icon.png'); -fx-background-size: 15px; -fx-background-repeat: no-repeat; -fx-background-position: 50%; -fx-background-color: transparent; -fx-border-color: transparent;");
                 Stage stage = (Stage) applyBtn.getScene().getWindow();
                 stage.close();
             }
         });
+    }catch (Exception e){
+        e.printStackTrace();
+    }
     }
 
-    public void addCheckBoxes(Set<String> set) {
-        for(String s : set) {
-            CheckBox checkBox = new CheckBox(s);
-            checkBox.setSelected(true);
-            checkBoxes.add(checkBox);
-            dataVbox.getChildren().add(checkBox);
+    private Predicate getPredicate(int op, String value){
+        Predicate predicate = null;
+        if(filterType.equals(EFilterTypes.NUMBER)) {
+            switch (op) {
+                case 0:
+                    predicate = o -> Double.compare(Double.parseDouble(value), Double.parseDouble(o.toString())) > 0;
+                    break;
+                case 1:
+                    predicate = o -> Double.compare(Double.parseDouble(value), Double.parseDouble(o.toString())) < 0;
+                    break;
+                case 4:
+                    predicate = o -> Double.compare(Double.parseDouble(value), Double.parseDouble(o.toString())) >= 0;
+                    break;
+                case 5:
+                    predicate = o -> Double.compare(Double.parseDouble(value), Double.parseDouble(o.toString())) <= 0;
+                    break;
+            }
+        }else{
+            switch (op) {
+                case 0:
+                    predicate = o -> o.toString().compareTo(value)<0;
+                    break;
+                case 1:
+                    predicate = o -> o.toString().compareTo(value)>0;
+                    break;
+                case 4:
+                    predicate = o -> o.toString().compareTo(value)<=0;
+                    break;
+                case 5:
+                    predicate = o -> o.toString().compareTo(value)>=0;
+                    break;
+            }
+        }
+        switch (op){
+            case 2:
+                predicate = o -> o.toString().equals(value);
+                break;
+            case 3:
+                predicate = o -> !o.toString().equals(value);
+                break;
+            case 6:
+                predicate = o -> o.toString().matches(".*"+value+".*");
+                break;
+            case 7:
+                predicate = o -> !o.toString().matches(".*"+value+".*");
+                break;
+            case 8:
+                predicate = o -> o.toString().matches(value+".*");
+                break;
+            case 9:
+                predicate = o -> !o.toString().matches(value+".*");
+                break;
+            case 10:
+                predicate = o -> o.toString().matches(".*"+value);
+                break;
+            case 11:
+                predicate = o -> !o.toString().matches(".*"+value);
+                break;
+        }
+        return predicate;
+    }
+
+    private void addAlert(String message){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("");
+        alert.setResizable(false);
+        alert.setHeaderText("");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    public void addCheckBoxes(Set<Object> set) {
+        if(set.size()>0) {
+            Object o = set.iterator().next();
+            if(o instanceof Number) filterType = EFilterTypes.NUMBER;
+            else if(o instanceof Date) filterType = EFilterTypes.DATE;
+            else filterType = EFilterTypes.STRING;
+            for (Object s : set) {
+                CheckBox checkBox = new CheckBox();
+                checkBox.setSelected(true);
+                switch (filterType){
+                    case STRING:
+                        checkBox.setText(s.toString());
+                        break;
+                    case NUMBER:
+                        checkBox.setText(NumberFormat.getInstance().format(s));
+                        break;
+                    case DATE:
+                        checkBox.setText(DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.getDefault()).format(s));
+                        break;
+                }
+                checkBoxes.add(checkBox);
+                checkBoxHashMap.put(s, checkBox);
+                dataVbox.getChildren().add(checkBox);
+            }
+            values= new ArrayList<>(set);
         }
     }
 }
