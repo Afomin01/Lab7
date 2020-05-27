@@ -109,18 +109,16 @@ public class FilterPopupController {
 
     @FXML
     void initialize() {
-        sortAZ.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                tableController.addSort(tableColumn,true);
-            }
+        sortAZ.setOnAction(event -> {
+            tableController.addSort(tableColumn,true);
+            Stage stage = (Stage) applyBtn.getScene().getWindow();
+            stage.close();
         });
 
-        sortZA.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                tableController.addSort(tableColumn,false);
-            }
+        sortZA.setOnAction(event -> {
+            tableController.addSort(tableColumn,false);
+            Stage stage = (Stage) applyBtn.getScene().getWindow();
+            stage.close();
         });
 
         options = new ArrayList<>(Arrays.asList(
@@ -174,103 +172,91 @@ public class FilterPopupController {
             }
         });
 
-        searchField.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                dataVbox.getChildren().clear();
-                for (CheckBox checkBox : checkBoxes) {
-                    if (checkBox.getText().matches(".*" + newValue + ".*")) dataVbox.getChildren().add(checkBox);
-                }
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            dataVbox.getChildren().clear();
+            for (CheckBox checkBox : checkBoxes) {
+                if (checkBox.getText().matches(".*" + newValue + ".*")) dataVbox.getChildren().add(checkBox);
             }
         });
 
-        applyBtn.setOnAction(new EventHandler<ActionEvent>() {//TODO replace in controller with new filter
-            @Override
-            public void handle(ActionEvent event) {
-                List<Object> filteredList = checkBoxHashMap.entrySet().stream().filter(entry -> entry.getValue().isSelected()).map(Map.Entry::getKey).collect(Collectors.toList());
-                Predicate predicate = null;
-                if (!useCustomFilters) {
-                    switch (filterType) {
-                        case STRING:
-                        case NUMBER:
-                            predicate = new Predicate() {
-                                @Override
-                                public boolean test(Object o) {
-                                    return filteredList.stream().map(Object::toString).noneMatch(str -> str.equals(o.toString()));
-                                }
-                            };
-                            break;
-                        case DATE:
-                            predicate = new Predicate() {
-                                @Override
-                                public boolean test(Object o) {
-                                    return filteredList.stream().noneMatch(str -> str.equals(o));
-                                }
-                            };
-                            break;
+        applyBtn.setOnAction(event -> {
+            List<Object> filteredList = checkBoxHashMap.entrySet().stream().filter(entry -> entry.getValue().isSelected()).map(Map.Entry::getKey).collect(Collectors.toList());
+            Predicate predicate = null;
+            if (!useCustomFilters) {
+                switch (filterType) {
+                    case STRING:
+                    case NUMBER:
+                        predicate = new Predicate() {
+                            @Override
+                            public boolean test(Object o) {
+                                return filteredList.stream().map(Object::toString).noneMatch(str -> str.equals(o.toString()));
+                            }
+                        };
+                        break;
+                    case DATE:
+                        predicate = new Predicate() {
+                            @Override
+                            public boolean test(Object o) {
+                                return filteredList.stream().noneMatch(str -> str.equals(o));
+                            }
+                        };
+                        break;
+                }
+            } else {
+                filterTypeValue1.setBorder(Border.EMPTY);
+                filterTypeValue2.setBorder(Border.EMPTY);
+                if (filterType.equals(EFilterTypes.NUMBER)) {
+                    try {
+                        Double.parseDouble(filterTypeValue1.getText());
+                    } catch (NumberFormatException e) {
+                        addAlert(resources.getString("alerts.enterDec"));
+                        filterTypeValue1.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                     }
-                } else {
-                    filterTypeValue1.setBorder(Border.EMPTY);
-                    filterTypeValue2.setBorder(Border.EMPTY);
-                    if (filterType.equals(EFilterTypes.NUMBER)) {
+                    if (!notUseSecondV.isSelected()) {
                         try {
-                            Double.parseDouble(filterTypeValue1.getText());
+                            Double.parseDouble(filterTypeValue2.getText());
                         } catch (NumberFormatException e) {
                             addAlert(resources.getString("alerts.enterDec"));
-                            filterTypeValue1.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                        }
-                        if (!notUseSecondV.isSelected()) {
-                            try {
-                                Double.parseDouble(filterTypeValue2.getText());
-                            } catch (NumberFormatException e) {
-                                addAlert(resources.getString("alerts.enterDec"));
-                                filterTypeValue2.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                            }
+                            filterTypeValue2.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                         }
                     }
-                    String value = new String(filterTypeValue1.getText());
-                    int op = options.indexOf(filterTypeComboBox1.getSelectionModel().getSelectedItem());
-                    Predicate predicate1 = getPredicate(op, value);
-                    if (!notUseSecondV.isSelected()) {
-                        String value2 = new String(filterTypeValue2.getText());
-                        int op2 = options.indexOf(filterTypeComboBox2.getSelectionModel().getSelectedItem());
-                        Predicate predicate2 = getPredicate(op2, value2);
-                        if (orSecondV.isSelected()) {
-                            predicate = new Predicate() {
-                                @Override
-                                public boolean test(Object o) {
-                                    return (!predicate1.test(o) && !predicate2.test(o)) || filteredList.stream().map(Object::toString).noneMatch(str -> str.equals(o.toString()));
-                                }
-                            };
-                        } else if (andSecondV.isSelected()) {
-                            predicate = o -> (!predicate1.test(o) || !predicate2.test(o)) || filteredList.stream().map(Object::toString).noneMatch(str -> str.equals(o.toString()));
-                        }
-                    } else
-                        predicate = o -> !predicate1.test(o) || filteredList.stream().map(Object::toString).noneMatch(str -> str.equals(o.toString()));
-
                 }
-                tableController.addFilter(tableColumn, predicate);
-                button.setStyle("-fx-background-image: url('/filter-icon-active.png'); -fx-background-size: 15px; -fx-background-repeat: no-repeat; -fx-background-position: 50%; -fx-background-color: transparent; -fx-border-color: transparent;");
-                Stage stage = (Stage) applyBtn.getScene().getWindow();
-                stage.close();
+                String value = new String(filterTypeValue1.getText());
+                int op = options.indexOf(filterTypeComboBox1.getSelectionModel().getSelectedItem());
+                Predicate predicate1 = getPredicate(op, value);
+                if (!notUseSecondV.isSelected()) {
+                    String value2 = new String(filterTypeValue2.getText());
+                    int op2 = options.indexOf(filterTypeComboBox2.getSelectionModel().getSelectedItem());
+                    Predicate predicate2 = getPredicate(op2, value2);
+                    if (orSecondV.isSelected()) {
+                        predicate = new Predicate() {
+                            @Override
+                            public boolean test(Object o) {
+                                return (!predicate1.test(o) && !predicate2.test(o)) || filteredList.stream().map(Object::toString).noneMatch(str -> str.equals(o.toString()));
+                            }
+                        };
+                    } else if (andSecondV.isSelected()) {
+                        predicate = o -> (!predicate1.test(o) || !predicate2.test(o)) || filteredList.stream().map(Object::toString).noneMatch(str -> str.equals(o.toString()));
+                    }
+                } else
+                    predicate = o -> !predicate1.test(o) || filteredList.stream().map(Object::toString).noneMatch(str -> str.equals(o.toString()));
+
             }
+            tableController.addFilter(tableColumn, predicate);
+            button.setStyle("-fx-background-image: url('/filter-icon-active.png'); -fx-background-size: 15px; -fx-background-repeat: no-repeat; -fx-background-position: 50%; -fx-background-color: transparent; -fx-border-color: transparent;");
+            Stage stage = (Stage) applyBtn.getScene().getWindow();
+            stage.close();
         });
 
-        cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                Stage stage = (Stage) applyBtn.getScene().getWindow();
-                stage.close();
-            }
+        cancelBtn.setOnAction(event -> {
+            Stage stage = (Stage) applyBtn.getScene().getWindow();
+            stage.close();
         });
-        removeFiltersBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                tableController.deleteFilter(tableColumn);
-                button.setStyle("-fx-background-image: url('/filter-icon.png'); -fx-background-size: 15px; -fx-background-repeat: no-repeat; -fx-background-position: 50%; -fx-background-color: transparent; -fx-border-color: transparent;");
-                Stage stage = (Stage) applyBtn.getScene().getWindow();
-                stage.close();
-            }
+        removeFiltersBtn.setOnAction(event -> {
+            tableController.deleteFilter(tableColumn);
+            button.setStyle("-fx-background-image: url('/filter-icon.png'); -fx-background-size: 15px; -fx-background-repeat: no-repeat; -fx-background-position: 50%; -fx-background-color: transparent; -fx-border-color: transparent;");
+            Stage stage = (Stage) applyBtn.getScene().getWindow();
+            stage.close();
         });
     }
 

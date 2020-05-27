@@ -111,7 +111,7 @@ public class RequestExecutor implements Runnable {
 
                         if (command.getCommandEnum() == EAvailableCommands.History)
                             resp.setAdditionalInfo(ServerSocketHandler.getHistory(clientRequest.getLogin()));
-                        ServerSocketHandler.addCommandToHistory(clientRequest.getLogin(), command.getCommandEnum().toString());
+                        if(!command.getCommandEnum().equals(EAvailableCommands.Not_A_Command)) ServerSocketHandler.addCommandToHistory(clientRequest.getLogin(), command.getCommandEnum().toString());
                         if (resp.getCode() == ServerResponseCodes.EXIT) {
                             ServerSocketHandler.deleteHistory(clientRequest.getLogin());
                             Main.log.info("Client with login " + clientRequest.getLogin() + " exits server. Socket for this client was closed and removed.");

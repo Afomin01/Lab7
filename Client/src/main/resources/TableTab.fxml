@@ -2,7 +2,6 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -18,8 +17,6 @@
             </TableView>
             <HBox prefHeight="25.0" prefWidth="386.0" spacing="10.0">
                <children>
-                  <TextField fx:id="removeIDFDield" prefHeight="25.0" prefWidth="99.0" promptText="%table.enterId" />
-                  <Button fx:id="removeBtn" mnemonicParsing="false" text="%table.remove" />
                   <Button fx:id="delFilters" mnemonicParsing="false" text="%filter.deleteAll" />
                   <Button fx:id="delSorts" mnemonicParsing="false" text="%filter.deleteSort" />
                </children>

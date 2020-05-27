@@ -113,7 +113,6 @@ public class MainWindowController {
                         stage.setTitle(resources.getString("menu.settings"));
                         stage.show();
                     }catch (IOException e){
-                        e.printStackTrace();
                     }
                 }
             });

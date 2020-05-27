@@ -254,6 +254,7 @@ public class Main extends Application {
                     messageDigest.reset();
                     messageDigest.update(password.getBytes());
                     password = DatatypeConverter.printHexBinary(messageDigest.digest());
+                    Main.password = password;
                     login=username;
                     signUp.setSalt(sr.getAdditionalInfo());
 

@@ -51,12 +51,6 @@ public class TableTabController {
     private TableView<Route> tableView;
 
     @FXML
-    private TextField removeIDFDield;
-
-    @FXML
-    private Button removeBtn;
-
-    @FXML
     private Button delFilters;
 
     @FXML
@@ -120,65 +114,39 @@ public class TableTabController {
         distanceCol.setCellValueFactory(cell-> new SimpleDoubleProperty(cell.getValue().getDistance()).asObject());
         ownerCol.setCellValueFactory(new PropertyValueFactory<>("owner"));
 
-        removeBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try{
-                    Long id = Long.parseLong(removeIDFDield.getText());
-                    Main.handler.sendRequest(new ClientRequest(new RemoveObject(id,Main.login),Main.login,Main.password));
-                }catch (NumberFormatException e){
-                    MessageFormat incorrectNum = new MessageFormat(resources.getString("console.incorrectIn"));
-                    Alert alert1 = new Alert(Alert.AlertType.ERROR);
-                    alert1.setResizable(false);
-                    alert1.setContentText(incorrectNum.format(new Object[]{resources.getString("types.Long")}));
-                    alert1.showAndWait();
-                }
-            }
+        delFilters.setOnAction(event -> {
+            filtersMap.clear();
+            reFiltrate();
         });
 
-        delFilters.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                filtersMap.clear();
-                reFiltrate();
-            }
-        });
-        delSorts.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                tableView.getSortOrder().clear();
-            }
-        });
-        tableView.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
-                    if(mouseEvent.getClickCount() == 2){
-                        try {
-                            if(Main.login.equals(tableView.getSelectionModel().getSelectedItem().getOwner())) {
-                                FXMLLoader fxmlLoader = new FXMLLoader();
-                                fxmlLoader.setResources(ResourceBundle.getBundle("MessagesBundle"));
+        delSorts.setOnAction(event -> tableView.getSortOrder().clear());
 
-                                Parent root = fxmlLoader.load(Main.class.getResource("/EditWindow.fxml").openStream());
-                                EditWindowController controller = fxmlLoader.getController();
+        tableView.setOnMouseClicked(mouseEvent -> {
+            if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
+                if(mouseEvent.getClickCount() == 2){
+                    try {
+                        if(Main.login.equals(tableView.getSelectionModel().getSelectedItem().getOwner())) {
+                            FXMLLoader fxmlLoader = new FXMLLoader();
+                            fxmlLoader.setResources(ResourceBundle.getBundle("MessagesBundle"));
 
-                                Stage stage = new Stage();
-                                stage.initStyle(StageStyle.UNDECORATED);
-                                stage.initModality(Modality.WINDOW_MODAL);
-                                stage.initOwner(Main.stage.getScene().getWindow());
-                                stage.setTitle(resources.getString("alerts.change"));
-                                Scene scene = new Scene(root);
-                                scene.getStylesheets().clear();
-                                EThemes themes = EThemes.valueOf(Preferences.userRoot().get("theme","default"));
-                                if(themes.file!=null) scene.getStylesheets().add(themes.file);
+                            Parent root = fxmlLoader.load(Main.class.getResource("/EditWindow.fxml").openStream());
+                            EditWindowController controller = fxmlLoader.getController();
 
-                                stage.setScene(scene);
-                                controller.setFields(tableView.getSelectionModel().getSelectedItem());
-                                stage.show();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                            Stage stage = new Stage();
+                            stage.initStyle(StageStyle.UNDECORATED);
+                            stage.initModality(Modality.WINDOW_MODAL);
+                            stage.initOwner(Main.stage.getScene().getWindow());
+                            stage.setTitle(resources.getString("alerts.change"));
+                            Scene scene = new Scene(root);
+                            scene.getStylesheets().clear();
+                            EThemes themes = EThemes.valueOf(Preferences.userRoot().get("theme","default"));
+                            if(themes.file!=null) scene.getStylesheets().add(themes.file);
+
+                            stage.setScene(scene);
+                            controller.setFields(tableView.getSelectionModel().getSelectedItem());
+                            stage.show();
                         }
+                    } catch (IOException e) {
                     }
                 }
             }
@@ -278,8 +246,8 @@ public class TableTabController {
         });
     }
     public void setupTable(ObservableList<Route> list){
-        tableView.setItems(list);
-        initialItems=list;
+        tableView.setItems(FXCollections.observableArrayList(list));
+        initialItems=FXCollections.observableArrayList(list);
     }
     public void removeItems(ObservableList<Route> list){
         list.forEach(t->tableView.getItems().removeIf(r->r.getId()==t.getId()));
@@ -301,7 +269,6 @@ public class TableTabController {
             }
             reFiltrate();
         }catch (Exception e){
-            e.printStackTrace();
         }
     }
     public void changeLanguage(Locale locale){
