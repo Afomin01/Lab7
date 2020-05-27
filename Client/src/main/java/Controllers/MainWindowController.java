@@ -139,6 +139,7 @@ public class MainWindowController {
     }
     public void removeItems(ObservableList<Route> list){
         tableTabController.removeItems(list);
+        visualizeWindowController.removeItems(list);
     }
     public void changeLanguage(Locale locale){
         Locale.setDefault(locale);
