@@ -46,8 +46,7 @@ public class VisualizeWindowController {
     private int sizeX = 1500;
     private int sizeY = 600;
     private Color color = Color.CYAN;
-    private int SizeCoef = 500;
-
+    private double speedOfCircle = 1;
 
     @FXML
 
@@ -109,7 +108,10 @@ public class VisualizeWindowController {
 
         long minY = Math.min(fromY, toY)+sizeY/2;
         long maxY = Math.max(fromY, toY)+sizeY/2;
+
         int minToMaxX = (int) Math.sqrt((maxX - minX) * (maxX - minX) + (maxY - minY) * (maxY - minY));
+
+
 
         moveTo.setX(fromX+sizeX/2);
         moveTo.setY(fromY+sizeY/2);
@@ -134,7 +136,11 @@ public class VisualizeWindowController {
         circle.setStrokeWidth(20.0D);
 
         final PathTransition pathTransition = new PathTransition();
-        pathTransition.setDuration(Duration.millis(minToMaxX*2));
+        if (minToMaxX < 500) {
+            pathTransition.setDuration(Duration.millis(1000));
+        } else {
+            pathTransition.setDuration(Duration.millis((minToMaxX*2) / speedOfCircle));
+        }
         pathTransition.setNode(circle);
         pathTransition.setPath(path);
         pathTransition.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
