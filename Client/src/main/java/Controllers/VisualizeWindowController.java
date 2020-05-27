@@ -45,6 +45,9 @@ public class VisualizeWindowController {
 
     private int sizeX = 1500;
     private int sizeY = 600;
+    private Color color = Color.CYAN;
+    private int SizeCoef = 500;
+
 
     @FXML
 
@@ -106,6 +109,7 @@ public class VisualizeWindowController {
 
         long minY = Math.min(fromY, toY)+sizeY/2;
         long maxY = Math.max(fromY, toY)+sizeY/2;
+        int minToMaxX = (int) Math.sqrt((maxX - minX) * (maxX - minX) + (maxY - minY) * (maxY - minY));
 
         moveTo.setX(fromX+sizeX/2);
         moveTo.setY(fromY+sizeY/2);
@@ -120,16 +124,17 @@ public class VisualizeWindowController {
 
         path.getElements().add(moveTo);
         path.getElements().add(cubicCurveTo);
+        path.setStroke(color);
 
         Circle circle = new Circle();
         circle.setCenterX(fromX+sizeX/2);
         circle.setCenterY(fromY+sizeY/2);
-        circle.setRadius(7.0D);
+        circle.setRadius(5.0D);
         circle.setFill(Color.MAGENTA);
         circle.setStrokeWidth(20.0D);
 
         final PathTransition pathTransition = new PathTransition();
-        pathTransition.setDuration(Duration.millis(1000.0D));
+        pathTransition.setDuration(Duration.millis(minToMaxX*2));
         pathTransition.setNode(circle);
         pathTransition.setPath(path);
         pathTransition.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
@@ -138,20 +143,24 @@ public class VisualizeWindowController {
 
         EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>() {
             public void handle(MouseEvent e) {
+
                 FadeTransition dt = new FadeTransition(Duration.millis(200), circle);
                 dt.setFromValue(0.0);
                 dt.setToValue(1.0);
                 dt.setCycleCount(1);
                 dt.setAutoReverse(false);
                 dt.play();
+
                 pathTransition.play();
-                FadeTransition ft = new FadeTransition(Duration.millis(1000), circle);
-                ft.setFromValue(1.0);
-                ft.setToValue(0.0);
-                ft.setCycleCount(1);
-                ft.setAutoReverse(false);
-                ft.setDelay(Duration.millis(200));
-                ft.play();
+
+                FadeTransition kt = new FadeTransition(Duration.millis(1000), circle);
+                kt.setFromValue(1.0);
+                kt.setToValue(0.0);
+                kt.setCycleCount(1);
+                kt.setAutoReverse(false);
+                kt.setDelay(Duration.millis(minToMaxX*2));
+                kt.play();
+                
             }
         };
         path.addEventFilter(MouseEvent.MOUSE_CLICKED, eventHandler);
@@ -161,6 +170,16 @@ public class VisualizeWindowController {
         AnchorPane.setTopAnchor(path, 15.0);
         AnchorPane.setBottomAnchor(path, 15.0);
         AnchorPane.setRightAnchor(path, 15.0);
+
+        pathTransition.play();
+
+        FadeTransition ft = new FadeTransition(Duration.millis(200), circle);
+        ft.setDelay(Duration.millis(minToMaxX*2));
+        ft.setFromValue(1.0);
+        ft.setToValue(0.0);
+        ft.setCycleCount(1);
+        ft.setAutoReverse(false);
+        ft.play();
 
         anchor.getChildren().add(group);
     }
