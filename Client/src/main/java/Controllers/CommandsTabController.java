@@ -421,7 +421,7 @@ public class CommandsTabController {
                     firstArgField.setVisible(true);
                     scriptChooser.setVisible(false);
                 }else if(n.equals(commandsComboBox.getItems().get(6))){
-                    scriptChooser.setVisible(false);//:(
+                    scriptChooser.setVisible(false);    //:(
                     elementHideVbox.setVisible(false);
                     enterFieldsTip.setVisible(false);
                     firstArgField.setVisible(true);
