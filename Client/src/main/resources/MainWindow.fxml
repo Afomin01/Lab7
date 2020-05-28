@@ -17,16 +17,11 @@
          <children>
             <MenuBar maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="1334.0" HBox.hgrow="ALWAYS">
                <menus>
-                  <Menu mnemonicParsing="false" text="File">
+                  <Menu mnemonicParsing="false" text="%menu.file">
                      <items>
                         <MenuItem fx:id="menuSettings" mnemonicParsing="false" text="%menu.settings" />
                         <MenuItem fx:id="menuExit" mnemonicParsing="false" text="%alerts.exit" />
                         <MenuItem fx:id="menuClose" mnemonicParsing="false" text="%menu.close" />
-                     </items>
-                  </Menu>
-                  <Menu mnemonicParsing="false" text="Help">
-                     <items>
-                        <MenuItem fx:id="menuHelp" mnemonicParsing="false" text="%menu.help" />
                      </items>
                   </Menu>
                </menus>
