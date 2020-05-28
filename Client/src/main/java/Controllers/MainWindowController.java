@@ -13,6 +13,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.text.Text;
@@ -56,8 +57,12 @@ public class MainWindowController {
 
     @FXML
     private Label userNameText;
+
     @FXML
     private MenuItem menuClose;
+
+    @FXML
+    private Menu fileMenu;
 
     @FXML
     void initialize() {
@@ -122,6 +127,7 @@ public class MainWindowController {
                     Main.handler.sendRequest(new ClientRequest(new Exit(Main.login), Main.login,Main.password));
                 }
             });
+
         }catch (Exception e){
             System.exit(1);
         }
@@ -153,6 +159,8 @@ public class MainWindowController {
         tableTabController.changeLanguage(locale);
         visualizeWindowController.changeLanguage(locale);
         commandsTabController.changeLanguage(locale);
+        fileMenu.setText(resources.getString("menu.file"));
+
     }
     public void changeTheme(EThemes themes){
         Preferences preferences = Preferences.userRoot();

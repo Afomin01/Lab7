@@ -68,6 +68,7 @@ public class SocketChannelHandler implements Runnable{
                             socketChannel.read(buf);
                         }
                         serverResponse = (ServerResponse) SerializeManager.fromByte(buf.array());
+                        System.out.println(serverResponse.getCode());
                         if (serverResponse.getCode().equals(ServerResponseCodes.SET_ONLY)) {
                             controller.updateTableView(FXCollections.observableList(serverResponse.getSet()));
                         } else if (serverResponse.getCode().equals(ServerResponseCodes.NEW_ITEM_OR_UPDATE)) {

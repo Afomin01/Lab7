@@ -3,6 +3,8 @@ package CustomFilter;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -277,7 +279,46 @@ public class FilterPopupController {
                     predicate = o -> Double.compare(Double.parseDouble(value), Double.parseDouble(o.toString())) <= 0;
                     break;
             }
-        }else{
+        }else if(filterType.equals(EFilterTypes.DATE)) {
+            switch (op) {
+                case 0:
+                    predicate = o -> {
+                        try {
+                            return ((Date) o).before(new SimpleDateFormat("dd.MM.yy").parse(value));
+                        } catch (ParseException e) {
+                            return false;
+                        }
+                    };
+                    break;
+                case 1:
+                    predicate = o -> {
+                        try {
+                            return ((Date) o).after(new SimpleDateFormat("dd.MM.yy").parse(value));
+                        } catch (ParseException e) {
+                            return false;
+                        }
+                    };
+                    break;
+                case 4:
+                    predicate = o -> {
+                        try {
+                            return (((Date) o).before(new SimpleDateFormat("dd.MM.yy").parse(value)) || o.toString().equals(value));
+                        } catch (ParseException e) {
+                            return false;
+                        }
+                    };
+                    break;
+                case 5:
+                    predicate = o -> {
+                        try {
+                            return (((Date) o).after(new SimpleDateFormat("dd.MM.yy").parse(value)) || o.toString().equals(value));
+                        } catch (ParseException e) {
+                            return false;
+                        }
+                    };
+                    break;
+            }
+        } else{
             switch (op) {
                 case 0:
                     predicate = o -> o.toString().compareTo(value)<0;

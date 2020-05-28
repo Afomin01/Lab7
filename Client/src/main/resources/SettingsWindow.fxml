@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="200.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.SettingsWindowController">
+<AnchorPane prefHeight="200.0" prefWidth="362.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.SettingsWindowController">
    <children>
       <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
          <children>
@@ -34,7 +34,7 @@
                   <ComboBox fx:id="themeComboBox" prefWidth="150.0" />
                </children>
             </HBox>
-            <CheckBox fx:id="alertsCheckBox" mnemonicParsing="false" prefHeight="17.0" prefWidth="213.0" text="%settings.enableAlerts">
+            <CheckBox fx:id="alertsCheckBox" mnemonicParsing="false" prefHeight="17.0" prefWidth="316.0" text="%settings.enableAlerts">
                <VBox.margin>
                   <Insets left="10.0" />
                </VBox.margin>

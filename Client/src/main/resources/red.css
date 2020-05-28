@@ -11,7 +11,9 @@
 .table-view .table-cell{
     -fx-text-fill: -text;
 }
-
+.table-view .filler{
+    -fx-background-color: linear-gradient(-additionalCOlor2 0%, -mainColor 100%);
+}
 .table-view .column-header-background .label{
     -fx-text-fill: -text;
 }

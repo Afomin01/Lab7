@@ -141,7 +141,7 @@ public class VisualizeWindowController {
     private Map<String, Color> userColors = Collections.synchronizedMap(new HashMap<>());
     private Map<Long, VisualPath> paths = Collections.synchronizedMap(new HashMap<>());
 
-    private int sizeX = 1500;
+    private int sizeX = 1700;
     private int sizeY = 600;
     private double speedOfCircle = 1;
 

@@ -37,6 +37,10 @@ public class CollectionManager implements ICollectionManager<Route> {
     }
 
     private void sendUpdate(Route route){
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+        }
         ServerResponse serverResponse = new ServerResponse(ServerResponseCodes.NEW_ITEM_OR_UPDATE);
         serverResponse.setRoute(route);
         SelectionKey key;
